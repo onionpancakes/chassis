@@ -63,7 +63,11 @@
                   (recur (.iterator (children node)) ret))
                 (recur cur (rf ret node))))
             (recur (.pollFirst stack) ret))
-          ret)))))
+          ret))))
+  clojure.lang.ISeq
+  (seq [this]
+    (->> (tree-seq branch? children root)
+         (remove branch?))))
 
 (defn token-serializer
   [root]
