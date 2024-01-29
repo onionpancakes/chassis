@@ -100,7 +100,7 @@
 
 (defn constantly-empty
   [_]
-  ())
+  [])
 
 (extend clojure.lang.IPersistentVector
   Node
@@ -143,8 +143,6 @@
       ::begin-close "</"
       ::end-close   ">"
       (name this)))
-  Character
-  (fragment [this] (.toString this))
   String
   (fragment [this] this)
   Object
