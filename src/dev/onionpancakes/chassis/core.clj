@@ -40,34 +40,44 @@
 
 ;; Node impl
 
+(defn element-children-0
+  [elem]
+  [])
+
 (defn element-children-1
   [elem]
   (let [tag (.nth ^clojure.lang.Indexed elem 0)]
     [::begin-open tag ::end-open ::begin-close tag ::end-close]))
 
-(defn element-children-2
+(defn element-children-2-attrs
   [elem]
   (let [tag   (.nth ^clojure.lang.Indexed elem 0)
-        anode (.nth ^clojure.lang.Indexed elem 1)]
-    (if (map? anode)
-      [::begin-open tag anode ::end-open
-       ::begin-close tag ::end-close]
-      [::begin-open tag ::end-open
-       anode
-       ::begin-close tag ::end-close])))
+        attrs (.nth ^clojure.lang.Indexed elem 1)]
+    [::begin-open tag attrs ::end-open
+     ::begin-close tag ::end-close]))
+
+(defn element-children-2
+  [elem]
+  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+    [::begin-open tag ::end-open
+     (.nth ^clojure.lang.Indexed elem 1)
+     ::begin-close tag ::end-close]))
+
+(defn element-children-3-attrs
+  [elem]
+  (let [tag   (.nth ^clojure.lang.Indexed elem 0)
+        attrs (.nth ^clojure.lang.Indexed elem 1)]
+    [::begin-open tag attrs ::end-open
+     (.nth ^clojure.lang.Indexed elem 2)
+     ::begin-close tag ::end-close]))
 
 (defn element-children-3
   [elem]
-  (let [tag   (.nth ^clojure.lang.Indexed elem 0)
-        anode (.nth ^clojure.lang.Indexed elem 1)]
-    (if (map? anode)
-      [::begin-open tag anode ::end-open
-       (.nth ^clojure.lang.Indexed elem 2)
-       ::begin-close tag ::end-close]
-      [::begin-open tag ::end-open
-       anode
-       (.nth ^clojure.lang.Indexed elem 2)
-       ::begin-close tag ::end-close])))
+  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+    [::begin-open tag ::end-open
+     (.nth ^clojure.lang.Indexed elem 1)
+     (.nth ^clojure.lang.Indexed elem 2)
+     ::begin-close tag ::end-close]))
 
 (defn element-children-n
   [elem]
@@ -83,11 +93,15 @@
 
 (defn element-children
   [elem]
-  (case (.count ^clojure.lang.Counted elem)
-    0 (element-children-0 elem)
-    1 (element-children-1 elem)
-    2 (element-children-2 elem)
-    3 (element-children-3 elem)
+  (case (* (.count ^clojure.lang.Counted elem)
+           (if (map? (.nth ^clojure.lang.Indexed elem 1 nil)) -1 1))
+    0  (element-children-0 elem)
+    -1 (element-children-1 elem)
+    1  (element-children-1 elem)
+    -2 (element-children-2-attrs elem)
+    2  (element-children-2 elem)
+    -3 (element-children-3-attrs elem)
+    3  (element-children-3 elem)
     (element-children-n elem)))
 
 (defn constantly-true
