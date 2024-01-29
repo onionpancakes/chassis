@@ -90,23 +90,42 @@
     3 (element-children-3 elem)
     (element-children-n elem)))
 
-(extend-protocol Node
-  clojure.lang.IPersistentVector
-  (branch? [this] true)
-  (children [this]
-    (element-children this))
-  clojure.lang.ISeq
-  (branch? [_] true)
-  (children [this] this)
-  clojure.lang.IPersistentMap
-  (branch? [_] true)
-  (children [this] [])
-  Object
-  (branch? [_] false)
-  (children [_] [])
-  nil
-  (branch? [_] false)
-  (children [_] []))
+(defn constantly-true
+  [_]
+  true)
+
+(defn constantly-false
+  [_]
+  false)
+
+(defn constantly-empty
+  [_]
+  ())
+
+(extend clojure.lang.IPersistentVector
+  Node
+  {:branch?  constantly-true
+   :children element-children})
+
+(extend clojure.lang.IPersistentMap
+  Node
+  {:branch?  constantly-true
+   :children constantly-empty})
+
+(extend clojure.lang.ISeq
+  Node
+  {:branch?  constantly-true
+   :children identity})
+
+(extend Object
+  Node
+  {:branch?  constantly-false
+   :children constantly-empty})
+
+(extend nil
+  Node
+  {:branch?  constantly-false
+   :children constantly-empty})
 
 ;; Token impl
 
