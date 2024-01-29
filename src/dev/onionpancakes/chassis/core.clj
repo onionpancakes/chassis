@@ -83,7 +83,7 @@
 
 (defn element-children
   [elem]
-  (case (count elem)
+  (case (.count ^clojure.lang.Counted elem)
     0 (element-children-0 elem)
     1 (element-children-1 elem)
     2 (element-children-2 elem)
