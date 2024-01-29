@@ -117,6 +117,11 @@
   {:branch?  constantly-true
    :children identity})
 
+(extend clojure.lang.Keyword
+  Node
+  {:branch?  constantly-false
+   :children constantly-empty})
+
 (extend Object
   Node
   {:branch?  constantly-false
