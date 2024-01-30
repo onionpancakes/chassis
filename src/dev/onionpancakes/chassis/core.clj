@@ -1,11 +1,11 @@
 (ns dev.onionpancakes.chassis.core)
 
+(defprotocol Token
+  (fragment [this]))
+
 (defprotocol Node
   (branch? [this])
   (children ^Iterable [this]))
-
-(defprotocol Token
-  (fragment [this]))
 
 ;; Serializers
 
@@ -37,6 +37,43 @@
   [root]
   (eduction (map fragment)
             (token-serializer root)))
+
+;; Token impl
+
+(extend-protocol Token
+  clojure.lang.Keyword
+  (fragment [this]
+    (case this
+      ::begin-open  "<"
+      ::end-open    ">"
+      ::begin-close "</"
+      ::end-close   ">"
+      (name this)))
+  String
+  (fragment [this] this)
+  Object
+  (fragment [this] (.toString this))
+  nil
+  (fragment [_] ""))
+
+(defn attribute-fragment-rf
+  [^StringBuilder sb k v]
+  (doto sb
+    (.append " ")
+    (.append (name k))
+    (.append "=\"")
+    (.append v)
+    (.append "\"")))
+
+(defn attribute-fragment
+  [m]
+  (let [sb (StringBuilder.)
+        _  (reduce-kv attribute-fragment-rf sb m)]
+    (.toString sb)))
+
+(extend clojure.lang.IPersistentMap
+  Token
+  {:fragment attribute-fragment})
 
 ;; Node impl
 
@@ -146,39 +183,4 @@
   {:branch?  constantly-false
    :children constantly-empty})
 
-;; Token impl
 
-(extend-protocol Token
-  clojure.lang.Keyword
-  (fragment [this]
-    (case this
-      ::begin-open  "<"
-      ::end-open    ">"
-      ::begin-close "</"
-      ::end-close   ">"
-      (name this)))
-  String
-  (fragment [this] this)
-  Object
-  (fragment [this] (.toString this))
-  nil
-  (fragment [_] ""))
-
-(defn attribute-fragment-rf
-  [^StringBuilder sb k v]
-  (doto sb
-    (.append " ")
-    (.append (name k))
-    (.append "=\"")
-    (.append v)
-    (.append "\"")))
-
-(defn attribute-fragment
-  [m]
-  (let [sb (StringBuilder.)
-        _  (reduce-kv attribute-fragment-rf sb m)]
-    (.toString sb)))
-
-(extend clojure.lang.IPersistentMap
-  Token
-  {:fragment attribute-fragment})

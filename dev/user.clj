@@ -27,6 +27,6 @@
           (:name m)]])]]]))
 
 (def data
-  {:items (for [i (range 100)]
+  {:items (for [i (range 200)]
             {:uuid (random-uuid)
              :name (str "Item: " i)})})
