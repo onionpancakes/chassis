@@ -119,52 +119,52 @@
   [])
 
 (defn element-children-1
-  [elem]
-  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+  [^clojure.lang.Indexed elem]
+  (let [tag (.nth elem 0)]
     [(OpeningTag. tag nil)
      (ClosingTag. tag)]))
 
 (defn element-children-2-attrs
-  [elem]
-  (let [tag   (.nth ^clojure.lang.Indexed elem 0)
-        attrs (.nth ^clojure.lang.Indexed elem 1)]
+  [^clojure.lang.Indexed elem]
+  (let [tag   (.nth elem 0)
+        attrs (.nth elem 1)]
     [(OpeningTag. tag attrs)
      (ClosingTag. tag)]))
 
 (defn element-children-2
-  [elem]
-  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+  [^clojure.lang.Indexed elem]
+  (let [tag (.nth elem 0)]
     [(OpeningTag. tag nil)
-     (.nth ^clojure.lang.Indexed elem 1)
+     (.nth elem 1)
      (ClosingTag. tag)]))
 
 (defn element-children-3-attrs
-  [elem]
-  (let [tag   (.nth ^clojure.lang.Indexed elem 0)
-        attrs (.nth ^clojure.lang.Indexed elem 1)]
+  [^clojure.lang.Indexed elem]
+  (let [tag   (.nth elem 0)
+        attrs (.nth elem 1)]
     [(OpeningTag. tag attrs)
-     (.nth ^clojure.lang.Indexed elem 2)
+     (.nth elem 2)
      (ClosingTag. tag)]))
 
 (defn element-children-3
-  [elem]
-  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+  [^clojure.lang.Indexed elem]
+  (let [tag (.nth elem 0)]
     [(OpeningTag. tag nil)
-     (.nth ^clojure.lang.Indexed elem 1)
-     (.nth ^clojure.lang.Indexed elem 2)
+     (.nth elem 1)
+     (.nth elem 2)
      (ClosingTag. tag)]))
 
 (defn element-children-n-attrs
-  [elem]
-  (let [tag   (.nth ^clojure.lang.Indexed elem 0)
-        attrs (.nth ^clojure.lang.Indexed elem 1)]
+  [^clojure.lang.Indexed elem]
+  (let [tag   (.nth elem 0)
+        attrs (.nth elem 1)]
     [(OpeningTag. tag attrs)
      (drop 2 elem)
      (ClosingTag. tag)]))
 
 (defn element-children-n
-  [elem]
-  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+  [^clojure.lang.Indexed elem]
+  (let [tag (.nth elem 0)]
     [(OpeningTag. tag nil)
      (drop 1 elem)
      (ClosingTag. tag)]))
