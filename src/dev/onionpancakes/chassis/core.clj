@@ -1,7 +1,7 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol Token
-  (fragment [this]))
+  (fragment ^String [this]))
 
 (defprotocol Node
   (branch? [this])
@@ -81,6 +81,7 @@
 ;; Token impl
 
 (defn escape-text
+  ^String
   [^String s]
   (.. s
       (replace "&" "&amp;")
@@ -88,6 +89,7 @@
       (replace ">" "&gt;")))
 
 (defn escape-attr-value
+  ^String
   [^String s]
   (.. s
       (replace "&" "&amp;")
