@@ -51,7 +51,8 @@
   clojure.lang.ISeq
   (seq [this]
     (->> (tree-seq branch? children root)
-         (remove branch?)))
+         (remove branch?)
+         (map fragment)))
   Object
   (toString [this]
     (let [sb (StringBuilder. 4096)
