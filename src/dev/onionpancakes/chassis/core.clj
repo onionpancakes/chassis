@@ -80,13 +80,29 @@
 
 ;; Token impl
 
+(defn escape-text
+  [^String s]
+  (.. s
+      (replace "<" "&lt;")
+      (replace ">" "&gt;")
+      (replace "&" "&amp;")))
+
+(defn escape-attr-value
+  [^String s]
+  (.. s
+      (replace "<" "&lt;")
+      (replace ">" "&gt;")
+      (replace "&" "&amp;")
+      (replace "\"" "&quot;")
+      (replace "'" "&apos;")))
+
 (defn append-attr-kv
   [^StringBuilder sb k v]
   (.. sb
       (append " ")
       (append (name k))
       (append "=\"")
-      (append v)
+      (append (escape-attr-value v))
       (append "\"")))
 
 (deftype OpeningTag [tag ^clojure.lang.IKVReduce attrs]
@@ -123,9 +139,11 @@
 
 (extend-protocol Token
   String
-  (fragment [this] this)
+  (fragment [this]
+    (escape-text this))
   Object
-  (fragment [this] (.toString this))
+  (fragment [this]
+    (escape-text (.toString this)))
   nil
   (fragment [_] ""))
 
