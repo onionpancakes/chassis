@@ -60,12 +60,19 @@
       (.toString sb))))
 
 (defn token-serializer
+  ^TokenSerializer
   [root]
   (TokenSerializer. root))
 
 (defn html-serializer
+  ^HtmlSerializer
   [root]
   (HtmlSerializer. root))
+
+(defn html
+  ^String
+  [root]
+  (.toString (html-serializer root)))
 
 ;; Token impl
 
