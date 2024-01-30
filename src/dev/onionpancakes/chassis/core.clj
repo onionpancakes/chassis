@@ -37,66 +37,6 @@
         _  (reduce-node append-fragment sb root)]
     (.toString sb)))
 
-;; Serializers
-
-(deftype TokenSerializer [root]
-  clojure.lang.IReduceInit
-  (reduce [this rf init]
-    (let [stack (java.util.ArrayDeque. 32)]
-      (loop [cur (.iterator ^Iterable (list root)) ret init]
-        (if (reduced? ret)
-          (.deref ^clojure.lang.IDeref ret)
-          (if cur
-            (if (.hasNext cur)
-              (let [node (.next cur)]
-                (if (branch? node)
-                  (do
-                    (.addFirst stack cur)
-                    (recur (.iterator (children node)) ret))
-                  (recur cur (rf ret node))))
-              (recur (.pollFirst stack) ret))
-            ret)))))
-  clojure.lang.Seqable
-  (seq [this]
-    (->> (tree-seq branch? children root)
-         (remove branch?))))
-
-(defn token-serializer
-  ^TokenSerializer
-  [root]
-  (TokenSerializer. root))
-
-(deftype HtmlSerializer [root]
-  clojure.lang.IReduceInit
-  (reduce [this rf init]
-    (let [stack (java.util.ArrayDeque. 32)]
-      (loop [cur (.iterator ^Iterable (list root)) ret init]
-        (if (reduced? ret)
-          (.deref ^clojure.lang.IDeref ret)
-          (if cur
-            (if (.hasNext cur)
-              (let [node (.next cur)]
-                (if (branch? node)
-                  (do
-                    (.addFirst stack cur)
-                    (recur (.iterator (children node)) ret))
-                  (recur cur (rf ret (fragment node)))))
-              (recur (.pollFirst stack) ret))
-            ret)))))
-  clojure.lang.Seqable
-  (seq [this]
-    (->> (tree-seq branch? children root)
-         (remove branch?)
-         (map fragment)))
-  Object
-  (toString [this]
-    (html root)))
-
-(defn html-serializer
-  ^HtmlSerializer
-  [root]
-  (HtmlSerializer. root))
-
 ;; Token impl
 
 (defn escape-text
