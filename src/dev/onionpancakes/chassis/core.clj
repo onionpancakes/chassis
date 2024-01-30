@@ -1,11 +1,41 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol Token
-  (fragment ^String [this]))
+  (fragment ^String [this])
+  (append-fragment-to-string-builder [this sb]))
 
 (defprotocol Node
   (branch? [this])
   (children ^Iterable [this]))
+
+;; Reduce
+
+(defn reduce-node
+  [rf init root]
+  (let [stack (java.util.ArrayDeque. 32)]
+    (loop [cur (.iterator ^Iterable (list root)) ret init]
+      (if (reduced? ret)
+        (.deref ^clojure.lang.IDeref ret)
+        (if cur
+          (if (.hasNext cur)
+            (let [node (.next cur)]
+              (if (branch? node)
+                (do
+                  (.addFirst stack cur)
+                  (recur (.iterator (children node)) ret))
+                (recur cur (rf ret node))))
+            (recur (.pollFirst stack) ret))
+          ret)))))
+
+(defn append-fragment
+  [^StringBuilder sb token]
+  (append-fragment-to-string-builder token sb))
+
+(defn html
+  [root]
+  (let [sb (StringBuilder. 16384)
+        _  (reduce-node append-fragment sb root)]
+    (.toString sb)))
 
 ;; Serializers
 
@@ -31,9 +61,10 @@
     (->> (tree-seq branch? children root)
          (remove branch?))))
 
-(defn append-string
-  [^StringBuilder sb ^String s]
-  (.append sb s))
+(defn token-serializer
+  ^TokenSerializer
+  [root]
+  (TokenSerializer. root))
 
 (deftype HtmlSerializer [root]
   clojure.lang.IReduceInit
@@ -59,24 +90,12 @@
          (map fragment)))
   Object
   (toString [this]
-    (let [sb (StringBuilder. 16384)
-          _  (.reduce this append-string sb)]
-      (.toString sb))))
-
-(defn token-serializer
-  ^TokenSerializer
-  [root]
-  (TokenSerializer. root))
+    (html root)))
 
 (defn html-serializer
   ^HtmlSerializer
   [root]
   (HtmlSerializer. root))
-
-(defn html
-  ^String
-  [root]
-  (.toString (html-serializer root)))
 
 ;; Token impl
 
@@ -117,6 +136,13 @@
                (.kvreduce attrs append-attr-kv sb))
           _  (.append sb ">")]
       (.toString sb)))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb "<")
+    (.append ^StringBuilder sb (name tag))
+    (if attrs
+      (.kvreduce attrs append-attr-kv sb))
+    (.append ^StringBuilder sb ">")
+    sb)
   Node
   (branch? [this] false)
   (children [this] [])
@@ -132,6 +158,11 @@
         (append (name tag))
         (append ">")
         (toString)))
+  (append-fragment-to-string-builder [this sb]
+    (.. ^StringBuilder sb
+        (append "</")
+        (append (name tag))
+        (append ">")))
   Node
   (branch? [this] false)
   (children [this] [])
@@ -143,11 +174,16 @@
   String
   (fragment [this]
     (escape-text this))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-text this)))
   Object
   (fragment [this]
     (escape-text (.toString this)))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-text (.toString this))))
   nil
-  (fragment [_] ""))
+  (fragment [_] "")
+  (append-fragment-to-string-builder [this sb] sb))
 
 ;; Node impl
 
