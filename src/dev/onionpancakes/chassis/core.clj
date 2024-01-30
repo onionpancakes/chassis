@@ -169,62 +169,29 @@
      (drop 1 elem)
      (ClosingTag. tag)]))
 
-(defn element-children
-  [elem]
-  (if (map? (.nth ^clojure.lang.Indexed elem 1 nil))
-    (case (.count ^clojure.lang.Counted elem)
-      0 (element-children-0 elem)
-      1 (element-children-1 elem)
-      2 (element-children-2-attrs elem)
-      3 (element-children-3-attrs elem)
-      (element-children-n-attrs elem))
-    (case (.count ^clojure.lang.Counted elem)
-      0 (element-children-0 elem)
-      1 (element-children-1 elem)
-      2 (element-children-2 elem)
-      3 (element-children-3 elem)
-      (element-children-n elem))))
-
-(defn constantly-true
-  [_]
-  true)
-
-(defn constantly-false
-  [_]
-  false)
-
-(defn constantly-empty
-  [_]
-  [])
-
-(extend clojure.lang.IPersistentVector
-  Node
-  {:branch?  constantly-true
-   :children element-children})
-
-(extend clojure.lang.IPersistentMap
-  Node
-  {:branch?  constantly-false
-   :children constantly-empty})
-
-(extend clojure.lang.ISeq
-  Node
-  {:branch?  constantly-true
-   :children identity})
-
-(extend clojure.lang.Keyword
-  Node
-  {:branch?  constantly-false
-   :children constantly-empty})
-
-(extend Object
-  Node
-  {:branch?  constantly-false
-   :children constantly-empty})
-
-(extend nil
-  Node
-  {:branch?  constantly-false
-   :children constantly-empty})
-
-
+(extend-protocol Node
+  clojure.lang.IPersistentVector
+  (branch? [_] true)
+  (children [this]
+    (if (map? (.nth this 1 nil))
+      (case (.count this)
+        0 (element-children-0 this)
+        1 (element-children-1 this)
+        2 (element-children-2-attrs this)
+        3 (element-children-3-attrs this)
+        (element-children-n-attrs this))
+      (case (.count this)
+        0 (element-children-0 this)
+        1 (element-children-1 this)
+        2 (element-children-2 this)
+        3 (element-children-3 this)
+        (element-children-n this))))
+  clojure.lang.ISeq
+  (branch? [_] true)
+  (children [this] this)
+  Object
+  (branch? [_] false)
+  (children [_] [])
+  nil
+  (branch? [_] false)
+  (children [_] []))
