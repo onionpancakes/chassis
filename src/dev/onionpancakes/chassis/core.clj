@@ -55,7 +55,7 @@
          (map fragment)))
   Object
   (toString [this]
-    (let [sb (StringBuilder. 4096)
+    (let [sb (StringBuilder. 16384)
           _  (.reduce this append-string sb)]
       (.toString sb))))
 
