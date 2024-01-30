@@ -101,7 +101,10 @@
       (.toString sb)))
   Node
   (branch? [this] false)
-  (children [this] []))
+  (children [this] [])
+  Object
+  (toString [this]
+    (fragment this)))
 
 (deftype ClosingTag [tag]
   Token
@@ -113,7 +116,10 @@
         (toString)))
   Node
   (branch? [this] false)
-  (children [this] []))
+  (children [this] [])
+  Object
+  (toString [this]
+    (fragment this)))
 
 (extend-protocol Token
   String
