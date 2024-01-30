@@ -124,30 +124,36 @@
      (.nth ^clojure.lang.Indexed elem 2)
      (ClosingTag. tag)]))
 
-(defn element-children-n
+(defn element-children-n-attrs
   [elem]
   (let [tag   (.nth ^clojure.lang.Indexed elem 0)
-        anode (.nth ^clojure.lang.Indexed elem 1)]
-    (if (map? anode)
-      [(OpeningTag. tag anode)
-       (drop 2 elem)
-       (ClosingTag. tag)]
-      [(OpeningTag. tag nil)
-       (drop 1 elem)
-       (ClosingTag. tag)])))
+        attrs (.nth ^clojure.lang.Indexed elem 1)]
+    [(OpeningTag. tag attrs)
+     (drop 2 elem)
+     (ClosingTag. tag)]))
+
+(defn element-children-n
+  [elem]
+  (let [tag (.nth ^clojure.lang.Indexed elem 0)]
+    [(OpeningTag. tag nil)
+     (drop 1 elem)
+     (ClosingTag. tag)]))
 
 (defn element-children
   [elem]
-  (case (* (.count ^clojure.lang.Counted elem)
-           (if (map? (.nth ^clojure.lang.Indexed elem 1 nil)) -1 1))
-    0  (element-children-0 elem)
-    -1 (element-children-1 elem)
-    1  (element-children-1 elem)
-    -2 (element-children-2-attrs elem)
-    2  (element-children-2 elem)
-    -3 (element-children-3-attrs elem)
-    3  (element-children-3 elem)
-    (element-children-n elem)))
+  (if (map? (.nth ^clojure.lang.Indexed elem 1 nil))
+    (case (.count ^clojure.lang.Counted elem)
+      0 (element-children-0 elem)
+      1 (element-children-1 elem)
+      2 (element-children-2-attrs elem)
+      3 (element-children-3-attrs elem)
+      (element-children-n-attrs elem))
+    (case (.count ^clojure.lang.Counted elem)
+      0 (element-children-0 elem)
+      1 (element-children-1 elem)
+      2 (element-children-2 elem)
+      3 (element-children-3 elem)
+      (element-children-n elem))))
 
 (defn constantly-true
   [_]
