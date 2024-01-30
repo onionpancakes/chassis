@@ -49,13 +49,14 @@
       (append v)
       (append "\"")))
 
-(deftype OpeningTag [tag attrs]
+(deftype OpeningTag [tag ^clojure.lang.IKVReduce attrs]
   Token
   (fragment [this]
     (let [sb (StringBuilder. 64)
           _  (.append sb "<")
           _  (.append sb (name tag))
-          _  (reduce-kv append-attr-kv sb attrs)
+          _  (if attrs
+               (.kvreduce attrs append-attr-kv sb))
           _  (.append sb ">")]
       (.toString sb)))
   Node
