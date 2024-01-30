@@ -192,8 +192,6 @@
   (children [this]
     (if (map? (.nth this 1 nil))
       (case (.count this)
-        0 (element-children-0 this)
-        1 (element-children-1 this)
         2 (element-children-2-attrs this)
         3 (element-children-3-attrs this)
         (element-children-n-attrs this))
