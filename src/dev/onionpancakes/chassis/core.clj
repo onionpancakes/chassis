@@ -83,16 +83,16 @@
 (defn escape-text
   [^String s]
   (.. s
+      (replace "&" "&amp;")
       (replace "<" "&lt;")
-      (replace ">" "&gt;")
-      (replace "&" "&amp;")))
+      (replace ">" "&gt;")))
 
 (defn escape-attr-value
   [^String s]
   (.. s
+      (replace "&" "&amp;")
       (replace "<" "&lt;")
       (replace ">" "&gt;")
-      (replace "&" "&amp;")
       (replace "\"" "&quot;")
       (replace "'" "&apos;")))
 
