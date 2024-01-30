@@ -14,16 +14,18 @@
   (reduce [this rf init]
     (let [stack (java.util.ArrayDeque. 32)]
       (loop [cur (.iterator ^Iterable (list root)) ret init]
-        (if cur
-          (if (.hasNext cur)
-            (let [node (.next cur)]
-              (if (branch? node)
-                (do
-                  (.addFirst stack cur)
-                  (recur (.iterator (children node)) ret))
-                (recur cur (rf ret node))))
-            (recur (.pollFirst stack) ret))
-          ret))))
+        (if (reduced? ret)
+          (deref ret)
+          (if cur
+            (if (.hasNext cur)
+              (let [node (.next cur)]
+                (if (branch? node)
+                  (do
+                    (.addFirst stack cur)
+                    (recur (.iterator (children node)) ret))
+                  (recur cur (rf ret node))))
+              (recur (.pollFirst stack) ret))
+            ret)))))
   clojure.lang.ISeq
   (seq [this]
     (->> (tree-seq branch? children root)
@@ -38,16 +40,18 @@
   (reduce [this rf init]
     (let [stack (java.util.ArrayDeque. 32)]
       (loop [cur (.iterator ^Iterable (list root)) ret init]
-        (if cur
-          (if (.hasNext cur)
-            (let [node (.next cur)]
-              (if (branch? node)
-                (do
-                  (.addFirst stack cur)
-                  (recur (.iterator (children node)) ret))
-                (recur cur (rf ret (fragment node)))))
-            (recur (.pollFirst stack) ret))
-          ret))))
+        (if (reduced? ret)
+          (deref ret)
+          (if cur
+            (if (.hasNext cur)
+              (let [node (.next cur)]
+                (if (branch? node)
+                  (do
+                    (.addFirst stack cur)
+                    (recur (.iterator (children node)) ret))
+                  (recur cur (rf ret (fragment node)))))
+              (recur (.pollFirst stack) ret))
+            ret)))))
   clojure.lang.ISeq
   (seq [this]
     (->> (tree-seq branch? children root)
