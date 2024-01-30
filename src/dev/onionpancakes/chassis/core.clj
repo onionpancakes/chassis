@@ -52,7 +52,7 @@
 (deftype OpeningTag [tag attrs]
   Token
   (fragment [this]
-    (let [sb (StringBuilder.)
+    (let [sb (StringBuilder. 64)
           _  (.append sb "<")
           _  (.append sb (name tag))
           _  (reduce-kv append-attr-kv sb attrs)
