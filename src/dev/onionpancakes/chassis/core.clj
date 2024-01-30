@@ -159,14 +159,14 @@
   (let [tag   (.nth elem 0)
         attrs (.nth elem 1)]
     [(OpeningTag. tag attrs)
-     (drop 2 elem)
+     (next (next elem))
      (ClosingTag. tag)]))
 
 (defn element-children-n
   [^clojure.lang.Indexed elem]
   (let [tag (.nth elem 0)]
     [(OpeningTag. tag nil)
-     (drop 1 elem)
+     (next elem)
      (ClosingTag. tag)]))
 
 (extend-protocol Node
