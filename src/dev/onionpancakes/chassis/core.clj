@@ -26,7 +26,7 @@
                   (recur cur (rf ret node))))
               (recur (.pollFirst stack) ret))
             ret)))))
-  clojure.lang.ISeq
+  clojure.lang.Seqable
   (seq [this]
     (->> (tree-seq branch? children root)
          (remove branch?))))
@@ -52,7 +52,7 @@
                   (recur cur (rf ret (fragment node)))))
               (recur (.pollFirst stack) ret))
             ret)))))
-  clojure.lang.ISeq
+  clojure.lang.Seqable
   (seq [this]
     (->> (tree-seq branch? children root)
          (remove branch?)
