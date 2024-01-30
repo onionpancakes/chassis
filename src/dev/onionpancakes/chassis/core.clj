@@ -15,7 +15,7 @@
     (let [stack (java.util.ArrayDeque. 32)]
       (loop [cur (.iterator ^Iterable (list root)) ret init]
         (if (reduced? ret)
-          (deref ret)
+          (.deref ^clojure.lang.IDeref ret)
           (if cur
             (if (.hasNext cur)
               (let [node (.next cur)]
@@ -41,7 +41,7 @@
     (let [stack (java.util.ArrayDeque. 32)]
       (loop [cur (.iterator ^Iterable (list root)) ret init]
         (if (reduced? ret)
-          (deref ret)
+          (.deref ^clojure.lang.IDeref ret)
           (if cur
             (if (.hasNext cur)
               (let [node (.next cur)]
