@@ -107,6 +107,29 @@
   (append-attribute-to-string-builder [_ sb _] sb))
 
 (extend-protocol AttributeValueToken
+  clojure.lang.MapEntry
+  (append-attribute-value-space-for-next? [this]
+    (append-attribute-value-space-for-next? (val this)))
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (when (append-attribute-value-space-for-next? (val this))
+      (append-attribute-value-fragment-to-string-builder (key this) sb)
+      (.append sb ": ")
+      (append-attribute-value-fragment-to-string-builder (val this) sb)
+      (.append sb ";"))
+    sb)
+  clojure.lang.IPersistentMap
+  (append-attribute-value-space-for-next? [this]
+    (and (pos? (.count this))
+         (append-attribute-value-space-for-next? (val (first this)))))
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (let [append-space (volatile! false)]
+      (doseq [t this]
+        (if @append-space
+          (when (append-attribute-value-space-for-next? t)
+            (.append sb " "))          
+          (vreset! append-space true))
+        (append-attribute-value-fragment-to-string-builder t sb)))
+    sb)
   clojure.lang.IPersistentSet
   (append-attribute-value-space-for-next? [this]
     (and (pos? (.count this))
