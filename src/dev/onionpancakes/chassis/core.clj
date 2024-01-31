@@ -308,16 +308,19 @@
         (.substring tname (inc start-idx) end-idx)
         (.substring tname (inc start-idx))))))
 
-(defn tag-classes
+(defn tag-class
   [^clojure.lang.Keyword tag]
   (let [tname     (.getName tag)
         start-idx (.indexOf tname (int \.))
-        end-idx   (.indexOf tname (int \#) start-idx)
-        class-str (if (pos? start-idx)
-                    (if (pos? end-idx)
-                      (.substring tname (inc start-idx) end-idx)
-                      (.substring tname (inc start-idx))))]
-    (clojure.string/split #"." class-str)))
+        end-idx   (.indexOf tname (int \#) start-idx)]
+    (if (pos? start-idx)
+      (if (pos? end-idx)
+        (.. tname
+            (substring (inc start-idx) end-idx)
+            (replace "." " "))
+        (.. tname
+            (substring (inc start-idx))
+            (replace "." " "))))))
 
 (defn element-children-0
   [elem]
@@ -328,8 +331,10 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         attrs (cond-> {}
-                tid (assoc :id tid))]
+                tid (assoc :id tid)
+                tcl (assoc :class tcl))]
     (if (void-tag? tag)
       [(OpeningTag. tag attrs)]
       [(OpeningTag. tag attrs)
@@ -340,9 +345,11 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         amap  (.nth elem 1)
         attrs (cond-> amap
-                tid (assoc :id tid))]
+                tid (assoc :id tid)
+                tcl (assoc :class [tcl (:class amap)]))]
     (if (void-tag? tag)
       [(OpeningTag. tag attrs)]
       [(OpeningTag. tag attrs)
@@ -353,8 +360,10 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         attrs (cond-> {}
-                tid (assoc :id tid))]
+                tid (assoc :id tid)
+                tcl (assoc :class tcl))]
    (if (and (void-tag? tag)
             (nil? (.nth elem 1)))
      [(OpeningTag. tag attrs)]
@@ -367,9 +376,11 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         amap  (.nth elem 1)
         attrs (cond-> amap
-                tid (assoc :id tid))]
+                tid (assoc :id tid)
+                tcl (assoc :class [tcl (:class amap)]))]
     [(OpeningTag. tag attrs)
      (.nth elem 2)
      (ClosingTag. tag)]))
@@ -379,9 +390,11 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         attrs (cond-> {}
-                tid (assoc :id tid))]
-    [(OpeningTag. tag nil)
+                tid (assoc :id tid)
+                tcl (assoc :class tcl))]
+    [(OpeningTag. tag attrs)
      (.nth elem 1)
      (.nth elem 2)
      (ClosingTag. tag)]))
@@ -391,9 +404,11 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         amap  (.nth elem 1)
         attrs (cond-> amap
-                tid (assoc :id tid))]
+                tid (assoc :id tid)
+                tcl (assoc :class [tcl (:class amap)]))]
     [(OpeningTag. tag attrs)
      (next (next elem))
      (ClosingTag. tag)]))
@@ -403,9 +418,11 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
+        tcl   (tag-class tic)
         attrs (cond-> {}
-                tid (assoc :id tid))]
-    [(OpeningTag. tag nil)
+                tid (assoc :id tid)
+                tcl (assoc :class tcl))]
+    [(OpeningTag. tag attrs)
      (next elem)
      (ClosingTag. tag)]))
 
