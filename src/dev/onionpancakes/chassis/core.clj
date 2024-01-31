@@ -193,7 +193,14 @@
         tag))))
 
 (defn tag-id
-  [tag])
+  [^clojure.lang.Keyword tag]
+  (let [tname     (.getName tag)
+        start-idx (.indexOf tname (int \#))
+        end-idx   (.indexOf tname (int \.) start-idx)]
+    (if (pos? start-idx)
+      (if (pos? end-idx)
+        (.substring tname (inc start-idx) end-idx)
+        (.substring tname (inc start-idx))))))
 
 (defn tag-classes
   [tag])
@@ -204,16 +211,24 @@
 
 (defn element-children-1
   [^clojure.lang.Indexed elem]
-  (let [tag (base-tag (.nth elem 0))]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        attrs (cond-> {}
+                tid (assoc :id tid))]
     (if (void-tag? tag)
-      [(OpeningTag. tag nil)]
-      [(OpeningTag. tag nil)
+      [(OpeningTag. tag attrs)]
+      [(OpeningTag. tag attrs)
        (ClosingTag. tag)])))
 
 (defn element-children-2-attrs
   [^clojure.lang.Indexed elem]
-  (let [tag   (base-tag (.nth elem 0))
-        attrs (.nth elem 1)]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        amap  (.nth elem 1)
+        attrs (cond-> amap
+                (and tid (nil? (:id amap))) (assoc :id tid))]
     (if (void-tag? tag)
       [(OpeningTag. tag attrs)]
       [(OpeningTag. tag attrs)
@@ -221,25 +236,37 @@
 
 (defn element-children-2
   [^clojure.lang.Indexed elem]
-  (let [tag (base-tag (.nth elem 0))]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        attrs (cond-> {}
+                tid (assoc :id tid))]
    (if (and (void-tag? tag)
             (nil? (.nth elem 1)))
-     [(OpeningTag. tag nil)]
-     [(OpeningTag. tag nil)
+     [(OpeningTag. tag attrs)]
+     [(OpeningTag. tag attrs)
       (.nth elem 1)
       (ClosingTag. tag)])))
 
 (defn element-children-3-attrs
   [^clojure.lang.Indexed elem]
-  (let [tag   (base-tag (.nth elem 0))
-        attrs (.nth elem 1)]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        amap  (.nth elem 1)
+        attrs (cond-> amap
+                (and tid (nil? (:id amap))) (assoc :id tid))]
     [(OpeningTag. tag attrs)
      (.nth elem 2)
      (ClosingTag. tag)]))
 
 (defn element-children-3
   [^clojure.lang.Indexed elem]
-  (let [tag (base-tag (.nth elem 0))]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        attrs (cond-> {}
+                tid (assoc :id tid))]
     [(OpeningTag. tag nil)
      (.nth elem 1)
      (.nth elem 2)
@@ -247,15 +274,23 @@
 
 (defn element-children-n-attrs
   [^clojure.lang.Indexed elem]
-  (let [tag   (base-tag (.nth elem 0))
-        attrs (.nth elem 1)]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        amap  (.nth elem 1)
+        attrs (cond-> amap
+                (and tid (nil? (:id amap))) (assoc :id tid))]
     [(OpeningTag. tag attrs)
      (next (next elem))
      (ClosingTag. tag)]))
 
 (defn element-children-n
   [^clojure.lang.Indexed elem]
-  (let [tag (base-tag (.nth elem 0))]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        attrs (cond-> {}
+                tid (assoc :id tid))]
     [(OpeningTag. tag nil)
      (next elem)
      (ClosingTag. tag)]))
