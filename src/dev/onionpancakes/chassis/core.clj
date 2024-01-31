@@ -4,8 +4,8 @@
   (append-attribute-value-to-string-builder [this sb]))
 
 (defprotocol Token
-  (fragment ^String [this])
-  (append-fragment-to-string-builder [this sb]))
+  (append-fragment-to-string-builder [this sb])
+  (fragment ^String [this]))
 
 (defprotocol Node
   (branch? [this])
@@ -121,16 +121,16 @@
 
 (deftype OpeningTag [tag ^clojure.lang.IKVReduce attrs]
   Token
-  (fragment [this]
-    (let [sb (StringBuilder. 64)
-          _  (.append-fragment-to-string-builder this sb)]
-      (.toString sb)))
   (append-fragment-to-string-builder [this sb]
     (doto ^StringBuilder sb
       (.append "<")
       (.append (name tag))
       (append-string-builder-attributes attrs)
       (.append ">")))
+  (fragment [this]
+    (let [sb (StringBuilder. 64)
+          _  (.append-fragment-to-string-builder this sb)]
+      (.toString sb)))
   Node
   (branch? [this] false)
   (children [this] [])
@@ -140,15 +140,15 @@
 
 (deftype ClosingTag [tag]
   Token
-  (fragment [this]
-    (let [sb (StringBuilder.)
-          _  (.append-fragment-to-string-builder this sb)]
-      (.toString sb)))
   (append-fragment-to-string-builder [this sb]
     (.. ^StringBuilder sb
         (append "</")
         (append (name tag))
         (append ">")))
+  (fragment [this]
+    (let [sb (StringBuilder.)
+          _  (.append-fragment-to-string-builder this sb)]
+      (.toString sb)))
   Node
   (branch? [this] false)
   (children [this] [])
@@ -158,10 +158,10 @@
 
 (deftype Raw [token]
   Token
-  (fragment [this]
-    (str token))
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (str token)))
+  (fragment [this]
+    (str token))
   Node
   (branch? [this] false)
   (children [this] [])
@@ -175,18 +175,18 @@
 
 (extend-protocol Token
   String
-  (fragment [this]
-    (escape-text this))
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (escape-text this)))
-  Object
   (fragment [this]
-    (escape-text (.toString this)))
+    (escape-text this))
+  Object
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (escape-text (.toString this))))
+  (fragment [this]
+    (escape-text (.toString this)))
   nil
-  (fragment [_] "")
-  (append-fragment-to-string-builder [this sb] sb))
+  (append-fragment-to-string-builder [this sb] sb)
+  (fragment [_] ""))
 
 ;; Node impl
 
