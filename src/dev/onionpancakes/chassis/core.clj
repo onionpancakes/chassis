@@ -88,6 +88,16 @@
   sb)
 
 (extend-protocol AttributeValue
+  clojure.lang.IPersistentVector
+  (append-attribute-value-to-string-builder [this sb]
+    (loop [i 0 cnt (count this)]
+      (when (< i cnt)
+        (if (pos? i)
+          (.append ^StringBuilder sb " "))
+        (-> (.nth this i)
+            (append-attribute-value-to-string-builder sb))
+        (recur (inc i) cnt)))
+    sb)
   String
   (append-attribute-value-to-string-builder [this sb]
     (.append ^StringBuilder sb (escape-attr-value this))
