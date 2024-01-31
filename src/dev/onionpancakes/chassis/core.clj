@@ -157,6 +157,9 @@
     (fragment this)))
 
 (deftype Raw [token]
+  AttributeValue
+  (append-attribute-value-to-string-builder [this sb]
+    (.append ^StringBuilder sb (str token)))
   Token
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (str token)))
