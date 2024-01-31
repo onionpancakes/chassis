@@ -2,8 +2,10 @@
   (:require [clojure.string]))
 
 (defprotocol AttributeValue
-  (append-attribute-to-string-builder [this sb attr-name])
-  (append-attribute-value-to-string-builder [this sb]))
+  (append-attribute-to-string-builder [this sb attr-name]))
+
+(defprotocol AttributeValueToken
+  (append-attribute-value-fragment-to-string-builder [this sb]))
 
 (defprotocol Token
   (append-fragment-to-string-builder [this sb])
@@ -87,46 +89,36 @@
   sb)
 
 (extend-protocol AttributeValue
-  clojure.lang.IPersistentVector
+  Object
   (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
     (.append sb " ")
     (.append sb attr-name)
     (.append sb "=\"")
-    (append-attribute-value-to-string-builder this sb)
+    (append-attribute-value-fragment-to-string-builder this sb)
     (.append sb "\"")
     sb)
-  (append-attribute-value-to-string-builder [this ^StringBuilder sb]
+  nil
+  (append-attribute-to-string-builder [_ sb _] sb))
+
+(extend-protocol AttributeValueToken
+  clojure.lang.IPersistentVector
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (loop [i 0 cnt (count this)]
       (when (< i cnt)
         (if (pos? i)
           (.append sb " "))
         (-> (.nth this i)
-            (append-attribute-value-to-string-builder sb))
+            (append-attribute-value-fragment-to-string-builder sb))
         (recur (inc i) cnt)))
     sb)
   String
-  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
-    (doto sb
-      (.append " ")
-      (.append attr-name)
-      (.append "=\"")
-      (.append (escape-attribute-value this))
-      (.append "\"")))
-  (append-attribute-value-to-string-builder [this ^StringBuilder sb]
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value this)))
   Object
-  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
-    (doto sb
-      (.append " ")
-      (.append attr-name)
-      (.append "=\"")
-      (.append (escape-attribute-value (.toString this)))
-      (.append "\"")))
-  (append-attribute-value-to-string-builder [this ^StringBuilder sb]
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value (.toString this))))
   nil
-  (append-attribute-to-string-builder [_ sb _] sb)
-  (append-attribute-value-to-string-builder [_ sb] sb))
+  (append-attribute-value-fragment-to-string-builder [_ sb] sb))
 
 ;; Token impl
 
@@ -176,8 +168,8 @@
     (fragment this)))
 
 (deftype Raw [token]
-  AttributeValue
-  (append-attribute-value-to-string-builder [this sb]
+  AttributeValueToken
+  (append-attribute-value-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (str token)))
   Token
   (append-fragment-to-string-builder [this sb]
