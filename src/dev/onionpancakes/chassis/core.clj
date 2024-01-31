@@ -158,41 +158,79 @@
 
 ;; Node impl
 
+;; https://developer.mozilla.org/en-US/docs/Glossary/Void_element
+
+(defn void-tag?
+  [tag]
+  (case tag
+    (:area 
+     :base
+     :br
+     :col
+     :embed
+     :hr
+     :img
+     :input
+     :link
+     :meta
+     :param
+     :source
+     :track
+     :wbr) true
+    false))
+
+(defn base-tag
+  [tag]
+  (keyword (name tag)))
+
+(defn tag-id
+  [tag])
+
+(defn tag-classes
+  [tag])
+
 (defn element-children-0
   [elem]
   [])
 
 (defn element-children-1
   [^clojure.lang.Indexed elem]
-  (let [tag (.nth elem 0)]
-    [(OpeningTag. tag nil)
-     (ClosingTag. tag)]))
+  (let [tag (base-tag (.nth elem 0))]
+    (if (void-tag? tag)
+      [(OpeningTag. tag nil)]
+      [(OpeningTag. tag nil)
+       (ClosingTag. tag)])))
 
 (defn element-children-2-attrs
   [^clojure.lang.Indexed elem]
-  (let [tag   (.nth elem 0)
+  (let [tag   (base-tag (.nth elem 0))
         attrs (.nth elem 1)]
-    [(OpeningTag. tag attrs)
-     (ClosingTag. tag)]))
+    (if (void-tag? tag)
+      [(OpeningTag. tag attrs)]
+      [(OpeningTag. tag attrs)
+       (ClosingTag. tag)])))
 
 (defn element-children-2
   [^clojure.lang.Indexed elem]
-  (let [tag (.nth elem 0)]
-    [(OpeningTag. tag nil)
-     (.nth elem 1)
-     (ClosingTag. tag)]))
+  (let [tag (base-tag (.nth elem 0))]
+   (if (and (void-tag? tag)
+            (nil? (.nth elem 1)))
+     [(OpeningTag. tag nil)]
+     [(OpeningTag. tag nil)
+      (.nth elem 1)
+      (ClosingTag. tag)])))
 
 (defn element-children-3-attrs
   [^clojure.lang.Indexed elem]
-  (let [tag   (.nth elem 0)
+  (let [tn    (base-tag (.nth elem 0))
         attrs (.nth elem 1)]
-    [(OpeningTag. tag attrs)
+    [(OpeningTag. tn attrs)
      (.nth elem 2)
-     (ClosingTag. tag)]))
+     (ClosingTag. tn)]))
 
 (defn element-children-3
   [^clojure.lang.Indexed elem]
-  (let [tag (.nth elem 0)]
+  (let [tag (base-tag (.nth elem 0))]
     [(OpeningTag. tag nil)
      (.nth elem 1)
      (.nth elem 2)
@@ -200,7 +238,7 @@
 
 (defn element-children-n-attrs
   [^clojure.lang.Indexed elem]
-  (let [tag   (.nth elem 0)
+  (let [tag   (base-tag (.nth elem 0))
         attrs (.nth elem 1)]
     [(OpeningTag. tag attrs)
      (next (next elem))
@@ -208,7 +246,7 @@
 
 (defn element-children-n
   [^clojure.lang.Indexed elem]
-  (let [tag (.nth elem 0)]
+  (let [tag (base-tag (.nth elem 0))]
     [(OpeningTag. tag nil)
      (next elem)
      (ClosingTag. tag)]))
