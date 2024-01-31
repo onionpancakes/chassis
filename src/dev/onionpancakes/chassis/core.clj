@@ -1,7 +1,7 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol AttributeValue
-  (append-attribute-to-string-builder [this sb attr-name]))
+  (append-attribute-value-to-string-builder [this sb]))
 
 (defprotocol Token
   (fragment ^String [this])
@@ -74,7 +74,12 @@
 
 (defn append-string-builder-attribute-kv
   [^StringBuilder sb k v]
-  (append-attribute-to-string-builder v sb (name k)))
+  (.append sb " ")
+  (.append sb (name k))
+  (.append sb "=\"")
+  (append-attribute-value-to-string-builder v sb)
+  (.append sb "\"")
+  sb)
 
 (defn append-string-builder-attributes
   [^StringBuilder sb ^clojure.lang.IKVReduce attrs]
@@ -84,21 +89,15 @@
 
 (extend-protocol AttributeValue
   String
-  (append-attribute-to-string-builder [this sb attr-name]
-    (.. ^StringBuilder sb
-        (append " ")
-        (append attr-name)
-        (append "=\"")
-        (append (escape-attr-value this))
-        (append "\"")))
+  (append-attribute-value-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-attr-value this))
+    sb)
   Object
-  (append-attribute-to-string-builder [this sb attr-name]
-    (.. ^StringBuilder sb
-        (append " ")
-        (append attr-name)
-        (append "=\"")
-        (append (escape-attr-value (.toString this)))
-        (append "\""))))
+  (append-attribute-value-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-attr-value (.toString this)))
+    sb)
+  nil
+  (append-attribute-value-to-string-builder [this sb] sb))
 
 ;; Token impl
 
