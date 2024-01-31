@@ -112,7 +112,7 @@
   (append-attribute-value-space-for-next? [this]
     (append-attribute-value-space-for-next? (val this)))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (when (append-attribute-value-space-for-next? (val this))
+    (when (val this)
       (append-attribute-value-fragment-to-string-builder (key this) sb)
       (.append sb ": ")
       (append-attribute-value-fragment-to-string-builder (val this) sb)
