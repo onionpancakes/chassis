@@ -37,6 +37,26 @@
         _  (reduce-node append-string-builder-fragment sb root)]
     (.toString sb)))
 
+;; Serializer
+
+(deftype TokenSerializer [root]
+  clojure.lang.IReduceInit
+  (reduce [_ rf init]
+    (reduce-node rf init root))
+  clojure.lang.Seqable
+  (seq [this]
+    (->> (tree-seq branch? children root)
+         (remove branch?))))
+
+(defn token-serializer
+  [root]
+  (TokenSerializer. root))
+
+(defn html-serializer
+  [root]
+  (eduction (map fragment)
+            (TokenSerializer. root)))
+
 ;; Token impl
 
 (defn escape-text
