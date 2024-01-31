@@ -75,11 +75,12 @@
 
 (defn append-string-builder-attribute-kv
   [^StringBuilder sb k v]
-  (.append sb " ")
-  (.append sb (name k))
-  (.append sb "=\"")
-  (append-attribute-value-to-string-builder v sb)
-  (.append sb "\"")
+  (when-not (namespace k)
+    (.append sb " ")
+    (.append sb (name k))
+    (.append sb "=\"")
+    (append-attribute-value-to-string-builder v sb)
+    (.append sb "\""))
   sb)
 
 (defn append-string-builder-attributes
