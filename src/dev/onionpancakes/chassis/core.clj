@@ -2,7 +2,7 @@
 
 (defprotocol Token
   (fragment ^String [this])
-  (append-fragment-to-appendable [this appendable]))
+  (append-fragment-to-string-builder [this sb]))
 
 (defprotocol Node
   (branch? [this])
@@ -28,8 +28,8 @@
           ret)))))
 
 (defn append-fragment
-  [appendable token]
-  (append-fragment-to-appendable token appendable))
+  [^StringBuilder sb token]
+  (append-fragment-to-string-builder token sb))
 
 (defn html
   [root]
@@ -58,8 +58,8 @@
       (replace "'" "&apos;")))
 
 (defn append-attr-kv
-  [^Appendable appendable k v]
-  (.. appendable
+  [^StringBuilder sb k v]
+  (.. sb
       (append " ")
       (append (name k))
       (append "=\"")
@@ -76,13 +76,13 @@
                (.kvreduce attrs append-attr-kv sb))
           _  (.append sb ">")]
       (.toString sb)))
-  (append-fragment-to-appendable [this appendable]
-    (.append ^Appendable appendable "<")
-    (.append ^Appendable appendable (name tag))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb "<")
+    (.append ^StringBuilder sb (name tag))
     (if attrs
-      (.kvreduce attrs append-attr-kv appendable))
-    (.append ^Appendable appendable ">")
-    appendable)
+      (.kvreduce attrs append-attr-kv sb))
+    (.append ^StringBuilder sb ">")
+    sb)
   Node
   (branch? [this] false)
   (children [this] [])
@@ -98,8 +98,8 @@
         (append (name tag))
         (append ">")
         (toString)))
-  (append-fragment-to-appendable [this appendable]
-    (.. ^Appendable appendable
+  (append-fragment-to-string-builder [this sb]
+    (.. ^StringBuilder sb
         (append "</")
         (append (name tag))
         (append ">")))
@@ -114,16 +114,16 @@
   String
   (fragment [this]
     (escape-text this))
-  (append-fragment-to-appendable [this appendable]
-    (.append ^Appendable appendable (escape-text this)))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-text this)))
   Object
   (fragment [this]
     (escape-text (.toString this)))
-  (append-fragment-to-appendable [this appendable]
-    (.append ^Appendable appendable (escape-text (.toString this))))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-text (.toString this))))
   nil
   (fragment [_] "")
-  (append-fragment-to-appendable [this appendable] appendable))
+  (append-fragment-to-string-builder [this sb] sb))
 
 ;; Node impl
 
