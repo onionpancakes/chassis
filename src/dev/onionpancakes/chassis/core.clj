@@ -109,7 +109,7 @@
 (extend-protocol AttributeValueToken
   clojure.lang.IPersistentSet
   (append-attribute-value-space-for-next? [this]
-    (boolean (append-attribute-value-space-for-next? (first this))))
+    (append-attribute-value-space-for-next? (first this)))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (let [append-space (volatile! false)]
       (doseq [t this]
@@ -121,7 +121,7 @@
     sb)
   clojure.lang.IPersistentVector
   (append-attribute-value-space-for-next? [this]
-    (boolean (append-attribute-value-space-for-next? (first this))))
+    (append-attribute-value-space-for-next? (first this)))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (loop [idx 0 cnt (count this)]
       (when (< idx cnt)
