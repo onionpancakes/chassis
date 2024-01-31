@@ -158,8 +158,7 @@
     sb)
   clojure.lang.Keyword
   (append-attribute-value-space-for-next? [this]
-    (and (not (namespace this))
-         (not (.isEmpty (.getName this)))))
+    (not (namespace this)))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (if-not (namespace this)
       (.append sb (escape-attribute-value (.getName this)))
@@ -167,13 +166,11 @@
       )
     sb)
   String
-  (append-attribute-value-space-for-next? [this]
-    (not (.isEmpty this)))
+  (append-attribute-value-space-for-next? [this] true)
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value this)))
   Object
-  (append-attribute-value-space-for-next? [this]
-    (not (.isEmpty (.toString this))))
+  (append-attribute-value-space-for-next? [this] true)
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value (.toString this))))
   Boolean
