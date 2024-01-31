@@ -83,7 +83,7 @@
     (append-attribute-to-string-builder v sb (name k)))
   sb)
 
-(defn append-string-builder-attributes
+(defn append-string-builder-attribute-map
   [^StringBuilder sb ^clojure.lang.IKVReduce attrs]
   (if attrs
     (.kvreduce attrs append-string-builder-attribute-kv sb))
@@ -190,13 +190,13 @@
       (replace "<" "&lt;")
       (replace ">" "&gt;")))
 
-(deftype OpeningTag [tag ^clojure.lang.IKVReduce attrs]
+(deftype OpeningTag [tag attrs]
   Token
   (append-fragment-to-string-builder [this sb]
     (doto ^StringBuilder sb
       (.append "<")
       (.append (name tag))
-      (append-string-builder-attributes attrs)
+      (append-string-builder-attribute-map attrs)
       (.append ">")))
   (fragment [this]
     (let [sb (StringBuilder. 64)
