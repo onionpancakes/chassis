@@ -180,9 +180,17 @@
     false))
 
 (defn base-tag
-  [tag]
-  ;; TODO
-  (keyword (name tag)))
+  [^clojure.lang.Keyword tag]
+  (let [tname  (.getName tag)
+        id-idx (.indexOf tname (int \#))
+        cl-idx (.indexOf tname (int \.))]
+    (if (pos? cl-idx)
+      (if (pos? id-idx)
+        (clojure.lang.Keyword/intern (.substring tname 0 (min id-idx cl-idx)))
+        (clojure.lang.Keyword/intern (.substring tname 0 cl-idx)))
+      (if (pos? id-idx)
+        (clojure.lang.Keyword/intern (.substring tname 0 id-idx))
+        tag))))
 
 (defn tag-id
   [tag])

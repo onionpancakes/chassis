@@ -10,8 +10,8 @@
     [:h1 (:title data)]
     [:div
      (for [m (:items data)]
-       [:div
-        [:a {:href (str "/item/" (:uuid m))}
+       [:div.foobar
+        [:a.bazbuz {:href (str "/item/" (:uuid m))}
          (:name m)]])]]])
 
 (defn hiccup-page
@@ -22,8 +22,8 @@
      [:h1 (:title data)]
      [:div
       (for [m (:items data)]
-        [:div
-         [:a {:href (str "/item/" (:uuid m))}
+        [:div.foobar
+         [:a.bazbuz {:href (str "/item/" (:uuid m))}
           (:name m)]])]]]))
 
 (def data
