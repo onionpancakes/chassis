@@ -127,7 +127,7 @@
       (doseq [t this]
         (if @append-space
           (when (append-attribute-value-space-for-next? t)
-            (.append sb " "))          
+            (.append sb " "))
           (vreset! append-space true))
         (append-attribute-value-fragment-to-string-builder t sb)))
     sb)
@@ -140,7 +140,7 @@
       (doseq [t this]
         (if @append-space
           (when (append-attribute-value-space-for-next? t)
-            (.append sb " "))          
+            (.append sb " "))
           (vreset! append-space true))
         (append-attribute-value-fragment-to-string-builder t sb)))
     sb)
