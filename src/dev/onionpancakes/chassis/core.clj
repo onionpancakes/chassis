@@ -124,6 +124,23 @@
   (toString [this]
     (fragment this)))
 
+(deftype Raw [token]
+  Token
+  (fragment [this]
+    (str token))
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (str token)))
+  Node
+  (branch? [this] false)
+  (children [this] [])
+  Object
+  (toString [_]
+    (str token)))
+
+(defn raw
+  [token]
+  (Raw. token))
+
 (extend-protocol Token
   String
   (fragment [this]
