@@ -1,5 +1,8 @@
 (ns dev.onionpancakes.chassis.core)
 
+(defprotocol AttributeValue
+  (append-attribute-to-string-builder [this sb attr-name]))
+
 (defprotocol Token
   (fragment ^String [this])
   (append-fragment-to-string-builder [this sb]))
@@ -57,6 +60,46 @@
   (eduction (map fragment)
             (TokenSerializer. root)))
 
+;; Attributes impl
+
+(defn escape-attribute-value
+  ^String
+  [^String s]
+  (.. s
+      (replace "&" "&amp;")
+      (replace "<" "&lt;")
+      (replace ">" "&gt;")
+      (replace "\"" "&quot;")
+      (replace "'" "&apos;")))
+
+(defn append-string-builder-attribute-kv
+  [^StringBuilder sb k v]
+  (append-attribute-to-string-builder v sb (name k)))
+
+(defn append-string-builder-attributes
+  [^StringBuilder sb ^clojure.lang.IKVReduce attrs]
+  (if attrs
+    (.kvreduce attrs append-string-builder-attribute-kv sb))
+  sb)
+
+(extend-protocol AttributeValue
+  String
+  (append-attribute-to-string-builder [this sb attr-name]
+    (.. ^StringBuilder sb
+        (append " ")
+        (append attr-name)
+        (append "=\"")
+        (append (escape-attr-value this))
+        (append "\"")))
+  Object
+  (append-attribute-to-string-builder [this sb attr-name]
+    (.. ^StringBuilder sb
+        (append " ")
+        (append attr-name)
+        (append "=\"")
+        (append (escape-attr-value (.toString this)))
+        (append "\""))))
+
 ;; Token impl
 
 (defn escape-text
@@ -67,25 +110,6 @@
       (replace "<" "&lt;")
       (replace ">" "&gt;")))
 
-(defn escape-attr-value
-  ^String
-  [^String s]
-  (.. s
-      (replace "&" "&amp;")
-      (replace "<" "&lt;")
-      (replace ">" "&gt;")
-      (replace "\"" "&quot;")
-      (replace "'" "&apos;")))
-
-(defn append-attr-kv
-  [^StringBuilder sb k v]
-  (.. sb
-      (append " ")
-      (append (name k))
-      (append "=\"")
-      (append (escape-attr-value v))
-      (append "\"")))
-
 (deftype OpeningTag [tag ^clojure.lang.IKVReduce attrs]
   Token
   (fragment [this]
@@ -93,12 +117,11 @@
           _  (.append-fragment-to-string-builder this sb)]
       (.toString sb)))
   (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb "<")
-    (.append ^StringBuilder sb (name tag))
-    (if attrs
-      (.kvreduce attrs append-attr-kv sb))
-    (.append ^StringBuilder sb ">")
-    sb)
+    (doto ^StringBuilder sb
+      (.append "<")
+      (.append (name tag))
+      (append-string-builder-attributes attrs)
+      (.append ">")))
   Node
   (branch? [this] false)
   (children [this] [])
@@ -203,7 +226,15 @@
         (.substring tname (inc start-idx))))))
 
 (defn tag-classes
-  [tag])
+  [^clojure.lang.Keyword tag]
+  (let [tname     (.getName tag)
+        start-idx (.indexOf tname (int \.))
+        end-idx   (.indexOf tname (int \#) start-idx)
+        class-str (if (pos? start-idx)
+                    (if (pos? end-idx)
+                      (.substring tname (inc start-idx) end-idx)
+                      (.substring tname (inc start-idx))))]
+    (clojure.string/split #"." class-str)))
 
 (defn element-children-0
   [elem]
