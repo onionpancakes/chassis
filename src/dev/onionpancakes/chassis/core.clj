@@ -27,14 +27,14 @@
             (recur (.pollFirst stack) ret))
           ret)))))
 
-(defn append-fragment
-  [^StringBuilder sb token]
+(defn append-string-builder-fragment
+  [sb token]
   (append-fragment-to-string-builder token sb))
 
 (defn html
   [root]
   (let [sb (StringBuilder. 16384)
-        _  (reduce-node append-fragment sb root)]
+        _  (reduce-node append-string-builder-fragment sb root)]
     (.toString sb)))
 
 ;; Token impl
