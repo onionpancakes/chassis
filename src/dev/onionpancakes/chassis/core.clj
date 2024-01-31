@@ -5,6 +5,7 @@
   (append-attribute-to-string-builder [this sb attr-name]))
 
 (defprotocol AttributeValueToken
+  (append-attribute-value-space-for-next? [this])
   (append-attribute-value-fragment-to-string-builder [this sb]))
 
 (defprotocol Token
@@ -107,25 +108,33 @@
 
 (extend-protocol AttributeValueToken
   clojure.lang.IPersistentSet
+  (append-attribute-value-space-for-next? [this]
+    (boolean (append-attribute-value-space-for-next? (first this))))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (let [append-space (volatile! false)]
       (doseq [t this]
         (if @append-space
-          (.append sb " ")
+          (when (append-attribute-value-space-for-next? t)
+            (.append sb " "))          
           (vreset! append-space true))
         (append-attribute-value-fragment-to-string-builder t sb)))
     sb)
   clojure.lang.IPersistentVector
+  (append-attribute-value-space-for-next? [this]
+    (boolean (append-attribute-value-space-for-next? (first this))))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (loop [i 0 cnt (count this)]
-      (when (< i cnt)
-        (if (pos? i)
-          (.append sb " "))
-        (-> (.nth this i)
-            (append-attribute-value-fragment-to-string-builder sb))
-        (recur (inc i) cnt)))
+    (loop [idx 0 cnt (count this)]
+      (when (< idx cnt)
+        (let [x (.nth this idx)]
+          (when (and (pos? idx) (append-attribute-value-space-for-next? x))
+            (.append sb " "))
+          (append-attribute-value-fragment-to-string-builder x sb)
+          (recur (inc idx) cnt))))
     sb)
   clojure.lang.Keyword
+  (append-attribute-value-space-for-next? [this]
+    (and (not (namespace this))
+         (not (.isEmpty (.getName this)))))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (if-not (namespace this)
       (.append sb (escape-attribute-value (.getName this)))
@@ -133,14 +142,20 @@
       )
     sb)
   String
+  (append-attribute-value-space-for-next? [this]
+    (not (.isEmpty this)))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value this)))
   Object
+  (append-attribute-value-space-for-next? [this]
+    (not (.isEmpty (.toString this))))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value (.toString this))))
   Boolean
+  (append-attribute-value-space-for-next? [_] false)
   (append-attribute-value-fragment-to-string-builder [_ sb] sb)
   nil
+  (append-attribute-value-space-for-next? [this] false)
   (append-attribute-value-fragment-to-string-builder [_ sb] sb))
 
 ;; Token impl
