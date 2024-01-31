@@ -101,11 +101,11 @@
     sb)
   String
   (append-attribute-value-to-string-builder [this sb]
-    (.append ^StringBuilder sb (escape-attr-value this))
+    (.append ^StringBuilder sb (escape-attribute-value this))
     sb)
   Object
   (append-attribute-value-to-string-builder [this sb]
-    (.append ^StringBuilder sb (escape-attr-value (.toString this)))
+    (.append ^StringBuilder sb (escape-attribute-value (.toString this)))
     sb)
   nil
   (append-attribute-value-to-string-builder [this sb] sb))
