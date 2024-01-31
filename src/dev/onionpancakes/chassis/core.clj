@@ -106,6 +106,15 @@
   (append-attribute-to-string-builder [_ sb _] sb))
 
 (extend-protocol AttributeValueToken
+  clojure.lang.IPersistentSet
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (let [append-space (volatile! false)]
+      (doseq [t this]
+        (if @append-space
+          (.append sb " ")
+          (vreset! append-space true))
+        (append-attribute-value-fragment-to-string-builder t sb)))
+    sb)
   clojure.lang.IPersistentVector
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (loop [i 0 cnt (count this)]
@@ -115,6 +124,13 @@
         (-> (.nth this i)
             (append-attribute-value-fragment-to-string-builder sb))
         (recur (inc i) cnt)))
+    sb)
+  clojure.lang.Keyword
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (if-not (namespace this)
+      (.append sb (escape-attribute-value (.getName this)))
+      ;; Handle namespaced keywords as special attribute values?
+      )
     sb)
   String
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
