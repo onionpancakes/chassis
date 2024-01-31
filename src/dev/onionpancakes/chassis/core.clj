@@ -77,17 +77,18 @@
       (replace "\"" "&quot;")
       (replace "'" "&apos;")))
 
-(defn append-string-builder-attribute-kv
+(defn append-string-builder-attribute-kv-except-id-class
   [^StringBuilder sb k v]
-  (when-not (namespace k)
+  (when-not (or (identical? k :class)
+                (identical? k :id)
+                (namespace k))
     (append-attribute-to-string-builder v sb (name k)))
   sb)
 
-(defn append-string-builder-attribute-map
+(defn append-string-builder-attribute-map-except-id-class
   [^StringBuilder sb ^clojure.lang.IKVReduce attrs]
   (if attrs
-    (.kvreduce attrs append-string-builder-attribute-kv sb))
-  sb)
+    (.kvreduce attrs append-string-builder-attribute-kv-except-id-class sb)))
 
 (extend-protocol AttributeValue
   Boolean
@@ -148,7 +149,7 @@
     (and (pos? (.count this))
          (append-attribute-value-space-for-next? (.nth this 0))))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (loop [idx 0 cnt (count this)]
+    (loop [idx 0 cnt (.count this)]
       (when (< idx cnt)
         (let [x (.nth this idx)]
           (when (and (pos? idx) (append-attribute-value-space-for-next? x))
@@ -190,14 +191,23 @@
       (replace "<" "&lt;")
       (replace ">" "&gt;")))
 
-(deftype OpeningTag [tag attrs]
+(deftype OpeningTag [tag tag-id tag-class attrs]
   Token
   (append-fragment-to-string-builder [this sb]
-    (doto ^StringBuilder sb
-      (.append "<")
-      (.append (name tag))
-      (append-string-builder-attribute-map attrs)
-      (.append ">")))
+    (.append ^StringBuilder sb "<")
+    (.append ^StringBuilder sb (name tag))
+    (if tag-id
+      (append-attribute-to-string-builder tag-id sb "id")
+      (if (contains? attrs :id)
+        (append-attribute-to-string-builder (get attrs :id) sb "id")))
+    (if tag-class
+      (if (contains? attrs :class)
+        (append-attribute-to-string-builder [tag-class (get attrs :class)] sb "class")
+        (append-attribute-to-string-builder tag-class sb "class"))
+      (if (contains? attrs :class)
+        (append-attribute-to-string-builder (get attrs :class) sb "class")))
+    (append-string-builder-attribute-map-except-id-class sb attrs)
+    (.append ^StringBuilder sb ">"))
   (fragment [this]
     (let [sb (StringBuilder. 64)
           _  (.append-fragment-to-string-builder this sb)]
@@ -331,13 +341,10 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
-        tcl   (tag-class tic)
-        attrs (cond-> {}
-                tid (assoc :id tid)
-                tcl (assoc :class tcl))]
+        tcl   (tag-class tic)]
     (if (void-tag? tag)
-      [(OpeningTag. tag attrs)]
-      [(OpeningTag. tag attrs)
+      [(OpeningTag. tag tid tcl nil)]
+      [(OpeningTag. tag tid tcl nil)
        (ClosingTag. tag)])))
 
 (defn element-children-2-attrs
@@ -346,13 +353,10 @@
         tag   (base-tag tic)
         tid   (tag-id tic)
         tcl   (tag-class tic)
-        amap  (.nth elem 1)
-        attrs (cond-> amap
-                tid (assoc :id tid)
-                tcl (assoc :class [tcl (:class amap)]))]
+        attrs (.nth elem 1)]
     (if (void-tag? tag)
-      [(OpeningTag. tag attrs)]
-      [(OpeningTag. tag attrs)
+      [(OpeningTag. tag tid tcl attrs)]
+      [(OpeningTag. tag tid tcl attrs)
        (ClosingTag. tag)])))
 
 (defn element-children-2
@@ -360,14 +364,11 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
-        tcl   (tag-class tic)
-        attrs (cond-> {}
-                tid (assoc :id tid)
-                tcl (assoc :class tcl))]
+        tcl   (tag-class tic)]
    (if (and (void-tag? tag)
             (nil? (.nth elem 1)))
-     [(OpeningTag. tag attrs)]
-     [(OpeningTag. tag attrs)
+     [(OpeningTag. tag tid tcl nil)]
+     [(OpeningTag. tag tid tcl nil)
       (.nth elem 1)
       (ClosingTag. tag)])))
 
@@ -377,11 +378,8 @@
         tag   (base-tag tic)
         tid   (tag-id tic)
         tcl   (tag-class tic)
-        amap  (.nth elem 1)
-        attrs (cond-> amap
-                tid (assoc :id tid)
-                tcl (assoc :class [tcl (:class amap)]))]
-    [(OpeningTag. tag attrs)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
      (.nth elem 2)
      (ClosingTag. tag)]))
 
@@ -390,11 +388,8 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
-        tcl   (tag-class tic)
-        attrs (cond-> {}
-                tid (assoc :id tid)
-                tcl (assoc :class tcl))]
-    [(OpeningTag. tag attrs)
+        tcl   (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
      (.nth elem 1)
      (.nth elem 2)
      (ClosingTag. tag)]))
@@ -405,11 +400,8 @@
         tag   (base-tag tic)
         tid   (tag-id tic)
         tcl   (tag-class tic)
-        amap  (.nth elem 1)
-        attrs (cond-> amap
-                tid (assoc :id tid)
-                tcl (assoc :class [tcl (:class amap)]))]
-    [(OpeningTag. tag attrs)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
      (next (next elem))
      (ClosingTag. tag)]))
 
@@ -418,11 +410,8 @@
   (let [tic   (.nth elem 0)
         tag   (base-tag tic)
         tid   (tag-id tic)
-        tcl   (tag-class tic)
-        attrs (cond-> {}
-                tid (assoc :id tid)
-                tcl (assoc :class tcl))]
-    [(OpeningTag. tag attrs)
+        tcl   (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
      (next elem)
      (ClosingTag. tag)]))
 
