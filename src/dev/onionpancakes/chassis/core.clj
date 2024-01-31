@@ -89,14 +89,19 @@
   sb)
 
 (extend-protocol AttributeValue
+  Boolean
+  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
+    (when this
+      (.append sb " ")
+      (.append sb attr-name))
+    sb)
   Object
   (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
     (.append sb " ")
     (.append sb attr-name)
     (.append sb "=\"")
     (append-attribute-value-fragment-to-string-builder this sb)
-    (.append sb "\"")
-    sb)
+    (.append sb "\""))
   nil
   (append-attribute-to-string-builder [_ sb _] sb))
 
@@ -117,6 +122,8 @@
   Object
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (.append sb (escape-attribute-value (.toString this))))
+  Boolean
+  (append-attribute-value-fragment-to-string-builder [_ sb] sb)
   nil
   (append-attribute-value-fragment-to-string-builder [_ sb] sb))
 
