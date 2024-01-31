@@ -181,6 +181,7 @@
 
 (defn base-tag
   [tag]
+  ;; TODO
   (keyword (name tag)))
 
 (defn tag-id
@@ -222,11 +223,11 @@
 
 (defn element-children-3-attrs
   [^clojure.lang.Indexed elem]
-  (let [tn    (base-tag (.nth elem 0))
+  (let [tag   (base-tag (.nth elem 0))
         attrs (.nth elem 1)]
-    [(OpeningTag. tn attrs)
+    [(OpeningTag. tag attrs)
      (.nth elem 2)
-     (ClosingTag. tn)]))
+     (ClosingTag. tag)]))
 
 (defn element-children-3
   [^clojure.lang.Indexed elem]
