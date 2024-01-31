@@ -1,4 +1,5 @@
-(ns dev.onionpancakes.chassis.core)
+(ns dev.onionpancakes.chassis.core
+  (:require [clojure.string]))
 
 (defprotocol AttributeValue
   (append-attribute-value-to-string-builder [this sb]))
@@ -271,7 +272,7 @@
         tid   (tag-id tic)
         amap  (.nth elem 1)
         attrs (cond-> amap
-                (and tid (nil? (:id amap))) (assoc :id tid))]
+                tid (assoc :id tid))]
     (if (void-tag? tag)
       [(OpeningTag. tag attrs)]
       [(OpeningTag. tag attrs)
@@ -298,7 +299,7 @@
         tid   (tag-id tic)
         amap  (.nth elem 1)
         attrs (cond-> amap
-                (and tid (nil? (:id amap))) (assoc :id tid))]
+                tid (assoc :id tid))]
     [(OpeningTag. tag attrs)
      (.nth elem 2)
      (ClosingTag. tag)]))
@@ -322,7 +323,7 @@
         tid   (tag-id tic)
         amap  (.nth elem 1)
         attrs (cond-> amap
-                (and tid (nil? (:id amap))) (assoc :id tid))]
+                tid (assoc :id tid))]
     [(OpeningTag. tag attrs)
      (next (next elem))
      (ClosingTag. tag)]))
