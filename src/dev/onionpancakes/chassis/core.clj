@@ -70,11 +70,7 @@
   Token
   (fragment [this]
     (let [sb (StringBuilder. 64)
-          _  (.append sb "<")
-          _  (.append sb (name tag))
-          _  (if attrs
-               (.kvreduce attrs append-attr-kv sb))
-          _  (.append sb ">")]
+          _  (.append-fragment-to-string-builder this sb)]
       (.toString sb)))
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb "<")
@@ -93,11 +89,9 @@
 (deftype ClosingTag [tag]
   Token
   (fragment [this]
-    (.. (StringBuilder.)
-        (append "</")
-        (append (name tag))
-        (append ">")
-        (toString)))
+    (let [sb (StringBuilder.)
+          _  (.append-fragment-to-string-builder this sb)]
+      (.toString sb)))
   (append-fragment-to-string-builder [this sb]
     (.. ^StringBuilder sb
         (append "</")
