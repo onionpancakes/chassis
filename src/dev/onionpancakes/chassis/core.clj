@@ -163,7 +163,7 @@
 (defn void-tag?
   [tag]
   (case tag
-    (:area 
+    (:area
      :base
      :br
      :col
