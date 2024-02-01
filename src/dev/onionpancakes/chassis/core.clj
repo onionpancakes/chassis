@@ -102,6 +102,8 @@
   (append-attribute-to-string-builder [_ sb _]
     (.append ^StringBuilder sb " class=\"")
     (.append ^StringBuilder sb (escape-attribute-value tag-class))
+    ;; ::none is needed to tell whether attr-class is absent from the the attr map.
+    ;; nil is insufficient since it represents either absence or presence with nil value.
     (when-not (identical? attr-class ::none)
       (.append ^StringBuilder sb " ")
       (append-attribute-value-fragment-to-string-builder attr-class sb))
