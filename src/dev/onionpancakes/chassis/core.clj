@@ -179,10 +179,10 @@
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (loop [idx 0 cnt (.count this)]
       (when (< idx cnt)
-        (let [x (.nth this idx)]
-          (when (and (pos? idx) (append-attribute-value-space-for-next? x))
+        (let [t (.nth this idx)]
+          (when (and (pos? idx) (append-attribute-value-space-for-next? t))
             (.append sb " "))
-          (append-attribute-value-fragment-to-string-builder x sb)
+          (append-attribute-value-fragment-to-string-builder t sb)
           (recur (inc idx) cnt))))
     sb)
   clojure.lang.Keyword
