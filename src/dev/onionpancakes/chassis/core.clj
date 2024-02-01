@@ -277,8 +277,8 @@
   (fragment [this]
     (str token))
   Object
-  (toString [_]
-    (str token)))
+  (toString [this]
+    (fragment this)))
 
 (defn raw
   [token]
