@@ -285,11 +285,6 @@
   (Raw. token))
 
 (extend-protocol Token
-  clojure.lang.IDeref
-  (append-fragment-to-string-builder [this sb]
-    (append-fragment-to-string-builder (.deref this) sb))
-  (fragment [this]
-    (fragment (.deref this)))
   ;; Not escaped. Should be safe.
   java.util.UUID
   (append-fragment-to-string-builder [this sb]
@@ -563,10 +558,10 @@
   (children [this] this)
   clojure.lang.IDeref
   (children [this]
-    (children (.deref this)))
+    (list (.deref this)))
   clojure.lang.Fn
   (children [this]
-    (children (this)))
+    (list (this)))
   Object
   (children [_] nil)
   nil
