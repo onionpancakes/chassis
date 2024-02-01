@@ -441,6 +441,84 @@
      (.nth elem 2)
      (ClosingTag. tag)]))
 
+(defn element-children-4-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (ClosingTag. tag)]))
+
+(defn element-children-4
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (ClosingTag. tag)]))
+
+(defn element-children-5-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (ClosingTag. tag)]))
+
+(defn element-children-5
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (ClosingTag. tag)]))
+
+(defn element-children-6-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (ClosingTag. tag)]))
+
+(defn element-children-6
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (ClosingTag. tag)]))
+
 (defn element-children-n-attrs
   [^clojure.lang.Indexed elem]
   (let [tic   (.nth elem 0)
@@ -471,12 +549,18 @@
         (case (.count this)
           2 (element-children-2-attrs this)
           3 (element-children-3-attrs this)
+          4 (element-children-4-attrs this)
+          5 (element-children-5-attrs this)
+          6 (element-children-6-attrs this)
           (element-children-n-attrs this))
         (case (.count this)
           0 (element-children-0 this)
           1 (element-children-1 this)
           2 (element-children-2 this)
           3 (element-children-3 this)
+          4 (element-children-4 this)
+          5 (element-children-5 this)
+          6 (element-children-6 this)
           (element-children-n this)))
       this))
   clojure.lang.ISeq
