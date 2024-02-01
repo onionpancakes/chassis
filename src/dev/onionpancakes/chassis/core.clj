@@ -13,7 +13,6 @@
   (fragment ^String [this]))
 
 (defprotocol Node
-  (branch? [this])
   (children ^Iterable [this]))
 
 ;; Reduce
@@ -26,11 +25,12 @@
         (.deref ^clojure.lang.IDeref ret)
         (if cur
           (if (.hasNext cur)
-            (let [node (.next cur)]
-              (if (branch? node)
+            (let [node (.next cur)
+                  ch   (children node)]
+              (if ch
                 (do
                   (.addFirst stack cur)
-                  (recur (.iterator (children node)) ret))
+                  (recur (.iterator ch) ret))
                 (recur cur (rf ret node))))
             (recur (.pollFirst stack) ret))
           ret)))))
@@ -249,9 +249,6 @@
     (let [sb (StringBuilder. 64)
           _  (.append-fragment-to-string-builder this sb)]
       (.toString sb)))
-  Node
-  (branch? [this] false)
-  (children [this] [])
   Object
   (toString [this]
     (fragment this)))
@@ -267,9 +264,6 @@
     (let [sb (StringBuilder.)
           _  (.append-fragment-to-string-builder this sb)]
       (.toString sb)))
-  Node
-  (branch? [this] false)
-  (children [this] [])
   Object
   (toString [this]
     (fragment this)))
@@ -283,9 +277,6 @@
     (.append ^StringBuilder sb (str token)))
   (fragment [this]
     (str token))
-  Node
-  (branch? [this] false)
-  (children [this] [])
   Object
   (toString [_]
     (str token)))
@@ -549,7 +540,6 @@
 
 (extend-protocol Node
   clojure.lang.IPersistentVector
-  (branch? [_] true)
   (children [this]
     (if (keyword? (.nth this 0 nil))
       (if (map? (.nth this 1 nil))
@@ -571,19 +561,17 @@
           (element-children-n this)))
       this))
   clojure.lang.ISeq
-  (branch? [_] true)
   (children [this] this)
   clojure.lang.IDeref
-  (branch? [this]
-    (branch? (deref this)))
   (children [this]
     (children (deref this)))
+  clojure.lang.Fn
+  (children [this]
+    (children (this)))
   Object
-  (branch? [_] false)
-  (children [_] [])
+  (children [_] nil)
   nil
-  (branch? [_] false)
-  (children [_] []))
+  (children [_] nil))
 
 ;; Raw consts
 
