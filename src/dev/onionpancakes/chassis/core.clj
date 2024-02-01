@@ -488,3 +488,8 @@
   nil
   (branch? [_] false)
   (children [_] []))
+
+;; Raw consts
+
+(def doctype-html5
+  (raw "<!DOCTYPE html>"))
