@@ -6,6 +6,12 @@
 (defn page
   [data]
   [:html {:lang "en"}
+   [:head
+    [:link {:href "/foobar1" :rel "stylesheet"}]
+    [:link {:href "/foobar2" :rel "stylesheet"}]
+    [:link {:href "/foobar3" :rel "stylesheet"}]
+    [:link {:href "/foobar4" :rel "stylesheet"}]
+    [:title (:title data)]]
    [:body
     [:h1 (:title data)]
     [:div
@@ -20,6 +26,12 @@
   [data]
   (h/html
    [:html {:lang "en"}
+    [:head
+     [:link {:href "/foobar1" :rel "stylesheet"}]
+     [:link {:href "/foobar2" :rel "stylesheet"}]
+     [:link {:href "/foobar3" :rel "stylesheet"}]
+     [:link {:href "/foobar4" :rel "stylesheet"}]
+     [:title (:title data)]]
     [:body
      [:h1 (:title data)]
      [:div
