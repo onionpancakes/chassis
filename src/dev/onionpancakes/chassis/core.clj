@@ -90,7 +90,35 @@
   (if attrs
     (.kvreduce attrs append-string-builder-attribute-kv-except-id-class sb)))
 
+(deftype TagId [tag-id]
+  AttributeValue
+  (append-attribute-to-string-builder [_ sb _]
+    (.append ^StringBuilder sb " id=\"")
+    (.append ^StringBuilder sb (escape-attribute-value tag-id))
+    (.append ^StringBuilder sb "\"")))
+
+(deftype TagClass [tag-class attr-class]
+  AttributeValue
+  (append-attribute-to-string-builder [_ sb _]
+    (.append ^StringBuilder sb " class=\"")
+    (.append ^StringBuilder sb (escape-attribute-value tag-class))
+    (when-not (identical? attr-class ::none)
+      (.append ^StringBuilder sb " ")
+      (append-attribute-value-fragment-to-string-builder attr-class sb))
+    (.append ^StringBuilder sb "\"")))
+
 (extend-protocol AttributeValue
+  clojure.lang.Keyword
+  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
+    (if (namespace this)
+      nil ;; Handle namespaced keywords?
+      (do
+        (.append sb " ")
+        (.append sb attr-name)
+        (.append sb "=\"")
+        (append-attribute-value-fragment-to-string-builder this sb)
+        (.append sb "\"")))
+    sb)
   Boolean
   (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
     (when this
@@ -161,10 +189,9 @@
   (append-attribute-value-space-for-next? [this]
     (not (namespace this)))
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (if-not (namespace this)
-      (.append sb (escape-attribute-value (.getName this)))
-      ;; Handle namespaced keywords as special attribute values?
-      )
+    (if (namespace this)
+      nil ;; Handle namespaced keywords as special attribute values?
+      (.append sb (escape-attribute-value (.getName this))))
     sb)
   String
   (append-attribute-value-space-for-next? [this] true)
@@ -197,13 +224,11 @@
     (.append ^StringBuilder sb "<")
     (.append ^StringBuilder sb (name tag))
     (if tag-id
-      (append-attribute-to-string-builder tag-id sb "id")
+      (append-attribute-to-string-builder (TagId. tag-id) sb "id")
       (if (contains? attrs :id)
         (append-attribute-to-string-builder (get attrs :id) sb "id")))
     (if tag-class
-      (if (contains? attrs :class)
-        (append-attribute-to-string-builder [tag-class (get attrs :class)] sb "class")
-        (append-attribute-to-string-builder tag-class sb "class"))
+      (append-attribute-to-string-builder (TagClass. tag-class (get attrs :class ::none)) sb "class")
       (if (contains? attrs :class)
         (append-attribute-to-string-builder (get attrs :class) sb "class")))
     (append-string-builder-attribute-map-except-id-class sb attrs)

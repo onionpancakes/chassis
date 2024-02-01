@@ -11,7 +11,9 @@
     [:div
      (for [m (:items data)]
        [:div.foobar
-        [:a.bazbuz {:href (str "/item/" (:uuid m))}
+        [:a.baz.buz {:id    (:uuid m)
+                     :class (:type m)
+                     :href  (str "/item/" (:uuid m))}
          (:name m)]])]]])
 
 (defn hiccup-page
@@ -23,10 +25,13 @@
      [:div
       (for [m (:items data)]
         [:div.foobar
-         [:a.bazbuz {:href (str "/item/" (:uuid m))}
+         [:a.baz.buz {:id    (:uuid m)
+                      :class (:type m)
+                      :href  (str "/item/" (:uuid m))}
           (:name m)]])]]]))
 
 (def data
   {:items (for [i (range 200)]
-            {:uuid (random-uuid)
+            {:type "foo"
+             :uuid (random-uuid)
              :name (str "Item: " i)})})
