@@ -347,8 +347,8 @@
 (defn base-tag
   [^clojure.lang.Keyword tag]
   (let [tname  (.getName tag)
-        id-idx (.indexOf tname (int \#))
-        cl-idx (.indexOf tname (int \.))]
+        id-idx (.indexOf tname 35 #_(int \#))
+        cl-idx (.indexOf tname 46 #_(int \.))]
     (if (pos? cl-idx)
       (if (pos? id-idx)
         (clojure.lang.Keyword/intern (.substring tname 0 (min id-idx cl-idx)))
@@ -360,8 +360,8 @@
 (defn tag-id
   [^clojure.lang.Keyword tag]
   (let [tname     (.getName tag)
-        start-idx (.indexOf tname (int \#))
-        end-idx   (.indexOf tname (int \.) start-idx)]
+        start-idx (.indexOf tname 35 #_(int \#))
+        end-idx   (.indexOf tname 46 #_(int \.) start-idx)]
     (if (pos? start-idx)
       (if (pos? end-idx)
         (.substring tname (inc start-idx) end-idx)
@@ -370,8 +370,8 @@
 (defn tag-class
   [^clojure.lang.Keyword tag]
   (let [tname     (.getName tag)
-        start-idx (.indexOf tname (int \.))
-        end-idx   (.indexOf tname (int \#) start-idx)]
+        start-idx (.indexOf tname 46 #_(int \.))
+        end-idx   (.indexOf tname 35 #_(int \#) start-idx)]
     (if (pos? start-idx)
       (if (pos? end-idx)
         (.. tname
