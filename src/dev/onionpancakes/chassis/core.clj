@@ -564,7 +564,7 @@
   (children [this] this)
   clojure.lang.IDeref
   (children [this]
-    (children (deref this)))
+    (children (.deref this)))
   clojure.lang.Fn
   (children [this]
     (children (this)))
