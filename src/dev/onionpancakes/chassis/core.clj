@@ -187,6 +187,11 @@
           (append-attribute-value-fragment-to-string-builder t sb)
           (recur (inc idx) cnt))))
     sb)
+  clojure.lang.IDeref
+  (append-attribute-value-space-for-next? [this]
+    (append-attribute-value-space-for-next? (.deref this)))
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (append-attribute-value-fragment-to-string-builder (.deref this) sb))
   clojure.lang.Keyword
   (append-attribute-value-space-for-next? [this]
     (not (namespace this)))
@@ -295,6 +300,11 @@
   (Raw. token))
 
 (extend-protocol Token
+  clojure.lang.IDeref
+  (append-fragment-to-string-builder [this sb]
+    (append-fragment-to-string-builder (.deref this) sb))
+  (fragment [this]
+    (fragment (.deref this)))
   ;; Not escaped. Should be safe.
   java.util.UUID
   (append-fragment-to-string-builder [this sb]
