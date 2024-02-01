@@ -193,6 +193,16 @@
       nil ;; Handle namespaced keywords as special attribute values?
       (.append sb (escape-attribute-value (.getName this))))
     sb)
+  ;; Not escaped. Should be safe.
+  java.util.UUID
+  (append-attribute-value-space-for-next? [this] true)
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (.append sb (.toString this)))
+  ;; Not escaped. Should be safe.
+  Number
+  (append-attribute-value-space-for-next? [this] true)
+  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+    (.append sb (.toString this)))
   String
   (append-attribute-value-space-for-next? [this] true)
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
@@ -283,6 +293,18 @@
   (Raw. token))
 
 (extend-protocol Token
+  ;; Not escaped. Should be safe.
+  java.util.UUID
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (.toString this)))
+  (fragment [this]
+    (.toString this))
+  ;; Not escaped. Should be safe.
+  Number
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (.toString this)))
+  (fragment [this]
+    (.toString this))
   String
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (escape-text this)))
