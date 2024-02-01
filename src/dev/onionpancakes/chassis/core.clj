@@ -53,8 +53,7 @@
     (reduce-node rf init root))
   clojure.lang.Seqable
   (seq [this]
-    (->> (tree-seq branch? children root)
-         (remove branch?))))
+    (seq (vec this))))
 
 (defn token-serializer
   [root]
