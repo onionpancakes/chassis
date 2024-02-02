@@ -3,7 +3,8 @@
             [criterium.core :refer [quick-bench]]
             [hiccup2.core :as hiccup]
             [hiccup.page :as hiccup.page]
-            [selmer.parser :as selmer]))
+            [selmer.parser :as selmer]
+            [net.cgrand.enlive-html :as enlive]))
 
 (defn page
   [data]
@@ -61,6 +62,22 @@
 (defn selmer-page
   [data]
   (selmer/render-file "selmer/page.html" data))
+
+(enlive/deftemplate enlive-page-template "enlive/page.html"
+  [data]
+  [:body :h1] (enlive/content (:title data))
+  [:body :div] (enlive/content
+                (for [m (:items data)]
+                  (enlive/html
+                   [:div.foobar
+                    [:a.baz.buz {:id    (:uuid m)
+                                 :class (:type m)
+                                 :href  (str "/item/" (:uuid m))}
+                     (:name m)]]))))
+
+(defn enlive-page
+  [data]
+  (apply str (enlive-page-template data)))
 
 (def data
   {:title "Test Items"
