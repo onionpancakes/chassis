@@ -1,5 +1,4 @@
-(ns dev.onionpancakes.chassis.core
-  (:require [clojure.string]))
+(ns dev.onionpancakes.chassis.core)
 
 (defprotocol AttributeValue
   (append-attribute-to-string-builder [this sb attr-name]))
