@@ -533,17 +533,25 @@
         tcl   (tag-class tic)
         attrs (.nth elem 1)]
     [(OpeningTag. tag tid tcl attrs)
-     (next (next elem))
+     ;; Subvec iterators are faster than seq iterators.
+     ;; Reify as anon Node to avoid being interpreted as element.
+     (reify Node
+       (children [_]
+         (subvec elem 2)))
      (ClosingTag. tag)]))
 
 (defn element-children-n
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
     [(OpeningTag. tag tid tcl nil)
-     (next elem)
+     ;; Subvec iterators are faster than seq iterators.
+     ;; Reify as anon Node to avoid being interpreted as element.
+     (reify Node
+       (children [_]
+         (subvec elem 1)))
      (ClosingTag. tag)]))
 
 (extend-protocol Node
