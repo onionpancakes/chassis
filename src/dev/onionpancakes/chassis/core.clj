@@ -4,8 +4,7 @@
   (append-attribute-to-string-builder [this sb attr-name]))
 
 (defprotocol AttributeValueToken
-  (append-attribute-value-space-for-next? [this])
-  (append-attribute-value-fragment-to-string-builder [this sb]))
+  (attribute-value-fragment [this]))
 
 (defprotocol Token
   (append-fragment-to-string-builder [this sb])
@@ -123,32 +122,38 @@
 (deftype TagId [tag-id]
   AttributeValue
   (append-attribute-to-string-builder [_ sb _]
-    (.append ^StringBuilder sb " id=\"")
-    (.append ^StringBuilder sb (escape-attribute-value-fragment tag-id))
-    (.append ^StringBuilder sb "\"")))
+    (let [val-frag (escape-attribute-value-fragment tag-id)]
+      (.append ^StringBuilder sb " id=\"")
+      (.append ^StringBuilder sb val-frag)
+      (.append ^StringBuilder sb "\""))))
 
 (deftype TagClass [tag-class attr-class]
   AttributeValue
   (append-attribute-to-string-builder [_ sb _]
-    (.append ^StringBuilder sb " class=\"")
-    (.append ^StringBuilder sb (escape-attribute-value-fragment tag-class))
-    ;; ::none is needed to tell whether attr-class is absent from the the attr map.
     ;; nil is insufficient since it represents both absence and presence (with nil value).
-    (when-not (identical? attr-class ::none)
-      (.append ^StringBuilder sb " ")
-      (append-attribute-value-fragment-to-string-builder attr-class sb))
-    (.append ^StringBuilder sb "\"")))
+    (if-not (identical? attr-class ::none)
+      (let [tag-val-frag (escape-attribute-value-fragment tag-class)]
+        (.append ^StringBuilder sb " class=\"")
+        (.append ^StringBuilder sb tag-val-frag)
+        (.append ^StringBuilder sb "\""))
+      (let [tag-val-frag  (escape-attribute-value-fragment tag-class)
+            attr-val-frag (attribute-value-fragment attr-class)]
+        (.append ^StringBuilder sb " class=\"")
+        (.append ^StringBuilder sb tag-val-frag)
+        (.append ^StringBuilder sb " ")
+        (.append ^StringBuilder sb attr-val-frag)
+        (.append ^StringBuilder sb "\"")))))
 
 (extend-protocol AttributeValue
   clojure.lang.Keyword
   (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
     (if (namespace this)
       nil ;; Handle namespaced keywords?
-      (do
+      (let [val-frag (attribute-value-fragment this)]
         (.append sb " ")
         (.append sb attr-name)
         (.append sb "=\"")
-        (append-attribute-value-fragment-to-string-builder this sb)
+        (.append sb val-frag)
         (.append sb "\"")))
     sb)
   Boolean
@@ -159,96 +164,51 @@
     sb)
   Object
   (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
-    (.append sb " ")
-    (.append sb attr-name)
-    (.append sb "=\"")
-    (append-attribute-value-fragment-to-string-builder this sb)
-    (.append sb "\""))
+    (let [val-frag (attribute-value-fragment this)]
+      (.append sb " ")
+      (.append sb attr-name)
+      (.append sb "=\"")
+      (.append sb val-frag)
+      (.append sb "\"")))
   nil
   (append-attribute-to-string-builder [_ sb _] sb))
 
 (extend-protocol AttributeValueToken
-  clojure.lang.MapEntry
-  (append-attribute-value-space-for-next? [this]
-    (append-attribute-value-space-for-next? (val this)))
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (when (val this)
-      (append-attribute-value-fragment-to-string-builder (key this) sb)
-      (.append sb ": ")
-      (append-attribute-value-fragment-to-string-builder (val this) sb)
-      (.append sb ";"))
-    sb)
   clojure.lang.IPersistentMap
-  (append-attribute-value-space-for-next? [this]
-    (and (pos? (.count this))
-         (append-attribute-value-space-for-next? (val (first this)))))
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (let [append-space (volatile! false)]
-      (doseq [t this]
-        (if @append-space
-          (when (append-attribute-value-space-for-next? t)
-            (.append sb " "))
-          (vreset! append-space true))
-        (append-attribute-value-fragment-to-string-builder t sb)))
-    sb)
+  (attribute-value-fragment [this]
+    ;; TODO
+    nil)
   clojure.lang.IPersistentSet
-  (append-attribute-value-space-for-next? [this]
-    (and (pos? (.count this))
-         (append-attribute-value-space-for-next? (first this))))
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (let [append-space (volatile! false)]
-      (doseq [t this]
-        (if @append-space
-          (when (append-attribute-value-space-for-next? t)
-            (.append sb " "))
-          (vreset! append-space true))
-        (append-attribute-value-fragment-to-string-builder t sb)))
-    sb)
+  (attribute-value-fragment [this]
+    ;; TODO
+    nil)
   clojure.lang.IPersistentVector
-  (append-attribute-value-space-for-next? [this]
-    (and (pos? (.count this))
-         (append-attribute-value-space-for-next? (.nth this 0))))
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (loop [idx 0 cnt (.count this)]
-      (when (< idx cnt)
-        (let [t (.nth this idx)]
-          (when (and (pos? idx) (append-attribute-value-space-for-next? t))
-            (.append sb " "))
-          (append-attribute-value-fragment-to-string-builder t sb)
-          (recur (inc idx) cnt))))
-    sb)
+  (attribute-value-fragment [this]
+    ;; TODO
+    nil)
   clojure.lang.Keyword
-  (append-attribute-value-space-for-next? [this]
-    (not (namespace this)))
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
+  (attribute-value-fragment [this]
     (if (namespace this)
       nil ;; Handle namespaced keywords as special attribute values?
-      (.append sb (escape-attribute-value-fragment (.getName this))))
-    sb)
-  ;; Not escaped. Should be safe.
+      (escape-attribute-value-fragment (.getName this))))
   java.util.UUID
-  (append-attribute-value-space-for-next? [this] true)
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (.append sb (.toString this)))
-  ;; Not escaped. Should be safe.
+  (attribute-value-fragment [this]
+    ;; Not escaped. Should be safe.
+    (.toString this))
   Number
-  (append-attribute-value-space-for-next? [this] true)
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (.append sb (.toString this)))
+  (attribute-value-fragment [this]
+    ;; Not escaped. Should be safe.
+    (.toString this))
   String
-  (append-attribute-value-space-for-next? [this] true)
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (.append sb (escape-attribute-value-fragment this)))
+  (attribute-value-fragment [this]
+    (escape-attribute-value-fragment this))
   Object
-  (append-attribute-value-space-for-next? [this] true)
-  (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (.append sb (escape-attribute-value-fragment (.toString this))))
+  (attribute-value-fragment [this]
+    (escape-attribute-value-fragment (.toString this)))
   Boolean
-  (append-attribute-value-space-for-next? [_] false)
-  (append-attribute-value-fragment-to-string-builder [_ sb] sb)
+  (attribute-value-fragment [this] nil)
   nil
-  (append-attribute-value-space-for-next? [this] false)
-  (append-attribute-value-fragment-to-string-builder [_ sb] sb))
+  (attribute-value-fragment [this] nil))
 
 ;; Token impl
 
@@ -305,8 +265,7 @@
 
 (deftype RawString [value]
   AttributeValueToken
-  (append-attribute-value-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (str value)))
+  (attribute-value-fragment [this] (str value))
   Token
   (append-fragment-to-string-builder [this sb]
     (.append ^StringBuilder sb (str value)))
@@ -325,15 +284,15 @@
   (raw-string value))
 
 (extend-protocol Token
-  ;; Not escaped. Should be safe.
   java.util.UUID
   (append-fragment-to-string-builder [this sb]
+    ;; Not escaped. Should be saf.e
     (.append ^StringBuilder sb (.toString this)))
   (fragment [this]
     (.toString this))
-  ;; Not escaped. Should be safe.
   Number
   (append-fragment-to-string-builder [this sb]
+    ;; Not escaped. Should be safe.
     (.append ^StringBuilder sb (.toString this)))
   (fragment [this]
     (.toString this))
