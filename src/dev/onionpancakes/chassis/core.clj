@@ -20,7 +20,7 @@
 (defn reduce-node
   [rf init root]
   (let [stack (java.util.ArrayDeque. 32)]
-    (loop [cur (.iterator ^Iterable (list root)) ret init]
+    (loop [cur (.iterator ^Iterable (vector root)) ret init]
       (if (reduced? ret)
         (.deref ^clojure.lang.IDeref ret)
         (if cur
@@ -558,10 +558,10 @@
   (children [this] this)
   clojure.lang.IDeref
   (children [this]
-    (list (.deref this)))
+    (vector (.deref this)))
   clojure.lang.Fn
   (children [this]
-    (list (this)))
+    (vector (this)))
   Object
   (children [_] nil)
   nil
