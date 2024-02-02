@@ -277,22 +277,26 @@
   (toString [this]
     (fragment this)))
 
-(deftype Raw [token]
+(deftype RawString [value]
   AttributeValueToken
   (append-attribute-value-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (str token)))
+    (.append ^StringBuilder sb (str value)))
   Token
   (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (str token)))
+    (.append ^StringBuilder sb (str value)))
   (fragment [this]
-    (str token))
+    (str value))
   Object
   (toString [this]
     (fragment this)))
 
+(defn raw-string
+  [value]
+  (RawString. value))
+
 (defn raw
-  [token]
-  (Raw. token))
+  [value]
+  (raw-string value))
 
 (extend-protocol Token
   ;; Not escaped. Should be safe.
