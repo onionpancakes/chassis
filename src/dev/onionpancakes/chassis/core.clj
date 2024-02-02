@@ -391,10 +391,10 @@
 
 (defn element-children-1
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
     (if (void-tag? tag)
       [(OpeningTag. tag tid tcl nil)]
       [(OpeningTag. tag tid tcl nil)
@@ -414,10 +414,10 @@
 
 (defn element-children-2
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
    (if (and (void-tag? tag)
             (nil? (.nth elem 1)))
      [(OpeningTag. tag tid tcl nil)]
@@ -438,10 +438,10 @@
 
 (defn element-children-3
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
     [(OpeningTag. tag tid tcl nil)
      (.nth elem 1)
      (.nth elem 2)
@@ -461,10 +461,10 @@
 
 (defn element-children-4
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
     [(OpeningTag. tag tid tcl nil)
      (.nth elem 1)
      (.nth elem 2)
@@ -486,10 +486,10 @@
 
 (defn element-children-5
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
     [(OpeningTag. tag tid tcl nil)
      (.nth elem 1)
      (.nth elem 2)
@@ -513,10 +513,10 @@
 
 (defn element-children-6
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
     [(OpeningTag. tag tid tcl nil)
      (.nth elem 1)
      (.nth elem 2)
