@@ -24,7 +24,7 @@
 ;;   Note that head of stack is held by loop binding rather than the actual head of stack.
 ;; - Node children returns a value that is as flat as possible
 ;;   to minimized the depth of search (size of Deque).
-;;   - See the count varying node-children-n implemenations.
+;;   - See the count varying node-children-n implementations
 ;; - Iterables returned by Node children should prefer implementations
 ;;   that are internally indexes to arrays.
 ;;   - Iterators over Vectors are fast, Iterators over Seqs are not as fast.
