@@ -84,7 +84,7 @@
   [^StringBuilder sb k v]
   (when-not (or (identical? k :class)
                 (identical? k :id)
-                (namespace k))
+                (and (keyword? k) (namespace k)))
     (append-attribute-to-string-builder v sb (name k)))
   sb)
 
