@@ -525,6 +525,138 @@
      (.nth elem 5)
      (ClosingTag. tag)]))
 
+(defn element-children-7-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (ClosingTag. tag)]))
+
+(defn element-children-7
+  [^clojure.lang.Indexed elem]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (ClosingTag. tag)]))
+
+(defn element-children-8-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (.nth elem 7)
+     (ClosingTag. tag)]))
+
+(defn element-children-8
+  [^clojure.lang.Indexed elem]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (.nth elem 7)
+     (ClosingTag. tag)]))
+
+(defn element-children-9-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (.nth elem 7)
+     (.nth elem 8)
+     (ClosingTag. tag)]))
+
+(defn element-children-9
+  [^clojure.lang.Indexed elem]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (.nth elem 7)
+     (.nth elem 8)
+     (ClosingTag. tag)]))
+
+(defn element-children-10-attrs
+  [^clojure.lang.Indexed elem]
+  (let [tic   (.nth elem 0)
+        tag   (base-tag tic)
+        tid   (tag-id tic)
+        tcl   (tag-class tic)
+        attrs (.nth elem 1)]
+    [(OpeningTag. tag tid tcl attrs)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (.nth elem 7)
+     (.nth elem 8)
+     (.nth elem 9)
+     (ClosingTag. tag)]))
+
+(defn element-children-10
+  [^clojure.lang.Indexed elem]
+  (let [tic (.nth elem 0)
+        tag (base-tag tic)
+        tid (tag-id tic)
+        tcl (tag-class tic)]
+    [(OpeningTag. tag tid tcl nil)
+     (.nth elem 1)
+     (.nth elem 2)
+     (.nth elem 3)
+     (.nth elem 4)
+     (.nth elem 5)
+     (.nth elem 6)
+     (.nth elem 7)
+     (.nth elem 8)
+     (.nth elem 9)
+     (ClosingTag. tag)]))
+
 (defn element-children-n-attrs
   [^clojure.lang.Indexed elem]
   (let [tic   (.nth elem 0)
@@ -565,6 +697,10 @@
           4 (element-children-4-attrs this)
           5 (element-children-5-attrs this)
           6 (element-children-6-attrs this)
+          7 (element-children-7-attrs this)
+          8 (element-children-8-attrs this)
+          9 (element-children-9-attrs this)
+          10 (element-children-10-attrs this)
           (element-children-n-attrs this))
         (case (.count this)
           0 (element-children-0 this)
@@ -574,6 +710,10 @@
           4 (element-children-4 this)
           5 (element-children-5 this)
           6 (element-children-6 this)
+          7 (element-children-7 this)
+          8 (element-children-8 this)
+          9 (element-children-9 this)
+          10 (element-children-10 this)
           (element-children-n this)))
       this))
   clojure.lang.ISeq
