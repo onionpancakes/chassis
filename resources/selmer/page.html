@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link href="/foobar1" rel="stylesheet">
+  <link href="/foobar2" rel="stylesheet">
+  <link href="/foobar3" rel="stylesheet">
+  <link href="/foobar4" rel="stylesheet">
+</head>
+
+<body>
+  <h1>{{ title }}</h1>
+  <div>
+    {% for m in items %}
+    <div class="foobar">
+      <a id="{{ m.uuid }}" class="baz buz {{ m.type }}" href="/item/{{ m.uuid }}">{{ m.name }}</a>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+
+</html>
