@@ -204,9 +204,24 @@
   Token
   (append-fragment-to-string-builder [this sb]
     (let [tag-name (.getName tag)]
-      (if (nil? attrs)
-        (if tag-id
-          (if tag-class
+      (if tag-id
+        (if tag-class
+          (if (contains? attrs :class)
+            ;; +tag-id, +tag-class, +attrs-class
+            (let [class-val-frag (attribute-value-fragment (get attrs :class))]
+              (.append ^StringBuilder sb "<")
+              (.append ^StringBuilder sb tag-name)
+              (.append ^StringBuilder sb " id=\"")
+              (.append ^StringBuilder sb tag-id)
+              (.append ^StringBuilder sb "\"")
+              (.append ^StringBuilder sb " class=\"")
+              (.append ^StringBuilder sb tag-class)
+              (.append ^StringBuilder sb " ")
+              (.append ^StringBuilder sb class-val-frag)
+              (.append ^StringBuilder sb "\"")
+              (append-string-builder-attribute-map-except-id-class sb attrs)
+              (.append ^StringBuilder sb ">"))
+            ;; +tag-id, +tag-class, -attrs-class
             (do
               (.append ^StringBuilder sb "<")
               (.append ^StringBuilder sb tag-name)
@@ -215,47 +230,124 @@
               (.append ^StringBuilder sb "\"")
               (.append ^StringBuilder sb " class=\"")
               (.append ^StringBuilder sb tag-class)
-              (.append ^StringBuilder sb "\""))
-            (do
+              (.append ^StringBuilder sb "\"")
+              (append-string-builder-attribute-map-except-id-class sb attrs)
+              (.append ^StringBuilder sb ">")))
+          (if (contains? attrs :class)
+            ;; +tag-id, -tag-class, +attrs-class
+            (let [class-val-frag (attribute-value-fragment (get attrs :class))]
               (.append ^StringBuilder sb "<")
               (.append ^StringBuilder sb tag-name)
               (.append ^StringBuilder sb " id=\"")
               (.append ^StringBuilder sb tag-id)
-              (.append ^StringBuilder sb "\"")))
-          (if tag-class
-            (do
-              (.append ^StringBuilder sb "<")
-              (.append ^StringBuilder sb tag-name)
+              (.append ^StringBuilder sb "\"")
               (.append ^StringBuilder sb " class=\"")
-              (.append ^StringBuilder sb tag-class)
-              (.append ^StringBuilder sb "\""))
-            sb))
-        (do
-          (.append ^StringBuilder sb "<")
-          (.append ^StringBuilder sb tag-name)
-          (if tag-id
+              (.append ^StringBuilder sb class-val-frag)
+              (.append ^StringBuilder sb "\"")
+              (append-string-builder-attribute-map-except-id-class sb attrs)
+              (.append ^StringBuilder sb ">"))
+            ;; +tag-id, -tag-class, -attrs-class
             (do
+              (.append ^StringBuilder sb "<")
+              (.append ^StringBuilder sb tag-name)
               (.append ^StringBuilder sb " id=\"")
               (.append ^StringBuilder sb tag-id)
-              (.append ^StringBuilder sb "\""))
-            (if (contains? attrs :id)
-              (append-attribute-to-string-builder (get attrs :id) sb "id")))
-          (if tag-class
+              (.append ^StringBuilder sb "\"")
+              (append-string-builder-attribute-map-except-id-class sb attrs)
+              (.append ^StringBuilder sb ">"))))
+        (if tag-class
+          ;; -tag-id, +tag-class
+          (if (contains? attrs :id)
             (if (contains? attrs :class)
-              (let [attr-class-val-frag (attribute-value-fragment (get attrs :class ::none))]
+              ;; -tag-id, +tag-class, +attrs-id, +attrs-class
+              (let [id-val-frag    (attribute-value-fragment (get attrs :id))
+                    class-val-frag (attribute-value-fragment (get attrs :class))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " id=\"")
+                (.append ^StringBuilder sb id-val-frag)
+                (.append ^StringBuilder sb "\"")
                 (.append ^StringBuilder sb " class=\"")
                 (.append ^StringBuilder sb tag-class)
                 (.append ^StringBuilder sb " ")
-                (.append ^StringBuilder sb attr-class-val-frag)
-                (.append ^StringBuilder sb "\""))
-              (do
+                (.append ^StringBuilder sb class-val-frag)
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">"))
+              ;; -tag-id, +tag-class, +attrs-id, -attrs-class
+              (let [id-val-frag (attribute-value-fragment (get attrs :id))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " id=\"")
+                (.append ^StringBuilder sb id-val-frag)
+                (.append ^StringBuilder sb "\"")
                 (.append ^StringBuilder sb " class=\"")
                 (.append ^StringBuilder sb tag-class)
-                (.append ^StringBuilder sb "\"")))
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">")))
             (if (contains? attrs :class)
-              (append-attribute-to-string-builder (get attrs :class) sb "class")))
-          (append-string-builder-attribute-map-except-id-class sb attrs)
-          (.append ^StringBuilder sb ">")))))
+              ;; -tag-id, +tag-class, -attrs-id, +attrs-class
+              (let [class-val-frag (attribute-value-fragment (get attrs :class))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " class=\"")
+                (.append ^StringBuilder sb tag-class)
+                (.append ^StringBuilder sb " ")
+                (.append ^StringBuilder sb class-val-frag)
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">"))
+              ;; -tag-id, +tag-class, -attrs-id, -attrs-class
+              (let [class-val-frag (attribute-value-fragment (get attrs :class))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " class=\"")
+                (.append ^StringBuilder sb tag-class)
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">"))))
+          ;; -tag-id, -tag-class
+          (if (contains? attrs :id)
+            (if (contains? attrs :class)
+              ;; -tag-id, -tag-class, +attrs-id, +attrs-class
+              (let [id-val-frag    (attribute-value-fragment (get attrs :id))
+                    class-val-frag (attribute-value-fragment (get attrs :class))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " id=\"")
+                (.append ^StringBuilder sb id-val-frag)
+                (.append ^StringBuilder sb "\"")
+                (.append ^StringBuilder sb " class=\"")
+                (.append ^StringBuilder sb class-val-frag)
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">"))
+              ;; -tag-id, -tag-class, +attrs-id, -attrs-class
+              (let [id-val-frag (attribute-value-fragment (get attrs :id))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " id=\"")
+                (.append ^StringBuilder sb id-val-frag)
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">")))
+            (if (contains? attrs :class)
+              ;; -tag-id, -tag-class, -attrs-id, +attrs-class
+              (let [class-val-frag (attribute-value-fragment (get attrs :class))]
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (.append ^StringBuilder sb " class=\"")
+                (.append ^StringBuilder sb class-val-frag)
+                (.append ^StringBuilder sb "\"")
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">"))
+              ;; -tag-id, -tag-class, -attrs-id, -attrs-class
+              (do
+                (.append ^StringBuilder sb "<")
+                (.append ^StringBuilder sb tag-name)
+                (append-string-builder-attribute-map-except-id-class sb attrs)
+                (.append ^StringBuilder sb ">"))))))))
   (fragment [this]
     (let [sb (StringBuilder. 64)
           _  (.append-fragment-to-string-builder this sb)]
