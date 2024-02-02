@@ -14,7 +14,34 @@
 (defprotocol Node
   (children ^Iterable [this]))
 
-;; Reduce
+;; Implementation notes:
+;; - HTML serialization is implemented as depth first search (DFS) traversal over Node.
+;; - DFS is used to emit a series of Tokens (leaf nodes from the Node HTML tree).
+;; - Tokens then write HTML fragments to a singular StringBuilder.
+;; For performance reasons:
+;; - DFS is implemented as reduction over Node.
+;; - DFS is implemented using a stack of Iterators. (java.util.Deque<Iterator>)
+;;   Note that head of stack is held by loop binding rather than the actual head of stack.
+;; - Node children returns a value that is as flat as possible
+;;   to minimized the depth of search (size of Deque).
+;;   - See the count varying node-children-n implemenations.
+;; - Iterables returned by Node children should prefer implementations
+;;   that are internally indexes to arrays.
+;;   - Iterators over Vectors are fast, Iterators over Seqs are not as fast.
+;; - DFS emits a minimum number of Tokens. Therefore Node children emits
+;;   OpeningTag and ClosingTag types as "fat" tokens capturing the bracket,
+;;   tag name, and tag attributes data into one Token instance.
+;; - Tokens append fragment Strings to StringBuilder. Testing (adhoc in my repl) showed
+;;   that String appends to StringBuilder is the fastest implementation possible.
+;;   - It beat out CharSequence appends to Appendable. (2nd fastest, ~20% slower)
+;;   - It beat out String writes to Writer. (2nd fastest, ~20% slower)
+;;   - It beat out String prints to PrintStream. (slowest, +100% slower)
+;;   Ultimately, HTML fragments are written to some server I/O interface.
+;;   Appending fragments to StringBuilder seems wasteful and although
+;;   it is possible to avoid intermediate memory allocation and I/O
+;;   by avoiding StringBuilder, it is not a performant option at this time.
+
+;; Reduce / HTML
 
 (defn reduce-node
   [rf init root]
@@ -664,7 +691,9 @@
         tcl   (tag-class tic)
         attrs (.nth elem 1)]
     [(OpeningTag. tag tid tcl attrs)
-     ;; Subvec iterators are faster than seq iterators.
+     ;; Emit a coll Node in the element body.
+     ;; Note that this increases depth of search by 2 instead of 1.
+     ;; Use Subvec iterators as they are faster than Seq iterators.
      ;; Reify as anon Node to avoid being interpreted as element.
      (reify Node
        (children [_]
@@ -678,7 +707,9 @@
         tid (tag-id tic)
         tcl (tag-class tic)]
     [(OpeningTag. tag tid tcl nil)
-     ;; Subvec iterators are faster than seq iterators.
+     ;; Emit a coll Node in the element body.
+     ;; Note that this increases depth of search by 2 instead of 1.
+     ;; Use Subvec iterators as they are faster than Seq iterators.
      ;; Reify as anon Node to avoid being interpreted as element.
      (reify Node
        (children [_]
