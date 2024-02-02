@@ -76,6 +76,11 @@
       (replace "\"" "&quot;")
       (replace "'" "&apos;")))
 
+(defn escape-attribute-value-fragment
+  ^String
+  [s]
+  (escape-attribute-value s))
+
 (defn append-string-builder-attribute-kv-except-id-class
   [^StringBuilder sb k v]
   (when-not (or (identical? k :class)
@@ -93,14 +98,14 @@
   AttributeValue
   (append-attribute-to-string-builder [_ sb _]
     (.append ^StringBuilder sb " id=\"")
-    (.append ^StringBuilder sb (escape-attribute-value tag-id))
+    (.append ^StringBuilder sb (escape-attribute-value-fragment tag-id))
     (.append ^StringBuilder sb "\"")))
 
 (deftype TagClass [tag-class attr-class]
   AttributeValue
   (append-attribute-to-string-builder [_ sb _]
     (.append ^StringBuilder sb " class=\"")
-    (.append ^StringBuilder sb (escape-attribute-value tag-class))
+    (.append ^StringBuilder sb (escape-attribute-value-fragment tag-class))
     ;; ::none is needed to tell whether attr-class is absent from the the attr map.
     ;; nil is insufficient since it represents either absence or presence with nil value.
     (when-not (identical? attr-class ::none)
@@ -192,7 +197,7 @@
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
     (if (namespace this)
       nil ;; Handle namespaced keywords as special attribute values?
-      (.append sb (escape-attribute-value (.getName this))))
+      (.append sb (escape-attribute-value-fragment (.getName this))))
     sb)
   ;; Not escaped. Should be safe.
   java.util.UUID
@@ -207,11 +212,11 @@
   String
   (append-attribute-value-space-for-next? [this] true)
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (.append sb (escape-attribute-value this)))
+    (.append sb (escape-attribute-value-fragment this)))
   Object
   (append-attribute-value-space-for-next? [this] true)
   (append-attribute-value-fragment-to-string-builder [this ^StringBuilder sb]
-    (.append sb (escape-attribute-value (.toString this))))
+    (.append sb (escape-attribute-value-fragment (.toString this))))
   Boolean
   (append-attribute-value-space-for-next? [_] false)
   (append-attribute-value-fragment-to-string-builder [_ sb] sb)
@@ -228,6 +233,11 @@
       (replace "&" "&amp;")
       (replace "<" "&lt;")
       (replace ">" "&gt;")))
+
+(defn escape-text-fragment
+  ^String
+  [s]
+  (escape-text s))
 
 (deftype OpeningTag [tag tag-id tag-class attrs]
   Token
@@ -299,14 +309,14 @@
     (.toString this))
   String
   (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (escape-text this)))
+    (.append ^StringBuilder sb (escape-text-fragment this)))
   (fragment [this]
-    (escape-text this))
+    (escape-text-fragment this))
   Object
   (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (escape-text (.toString this))))
+    (.append ^StringBuilder sb (escape-text-fragment (.toString this))))
   (fragment [this]
-    (escape-text (.toString this)))
+    (escape-text-fragment (.toString this)))
   nil
   (append-fragment-to-string-builder [this sb] sb)
   (fragment [_] ""))
