@@ -119,31 +119,6 @@
   (if attrs
     (.kvreduce attrs append-string-builder-attribute-kv-except-id-class sb)))
 
-(deftype TagId [tag-id]
-  AttributeValue
-  (append-attribute-to-string-builder [_ sb _]
-    (let [val-frag (escape-attribute-value-fragment tag-id)]
-      (.append ^StringBuilder sb " id=\"")
-      (.append ^StringBuilder sb val-frag)
-      (.append ^StringBuilder sb "\""))))
-
-(deftype TagClass [tag-class attr-class]
-  AttributeValue
-  (append-attribute-to-string-builder [_ sb _]
-    ;; nil is insufficient since it represents both absence and presence (with nil value).
-    (if-not (identical? attr-class ::none)
-      (let [tag-val-frag (escape-attribute-value-fragment tag-class)]
-        (.append ^StringBuilder sb " class=\"")
-        (.append ^StringBuilder sb tag-val-frag)
-        (.append ^StringBuilder sb "\""))
-      (let [tag-val-frag  (escape-attribute-value-fragment tag-class)
-            attr-val-frag (attribute-value-fragment attr-class)]
-        (.append ^StringBuilder sb " class=\"")
-        (.append ^StringBuilder sb tag-val-frag)
-        (.append ^StringBuilder sb " ")
-        (.append ^StringBuilder sb attr-val-frag)
-        (.append ^StringBuilder sb "\"")))))
-
 (extend-protocol AttributeValue
   clojure.lang.Keyword
   (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
@@ -225,21 +200,62 @@
   [s]
   (escape-text s))
 
-(deftype OpeningTag [tag tag-id tag-class attrs]
+(deftype OpeningTag [^clojure.lang.Keyword tag tag-id tag-class attrs]
   Token
   (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb "<")
-    (.append ^StringBuilder sb (name tag))
-    (if tag-id
-      (append-attribute-to-string-builder (TagId. tag-id) sb "id")
-      (if (contains? attrs :id)
-        (append-attribute-to-string-builder (get attrs :id) sb "id")))
-    (if tag-class
-      (append-attribute-to-string-builder (TagClass. tag-class (get attrs :class ::none)) sb "class")
-      (if (contains? attrs :class)
-        (append-attribute-to-string-builder (get attrs :class) sb "class")))
-    (append-string-builder-attribute-map-except-id-class sb attrs)
-    (.append ^StringBuilder sb ">"))
+    (let [tag-name (.getName tag)]
+      (if (nil? attrs)
+        (if tag-id
+          (if tag-class
+            (do
+              (.append ^StringBuilder sb "<")
+              (.append ^StringBuilder sb tag-name)
+              (.append ^StringBuilder sb " id=\"")
+              (.append ^StringBuilder sb tag-id)
+              (.append ^StringBuilder sb "\"")
+              (.append ^StringBuilder sb " class=\"")
+              (.append ^StringBuilder sb tag-class)
+              (.append ^StringBuilder sb "\""))
+            (do
+              (.append ^StringBuilder sb "<")
+              (.append ^StringBuilder sb tag-name)
+              (.append ^StringBuilder sb " id=\"")
+              (.append ^StringBuilder sb tag-id)
+              (.append ^StringBuilder sb "\"")))
+          (if tag-class
+            (do
+              (.append ^StringBuilder sb "<")
+              (.append ^StringBuilder sb tag-name)
+              (.append ^StringBuilder sb " class=\"")
+              (.append ^StringBuilder sb tag-class)
+              (.append ^StringBuilder sb "\""))
+            sb))
+        (do
+          (.append ^StringBuilder sb "<")
+          (.append ^StringBuilder sb tag-name)
+          (if tag-id
+            (do
+              (.append ^StringBuilder sb " id=\"")
+              (.append ^StringBuilder sb tag-id)
+              (.append ^StringBuilder sb "\""))
+            (if (contains? attrs :id)
+              (append-attribute-to-string-builder (get attrs :id) sb "id")))
+          (if tag-class
+            (if (contains? attrs :class)
+              (let [attr-class-val-frag (attribute-value-fragment (get attrs :class ::none))]
+                (.append ^StringBuilder sb " class=\"")
+                (.append ^StringBuilder sb tag-class)
+                (.append ^StringBuilder sb " ")
+                (.append ^StringBuilder sb attr-class-val-frag)
+                (.append ^StringBuilder sb "\""))
+              (do
+                (.append ^StringBuilder sb " class=\"")
+                (.append ^StringBuilder sb tag-class)
+                (.append ^StringBuilder sb "\"")))
+            (if (contains? attrs :class)
+              (append-attribute-to-string-builder (get attrs :class) sb "class")))
+          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (.append ^StringBuilder sb ">")))))
   (fragment [this]
     (let [sb (StringBuilder. 64)
           _  (.append-fragment-to-string-builder this sb)]
