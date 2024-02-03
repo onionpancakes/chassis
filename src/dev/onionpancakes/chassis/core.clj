@@ -106,18 +106,6 @@
   [s]
   (escape-attribute-value s))
 
-(defn append-attribute-fragment-kv-except-id-class
-  [^StringBuilder sb k v]
-  (when-not (or (identical? k :class)
-                (identical? k :id)
-                (and (keyword? k) (namespace k)))
-    (append-attribute-fragment-to-string-builder v sb (name k)))
-  sb)
-
-(defn append-attribute-fragments-except-id-class
-  [^StringBuilder sb ^clojure.lang.IKVReduce attrs]
-  (.kvreduce attrs append-attribute-fragment-kv-except-id-class sb))
-
 (extend-protocol AttributeValue
   clojure.lang.Keyword
   (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
@@ -199,6 +187,34 @@
   [s]
   (escape-text s))
 
+(defn append-attribute-fragment-kv-except-id-class
+  [^StringBuilder sb k v]
+  (when-not (or (identical? k :class)
+                (identical? k :id)
+                (and (keyword? k) (namespace k)))
+    (append-attribute-fragment-to-string-builder v sb (name k)))
+  sb)
+
+(defn append-attribute-fragment-kv-except-id
+  [^StringBuilder sb k v]
+  (when-not (or (identical? k :id)
+                (and (keyword? k) (namespace k)))
+    (append-attribute-fragment-to-string-builder v sb (name k)))
+  sb)
+
+(defn append-attribute-fragment-kv-except-class
+  [^StringBuilder sb k v]
+  (when-not (or (identical? k :class)
+                (and (keyword? k) (namespace k)))
+    (append-attribute-fragment-to-string-builder v sb (name k)))
+  sb)
+
+(defn append-attribute-fragment-kv
+  [^StringBuilder sb k v]
+  (when-not (and (keyword? k) (namespace k))
+    (append-attribute-fragment-to-string-builder v sb (name k)))
+  sb)
+
 (defn append-opening-tag-with-id-class-attrs
   [^StringBuilder sb tag-name tag-id tag-class ^clojure.lang.Associative attrs]
   (if (.containsKey attrs :class)
@@ -227,7 +243,7 @@
         (.append sb " ")
         (.append sb attr-class-frag)
         (.append sb "\"")
-        (append-attribute-fragments-except-id-class sb attrs)
+        (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id-class sb)
         (.append sb ">")))
     (if (zero? (.count attrs))
       (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
@@ -248,7 +264,7 @@
         (.append sb "\" class=\"")
         (.append sb tag-class-frag)
         (.append sb "\"")
-        (append-attribute-fragments-except-id-class sb attrs)
+        (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id sb)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id-class
@@ -285,7 +301,7 @@
         (.append sb "\" class=\"")
         (.append sb attr-class-frag)
         (.append sb "\"")
-        (append-attribute-fragments-except-id-class sb attrs)
+        (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id-class sb)
         (.append sb ">")))
     (if (zero? (.count attrs))
       (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
@@ -300,7 +316,7 @@
         (.append sb " id=\"")
         (.append sb tag-id-frag)
         (.append sb "\"")
-        (append-attribute-fragments-except-id-class sb attrs)
+        (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id sb)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id
@@ -342,7 +358,7 @@
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id-class sb)
           (.append sb ">")))
       ;; +attrs-id, -attrs-class
       (if (== (.count attrs) 1)
@@ -364,7 +380,7 @@
           (.append sb "\" class=\"")
           (.append sb tag-class-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id sb)
           (.append sb ">"))))
     (if (.containsKey attrs :class)
       ;; -attrs-id, +attrs-class
@@ -387,7 +403,7 @@
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-class sb)
           (.append sb ">")))
       ;; -attrs-id, -attrs-class
       (if (zero? (.count attrs))
@@ -403,7 +419,7 @@
           (.append sb " class=\"")
           (.append sb tag-class-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv sb)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-class
@@ -439,7 +455,7 @@
           (.append sb "\" class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id-class sb)
           (.append sb ">")))
       ;; +attrs-id, -attrs-class
       (if (== (.count attrs) 1)
@@ -455,7 +471,7 @@
           (.append sb " id=\"")
           (.append sb attr-id-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-id sb)
           (.append sb ">"))))
     (if (.containsKey attrs :class)
       ;; -attrs-id, +attrs-class
@@ -472,7 +488,7 @@
           (.append sb " class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv-except-class sb)
           (.append sb ">")))
       ;; -attrs-id, -attrs-class
       (if (zero? (.count attrs))
@@ -483,7 +499,7 @@
         (do
           (.append sb "<")
           (.append sb tag-name)
-          (append-attribute-fragments-except-id-class sb attrs)
+          (.kvreduce ^clojure.lang.IKVReduce attrs append-attribute-fragment-kv sb)
           (.append sb ">"))))))
 
 (defn append-opening-tag
