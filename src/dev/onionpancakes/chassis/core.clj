@@ -135,6 +135,11 @@
   nil
   (append-attribute-fragment-to-string-builder [_ sb _] sb))
 
+(defn append-sb
+  ([^StringBuilder sb] sb)
+  ([^StringBuilder sb ^String s]
+   (.append sb s)))
+
 (defn join-attribute-value-fragment-kv
   [^StringBuilder sb k v]
   (when-some [v-frag (attribute-value-fragment v)]
@@ -153,36 +158,24 @@
           (.append sb ";")))))
   sb)
 
-(def join-attribute-value-fragment-xf
-  (comp (keep attribute-value-fragment)
-        (interpose " ")))
-
-(defn append-sb
-  ([^StringBuilder sb] sb)
-  ([^StringBuilder sb ^String s]
-   (.append sb s)))
-
 (extend-protocol AttributeValueToken
-  clojure.lang.IPersistentMap
-  (attribute-value-fragment [this]
-    (let [sb (StringBuilder.)
-          _  (reduce-kv join-attribute-value-fragment-kv sb this)]
-      (.toString sb)))
-  clojure.lang.IPersistentSet
-  (attribute-value-fragment [this]
-    (let [sb (StringBuilder.)
-          _  (transduce join-attribute-value-fragment-xf append-sb sb this)]
-      (.toString sb)))
-  clojure.lang.IPersistentVector
-  (attribute-value-fragment [this]
-    (let [sb (StringBuilder.)
-          _  (transduce join-attribute-value-fragment-xf append-sb sb this)]
-      (.toString sb)))
   clojure.lang.Keyword
   (attribute-value-fragment [this]
     (if (namespace this)
       nil ;; Handle namespaced keywords as special attribute values?
       (escape-attribute-value-fragment (.getName this))))
+  java.util.Collection
+  (attribute-value-fragment [this]
+    (let [sb (StringBuilder.)
+          xf (comp (keep attribute-value-fragment)
+                   (interpose " "))
+          _  (transduce xf append-sb sb this)]
+      (.toString sb)))
+  java.util.Map
+  (attribute-value-fragment [this]
+    (let [sb (StringBuilder.)
+          _  (reduce-kv join-attribute-value-fragment-kv sb this)]
+      (.toString sb)))
   java.util.UUID
   (attribute-value-fragment [this]
     ;; Not escaped. Should be safe.
