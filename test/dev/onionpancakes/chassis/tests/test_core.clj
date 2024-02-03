@@ -56,6 +56,9 @@
     [:div [:p]]                  "<div><p></p></div>"
     [:div [:p "foo"]]            "<div><p>foo</p></div>"
     [:div [:p "foo"] [:p "bar"]] "<div><p>foo</p><p>bar</p></div>"
+    [:div {:id 0}
+     [:p {:id 1} "foo"]
+     [:p {:id 2} "bar"]]         "<div id=\"0\"><p id=\"1\">foo</p><p id=\"2\">bar</p></div>"
     ))
 
 (deftest test-html-void
