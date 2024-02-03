@@ -614,7 +614,7 @@
         (do
           (.append sb "<")
           (.append sb tag-name)
-          (.append sb "\">"))
+          (.append sb ">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
@@ -1085,7 +1085,7 @@
   clojure.lang.IPersistentVector
   (children [this]
     (if (keyword? (.nth this 0 nil))
-      (if (map? (.nth this 1 nil))
+      (if (instance? java.util.Map (.nth this 1 nil))
         (case (.count this)
           2 (element-children-2-attrs this)
           3 (element-children-3-attrs this)
