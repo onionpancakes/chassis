@@ -159,11 +159,6 @@
   sb)
 
 (extend-protocol AttributeValueToken
-  clojure.lang.Keyword
-  (attribute-value-fragment [this]
-    (if (namespace this)
-      nil ;; Handle namespaced keywords as special attribute values?
-      (escape-attribute-value-fragment (.getName this))))
   java.util.Collection
   (attribute-value-fragment [this]
     (let [sb (StringBuilder.)
