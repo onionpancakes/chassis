@@ -748,10 +748,10 @@
       (if (pos? end-idx)
         (.. tname
             (substring (inc start-idx) end-idx)
-            (replace "." " "))
+            (replace \. \space))
         (.. tname
             (substring (inc start-idx))
-            (replace "." " "))))))
+            (replace \. \space))))))
 
 (defn element-children-0
   [elem]
