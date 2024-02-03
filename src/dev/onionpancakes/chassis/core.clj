@@ -135,19 +135,49 @@
   nil
   (append-attribute-fragment-to-string-builder [_ sb _] sb))
 
+(defn join-attribute-value-fragment-kv
+  [^StringBuilder sb k v]
+  (when-some [v-frag (attribute-value-fragment v)]
+    (let [k-frag (escape-attribute-value-fragment (name k))]
+      (if (pos? (.length sb))
+        (do
+          (.append sb " ")
+          (.append sb k-frag)
+          (.append sb ": ")
+          (.append sb v-frag)
+          (.append sb ";"))
+        (do
+          (.append sb k-frag)
+          (.append sb ": ")
+          (.append sb v-frag)
+          (.append sb ";")))))
+  sb)
+
+(def join-attribute-value-fragment-xf
+  (comp (keep attribute-value-fragment)
+        (interpose " ")))
+
+(defn append-sb
+  ([^StringBuilder sb] sb)
+  ([^StringBuilder sb ^String s]
+   (.append sb s)))
+
 (extend-protocol AttributeValueToken
   clojure.lang.IPersistentMap
   (attribute-value-fragment [this]
-    ;; TODO
-    nil)
+    (let [sb (StringBuilder.)
+          _  (reduce-kv join-attribute-value-fragment-kv sb this)]
+      (.toString sb)))
   clojure.lang.IPersistentSet
   (attribute-value-fragment [this]
-    ;; TODO
-    nil)
+    (let [sb (StringBuilder.)
+          _  (transduce join-attribute-value-fragment-xf append-sb sb this)]
+      (.toString sb)))
   clojure.lang.IPersistentVector
   (attribute-value-fragment [this]
-    ;; TODO
-    nil)
+    (let [sb (StringBuilder.)
+          _  (transduce join-attribute-value-fragment-xf append-sb sb this)]
+      (.toString sb)))
   clojure.lang.Keyword
   (attribute-value-fragment [this]
     (if (namespace this)
