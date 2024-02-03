@@ -1,7 +1,7 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol AttributeValue
-  (append-attribute-to-string-builder [this sb attr-name]))
+  (append-attribute-fragment-to-string-builder [this sb attr-name]))
 
 (defprotocol AttributeValueToken
   (attribute-value-fragment ^String [this]))
@@ -106,22 +106,21 @@
   [s]
   (escape-attribute-value s))
 
-(defn append-string-builder-attribute-kv-except-id-class
+(defn append-attribute-fragment-kv-except-id-class
   [^StringBuilder sb k v]
   (when-not (or (identical? k :class)
                 (identical? k :id)
                 (and (keyword? k) (namespace k)))
-    (append-attribute-to-string-builder v sb (name k)))
+    (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
-(defn append-string-builder-attribute-map-except-id-class
+(defn append-attribute-fragments-except-id-class
   [^StringBuilder sb ^clojure.lang.IKVReduce attrs]
-  (if attrs
-    (.kvreduce attrs append-string-builder-attribute-kv-except-id-class sb)))
+  (.kvreduce attrs append-attribute-fragment-kv-except-id-class sb))
 
 (extend-protocol AttributeValue
   clojure.lang.Keyword
-  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
+  (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
     (if (namespace this)
       nil ;; Handle namespaced keywords?
       (let [val-frag (attribute-value-fragment this)]
@@ -132,13 +131,13 @@
         (.append sb "\"")))
     sb)
   Boolean
-  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
+  (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
     (when this
       (.append sb " ")
       (.append sb attr-name))
     sb)
   Object
-  (append-attribute-to-string-builder [this ^StringBuilder sb attr-name]
+  (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
     (let [val-frag (attribute-value-fragment this)]
       (.append sb " ")
       (.append sb attr-name)
@@ -146,7 +145,7 @@
       (.append sb val-frag)
       (.append sb "\"")))
   nil
-  (append-attribute-to-string-builder [_ sb _] sb))
+  (append-attribute-fragment-to-string-builder [_ sb _] sb))
 
 (extend-protocol AttributeValueToken
   clojure.lang.IPersistentMap
@@ -228,7 +227,7 @@
         (.append sb " ")
         (.append sb attr-class-frag)
         (.append sb "\"")
-        (append-string-builder-attribute-map-except-id-class sb attrs)
+        (append-attribute-fragments-except-id-class sb attrs)
         (.append sb ">")))
     (if (zero? (.count attrs))
       (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
@@ -249,7 +248,7 @@
         (.append sb "\" class=\"")
         (.append sb tag-class-frag)
         (.append sb "\"")
-        (append-string-builder-attribute-map-except-id-class sb attrs)
+        (append-attribute-fragments-except-id-class sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id-class
@@ -286,7 +285,7 @@
         (.append sb "\" class=\"")
         (.append sb attr-class-frag)
         (.append sb "\"")
-        (append-string-builder-attribute-map-except-id-class sb attrs)
+        (append-attribute-fragments-except-id-class sb attrs)
         (.append sb ">")))
     (if (zero? (.count attrs))
       (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
@@ -301,7 +300,7 @@
         (.append sb " id=\"")
         (.append sb tag-id-frag)
         (.append sb "\"")
-        (append-string-builder-attribute-map-except-id-class sb attrs)
+        (append-attribute-fragments-except-id-class sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id
@@ -343,7 +342,7 @@
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">")))
       ;; +attrs-id, -attrs-class
       (if (== (.count attrs) 1)
@@ -365,7 +364,7 @@
           (.append sb "\" class=\"")
           (.append sb tag-class-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">"))))
     (if (.containsKey attrs :class)
       ;; -attrs-id, +attrs-class
@@ -388,7 +387,7 @@
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">")))
       ;; -attrs-id, -attrs-class
       (if (zero? (.count attrs))
@@ -404,7 +403,7 @@
           (.append sb " class=\"")
           (.append sb tag-class-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-class
@@ -440,7 +439,7 @@
           (.append sb "\" class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">")))
       ;; +attrs-id, -attrs-class
       (if (== (.count attrs) 1)
@@ -456,7 +455,7 @@
           (.append sb " id=\"")
           (.append sb attr-id-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">"))))
     (if (.containsKey attrs :class)
       ;; -attrs-id, +attrs-class
@@ -473,7 +472,7 @@
           (.append sb " class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">")))
       ;; -attrs-id, -attrs-class
       (if (zero? (.count attrs))
@@ -484,7 +483,7 @@
         (do
           (.append sb "<")
           (.append sb tag-name)
-          (append-string-builder-attribute-map-except-id-class sb attrs)
+          (append-attribute-fragments-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag
@@ -558,7 +557,7 @@
 (extend-protocol Token
   java.util.UUID
   (append-fragment-to-string-builder [this sb]
-    ;; Not escaped. Should be saf.e
+    ;; Not escaped. Should be safe.
     (.append ^StringBuilder sb (.toString this)))
   (fragment [this]
     (.toString this))
