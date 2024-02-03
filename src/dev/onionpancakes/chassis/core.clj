@@ -520,13 +520,13 @@
   (toString [this]
     (fragment this)))
 
-(deftype ClosingTag [tag]
+(deftype ClosingTag [^clojure.lang.Keyword tag]
   Token
   (append-fragment-to-string-builder [this sb]
-    (.. ^StringBuilder sb
-        (append "</")
-        (append (name tag))
-        (append ">")))
+    (let [tag-name (.getName tag)]
+      (.append ^StringBuilder sb "</")
+      (.append ^StringBuilder sb tag-name)
+      (.append ^StringBuilder sb ">")))
   (fragment [this]
     (let [sb (StringBuilder.)
           _  (.append-fragment-to-string-builder this sb)]
