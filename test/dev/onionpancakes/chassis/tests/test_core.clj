@@ -63,3 +63,13 @@
     [:hr nil nil]           "<hr></hr>"
     [:hr {:id "foo"} nil]   "<hr id=\"foo\"></hr>"
     [:hr {:id "foo"} "foo"] "<hr id=\"foo\">foo</hr>"))
+
+(deftest test-html-doctype-html5
+  (are [node s] (= (c/html node) s)
+    c/doctype-html5   "<!DOCTYPE html>"
+    [c/doctype-html5] "<!DOCTYPE html>"
+    [c/doctype-html5
+     [:html]]         "<!DOCTYPE html><html></html>"
+    [c/doctype-html5
+     [:html
+      [:body "foo"]]] "<!DOCTYPE html><html><body>foo</body></html>"))
