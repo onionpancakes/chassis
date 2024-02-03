@@ -212,7 +212,8 @@
 
 (defn append-attribute-fragment-kv-except-id-class
   [^StringBuilder sb k v]
-  (when-not (or (identical? k :class)
+  (when-not (or (nil? v)
+                (identical? k :class)
                 (identical? k :id)
                 (and (keyword? k) (namespace k)))
     (append-attribute-fragment-to-string-builder v sb (name k)))
@@ -220,21 +221,24 @@
 
 (defn append-attribute-fragment-kv-except-id
   [^StringBuilder sb k v]
-  (when-not (or (identical? k :id)
+  (when-not (or (nil? v)
+                (identical? k :id)
                 (and (keyword? k) (namespace k)))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv-except-class
   [^StringBuilder sb k v]
-  (when-not (or (identical? k :class)
+  (when-not (or (nil? v)
+                (identical? k :class)
                 (and (keyword? k) (namespace k)))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv
   [^StringBuilder sb k v]
-  (when-not (and (keyword? k) (namespace k))
+  (when-not (or (nil? v)
+                (and (keyword? k) (namespace k)))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
