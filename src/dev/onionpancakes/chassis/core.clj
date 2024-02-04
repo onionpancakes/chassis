@@ -45,6 +45,8 @@
 
 ;; Reduce / HTML
 
+(def stack-max-depth 256)
+
 (defn reduce-node
   [rf init root]
   (let [stack (java.util.ArrayDeque. 32)]
@@ -57,6 +59,8 @@
                   ch   (children node)]
               (if ch
                 (do
+                  (if (== (.size stack) stack-max-depth)
+                    (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                   (.addFirst stack cur)
                   (recur (.iterator ch) ret))
                 (recur cur (rf ret node))))
