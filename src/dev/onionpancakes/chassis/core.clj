@@ -1026,6 +1026,54 @@
             (substring (inc start-idx))
             (replace \. \space))))))
 
+(defn make-opening-tag
+  [^clojure.lang.Keyword head attrs]
+  (let [head-name (.getName head)
+        pound-idx (.indexOf head-name 35 #_(int \#))
+        dot-idx   (.indexOf head-name 46 #_(int \.))]
+    (if (pos? pound-idx)
+      (if (pos? dot-idx)
+        (if (< dot-idx pound-idx)
+          (let [dot-idx-after (.indexOf head-name 46 #_(int \.) pound-idx)]
+            (if (pos? dot-idx-after)
+              ;; +head-id, +head-class-before, +head-class-after
+              (let [tag               (-> (.substring head-name 0 dot-idx)
+                                          (clojure.lang.Keyword/intern))
+                    head-id           (.substring head-name (inc pound-idx) dot-idx-after)
+                    head-class-before (-> (.substring head-name (inc dot-idx) pound-idx)
+                                          (.replace \. \space))
+                    head-class-after  (-> (.substring head-name (inc dot-idx-after))
+                                          (.replace \. \space))]
+                (OpeningTag. tag head-id (str head-class-before " " head-class-after) attrs))
+              ;; +head-id, +head-class-before, -head-class-after
+              (let [tag        (-> (.substring head-name 0 dot-idx)
+                                   (clojure.lang.Keyword/intern))
+                    head-id    (.substring head-name (inc pound-idx))
+                    head-class (-> (.substring head-name (inc dot-idx) pound-idx)
+                                   (.replace \. \space))]
+                (OpeningTag. tag head-id head-class attrs))))
+          ;; +head-id, -head-class-before, +head-class-after
+          (let [tag        (-> (.substring head-name 0 pound-idx)
+                               (clojure.lang.Keyword/intern))
+                head-id    (.substring head-name (inc pound-idx) dot-idx)
+                head-class (-> (.substring head-name (inc dot-idx))
+                               (.replace \. \space))]
+            (OpeningTag. tag head-id head-class attrs)))
+        ;; +head-id, -head-class
+        (let [tag     (-> (.substring head-name 0 pound-idx)
+                          (clojure.lang.Keyword/intern))
+              head-id (.substring head-name (inc pound-idx))]
+          (OpeningTag. tag head-id nil attrs)))
+      (if (pos? dot-idx)
+        ;; -head-id, +head-class
+        (let [tag        (-> (.substring head-name 0 dot-idx)
+                             (clojure.lang.Keyword/intern))
+              head-class (-> (.substring head-name (inc dot-idx))
+                             (.replace \. \space))]
+          (OpeningTag. tag nil head-class attrs))
+        ;; -head-id, -head-class
+        (OpeningTag. head nil nil attrs)))))
+
 (defn element-children-0
   [elem]
   [])
