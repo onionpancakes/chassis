@@ -989,40 +989,40 @@
      :wbr) true
     false))
 
-(defn base-tag
-  [^clojure.lang.Keyword tag]
-  (let [tag-name (.getName tag)
-        id-idx   (.indexOf tag-name 35 #_(int \#))
-        cl-idx   (.indexOf tag-name 46 #_(int \.))]
+(defn head-tag
+  [^clojure.lang.Keyword head]
+  (let [head-name (.getName head)
+        id-idx    (.indexOf head-name 35 #_(int \#))
+        cl-idx    (.indexOf head-name 46 #_(int \.))]
     (if (pos? cl-idx)
       (if (pos? id-idx)
-        (clojure.lang.Keyword/intern (.substring tag-name 0 (min id-idx cl-idx)))
-        (clojure.lang.Keyword/intern (.substring tag-name 0 cl-idx)))
+        (clojure.lang.Keyword/intern (.substring head-name 0 (min id-idx cl-idx)))
+        (clojure.lang.Keyword/intern (.substring head-name 0 cl-idx)))
       (if (pos? id-idx)
-        (clojure.lang.Keyword/intern (.substring tag-name 0 id-idx))
-        tag))))
+        (clojure.lang.Keyword/intern (.substring head-name 0 id-idx))
+        head))))
 
-(defn tag-id
-  [^clojure.lang.Keyword tag]
-  (let [tag-name  (.getName tag)
-        start-idx (.indexOf tag-name 35 #_(int \#))
-        end-idx   (.indexOf tag-name 46 #_(int \.) start-idx)]
+(defn head-id
+  [^clojure.lang.Keyword head]
+  (let [head-name (.getName head)
+        start-idx (.indexOf head-name 35 #_(int \#))
+        end-idx   (.indexOf head-name 46 #_(int \.) start-idx)]
     (if (pos? start-idx)
       (if (pos? end-idx)
-        (.substring tag-name (inc start-idx) end-idx)
-        (.substring tag-name (inc start-idx))))))
+        (.substring head-name (inc start-idx) end-idx)
+        (.substring head-name (inc start-idx))))))
 
-(defn tag-class
-  [^clojure.lang.Keyword tag]
-  (let [tag-name  (.getName tag)
-        start-idx (.indexOf tag-name 46 #_(int \.))
-        end-idx   (.indexOf tag-name 35 #_(int \#) start-idx)]
+(defn head-class
+  [^clojure.lang.Keyword head]
+  (let [head-name (.getName head)
+        start-idx (.indexOf head-name 46 #_(int \.))
+        end-idx   (.indexOf head-name 35 #_(int \#) start-idx)]
     (if (pos? start-idx)
       (if (pos? end-idx)
-        (.. tag-name
+        (.. head-name
             (substring (inc start-idx) end-idx)
             (replace \. \space))
-        (.. tag-name
+        (.. head-name
             (substring (inc start-idx))
             (replace \. \space))))))
 
@@ -1032,81 +1032,81 @@
 
 (defn element-children-1
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
     (if (void-tag? tag)
-      [(OpeningTag. tag tid tcl nil)]
-      [(OpeningTag. tag tid tcl nil)
+      [(OpeningTag. tag id cls nil)]
+      [(OpeningTag. tag id cls nil)
        (ClosingTag. tag)])))
 
 (defn element-children-2-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
     (if (void-tag? tag)
-      [(OpeningTag. tag tid tcl attrs)]
-      [(OpeningTag. tag tid tcl attrs)
+      [(OpeningTag. tag id cls attrs)]
+      [(OpeningTag. tag id cls attrs)
        (ClosingTag. tag)])))
 
 (defn element-children-2
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
    (if (and (void-tag? tag)
             (nil? (.nth elem 1)))
-     [(OpeningTag. tag tid tcl nil)]
-     [(OpeningTag. tag tid tcl nil)
+     [(OpeningTag. tag id cls nil)]
+     [(OpeningTag. tag id cls nil)
       (.nth elem 1)
       (ClosingTag. tag)])))
 
 (defn element-children-3-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (ClosingTag. tag)]))
 
 (defn element-children-3
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (ClosingTag. tag)]))
 
 (defn element-children-4-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (ClosingTag. tag)]))
 
 (defn element-children-4
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1114,12 +1114,12 @@
 
 (defn element-children-5-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (.nth elem 4)
@@ -1127,11 +1127,11 @@
 
 (defn element-children-5
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1140,12 +1140,12 @@
 
 (defn element-children-6-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (.nth elem 4)
@@ -1154,11 +1154,11 @@
 
 (defn element-children-6
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1168,12 +1168,12 @@
 
 (defn element-children-7-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (.nth elem 4)
@@ -1183,11 +1183,11 @@
 
 (defn element-children-7
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1198,12 +1198,12 @@
 
 (defn element-children-8-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (.nth elem 4)
@@ -1214,11 +1214,11 @@
 
 (defn element-children-8
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1230,12 +1230,12 @@
 
 (defn element-children-9-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (.nth elem 4)
@@ -1247,11 +1247,11 @@
 
 (defn element-children-9
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1264,12 +1264,12 @@
 
 (defn element-children-10-attrs
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      (.nth elem 2)
      (.nth elem 3)
      (.nth elem 4)
@@ -1282,11 +1282,11 @@
 
 (defn element-children-10
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      (.nth elem 1)
      (.nth elem 2)
      (.nth elem 3)
@@ -1298,14 +1298,14 @@
      (.nth elem 9)
      (ClosingTag. tag)]))
 
-(defn element-children-n-attrs
+(defn element-children-n-attrstcl
   [^clojure.lang.Indexed elem]
-  (let [tic   (.nth elem 0)
-        tag   (base-tag tic)
-        tid   (tag-id tic)
-        tcl   (tag-class tic)
+  (let [head  (.nth elem 0)
+        tag   (head-tag head)
+        id    (head-id head)
+        cls   (head-class head)
         attrs (.nth elem 1)]
-    [(OpeningTag. tag tid tcl attrs)
+    [(OpeningTag. tag id cls attrs)
      ;; Emit a coll Node in the element body.
      ;; Note that this increases depth of search by 2 instead of 1.
      ;; Use Subvec iterators as they are faster than Seq iterators.
@@ -1317,11 +1317,11 @@
 
 (defn element-children-n
   [^clojure.lang.Indexed elem]
-  (let [tic (.nth elem 0)
-        tag (base-tag tic)
-        tid (tag-id tic)
-        tcl (tag-class tic)]
-    [(OpeningTag. tag tid tcl nil)
+  (let [head (.nth elem 0)
+        tag  (head-tag head)
+        id   (head-id head)
+        cls  (head-class head)]
+    [(OpeningTag. tag id cls nil)
      ;; Emit a coll Node in the element body.
      ;; Note that this increases depth of search by 2 instead of 1.
      ;; Use Subvec iterators as they are faster than Seq iterators.
