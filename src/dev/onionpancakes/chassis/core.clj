@@ -238,18 +238,18 @@
   sb)
 
 (defn append-opening-tag-with-id-class-attrs-id-class
-  [^StringBuilder sb tag-name tag-id tag-class ^java.util.Map attrs]
-  (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
-        tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-id head-class ^java.util.Map attrs]
+  (let [head-id-frag    (escape-attribute-value-fragment head-id)
+        head-class-frag (escape-attribute-value-fragment head-class)]
     (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))] 
       (if (== (.size attrs) 2)
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\">"))
@@ -257,9 +257,9 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
@@ -270,58 +270,58 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-class-attrs-id
-  [^StringBuilder sb tag-name tag-id tag-class ^java.util.Map attrs]
-  (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
-        tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-id head-class ^java.util.Map attrs]
+  (let [head-id-frag    (escape-attribute-value-fragment head-id)
+        head-class-frag (escape-attribute-value-fragment head-class)]
     (if (== (.size attrs) 1)
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\" class=\"")
-        (.append sb tag-class-frag)
+        (.append sb head-class-frag)
         (.append sb "\">"))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\" class=\"")
-        (.append sb tag-class-frag)
+        (.append sb head-class-frag)
         (.append sb "\"")
         (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id-class-attrs-class
-  [^StringBuilder sb tag-name tag-id tag-class ^java.util.Map attrs]
-  (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
-        tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-id head-class ^java.util.Map attrs]
+  (let [head-id-frag    (escape-attribute-value-fragment head-id)
+        head-class-frag (escape-attribute-value-fragment head-class)]
     (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))] 
       (if (== (.size attrs) 1)
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\">"))
@@ -329,9 +329,9 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
@@ -342,67 +342,67 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-class-attrs
-  [^StringBuilder sb tag-name tag-id tag-class ^java.util.Map attrs]
-  (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
-        tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-id head-class ^java.util.Map attrs]
+  (let [head-id-frag    (escape-attribute-value-fragment head-id)
+        head-class-frag (escape-attribute-value-fragment head-class)]
     (if (zero? (.size attrs))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\" class=\"")
-        (.append sb tag-class-frag)
+        (.append sb head-class-frag)
         (.append sb "\">"))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\" class=\"")
-        (.append sb tag-class-frag)
+        (.append sb head-class-frag)
         (.append sb "\"")
         (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id-class
-  [^StringBuilder sb tag-name tag-id tag-class]
-  (let [tag-id-frag    (escape-attribute-value-fragment tag-id)
-        tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-id head-class]
+  (let [head-id-frag    (escape-attribute-value-fragment head-id)
+        head-class-frag (escape-attribute-value-fragment head-class)]
     (.append sb "<")
     (.append sb tag-name)
     (.append sb " id=\"")
-    (.append sb tag-id-frag)
+    (.append sb head-id-frag)
     (.append sb "\" class=\"")
-    (.append sb tag-class-frag)
+    (.append sb head-class-frag)
     (.append sb "\">")))
 
 (defn append-opening-tag-with-id-attrs-id-class
-  [^StringBuilder sb tag-name tag-id ^java.util.Map attrs]
-  (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
+  [^StringBuilder sb tag-name head-id ^java.util.Map attrs]
+  (let [head-id-frag (escape-attribute-value-fragment head-id)]
     (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))] 
       (if (== (.size attrs) 2)
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
           (.append sb attr-class-frag)
           (.append sb "\">"))
@@ -410,7 +410,7 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
@@ -421,46 +421,46 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-attrs-id
-  [^StringBuilder sb tag-name tag-id ^java.util.Map attrs]
-  (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
+  [^StringBuilder sb tag-name head-id ^java.util.Map attrs]
+  (let [head-id-frag (escape-attribute-value-fragment head-id)]
     (if (== (.size attrs) 1)
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\">"))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\"")
         (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id-attrs-class
-  [^StringBuilder sb tag-name tag-id ^java.util.Map attrs]
-  (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
+  [^StringBuilder sb tag-name head-id ^java.util.Map attrs]
+  (let [head-id-frag (escape-attribute-value-fragment head-id)]
     (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))] 
       (if (== (.size attrs) 1)
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
           (.append sb attr-class-frag)
           (.append sb "\">"))
@@ -468,7 +468,7 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\" class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
@@ -479,48 +479,48 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " id=\"")
-          (.append sb tag-id-frag)
+          (.append sb head-id-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-attrs
-  [^StringBuilder sb tag-name tag-id tag-class ^java.util.Map attrs]
-  (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
+  [^StringBuilder sb tag-name head-id head-class ^java.util.Map attrs]
+  (let [head-id-frag (escape-attribute-value-fragment head-id)]
     (if (zero? (.size attrs))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\">"))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " id=\"")
-        (.append sb tag-id-frag)
+        (.append sb head-id-frag)
         (.append sb "\"")
         (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-id
-  [^StringBuilder sb tag-name tag-id]
-  (let [tag-id-frag (escape-attribute-value-fragment tag-id)]
+  [^StringBuilder sb tag-name head-id]
+  (let [head-id-frag (escape-attribute-value-fragment head-id)]
     (.append sb "<")
     (.append sb tag-name)
     (.append sb " id=\"")
-    (.append sb tag-id-frag)
+    (.append sb head-id-frag)
     (.append sb "\">")))
 
 (defn append-opening-tag-with-class-attrs-id-class
-  [^StringBuilder sb tag-name tag-class ^java.util.Map attrs]
-  (let [tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-class ^java.util.Map attrs]
+  (let [head-class-frag (escape-attribute-value-fragment head-class)]
     (if-some [attr-id-frag (attribute-value-fragment (.get attrs :id))]
       (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))]
         (if (== (.size attrs) 2)
@@ -530,7 +530,7 @@
             (.append sb " id=\"")
             (.append sb attr-id-frag)
             (.append sb "\" class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb " ")
             (.append sb attr-class-frag)
             (.append sb "\">"))
@@ -540,7 +540,7 @@
             (.append sb " id=\"")
             (.append sb attr-id-frag)
             (.append sb "\" class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb " ")
             (.append sb attr-class-frag)
             (.append sb "\"")
@@ -553,7 +553,7 @@
             (.append sb " id=\"")
             (.append sb attr-id-frag)
             (.append sb "\" class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb "\">"))
           (do
             (.append sb "<")
@@ -561,7 +561,7 @@
             (.append sb " id=\"")
             (.append sb attr-id-frag)
             (.append sb "\" class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb "\"")
             (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
             (.append sb ">"))))
@@ -571,7 +571,7 @@
             (.append sb "<")
             (.append sb tag-name)
             (.append sb " class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb " ")
             (.append sb attr-class-frag)
             (.append sb "\">"))
@@ -579,7 +579,7 @@
             (.append sb "<")
             (.append sb tag-name)
             (.append sb " class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb " ")
             (.append sb attr-class-frag)
             (.append sb "\"")
@@ -590,20 +590,20 @@
             (.append sb "<")
             (.append sb tag-name)
             (.append sb " class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb "\">"))
           (do
             (.append sb "<")
             (.append sb tag-name)
             (.append sb " class=\"")
-            (.append sb tag-class-frag)
+            (.append sb head-class-frag)
             (.append sb "\"")
             (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
             (.append sb ">")))))))
 
 (defn append-opening-tag-with-class-attrs-id
-  [^StringBuilder sb tag-name tag-class ^java.util.Map attrs]
-  (let [tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-class ^java.util.Map attrs]
+  (let [head-class-frag (escape-attribute-value-fragment head-class)]
     (if-some [attr-id-frag (attribute-value-fragment (.get attrs :id))]
       (if (== (.size attrs) 1)
         (do
@@ -612,7 +612,7 @@
           (.append sb " id=\"")
           (.append sb attr-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
@@ -620,7 +620,7 @@
           (.append sb " id=\"")
           (.append sb attr-id-frag)
           (.append sb "\" class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">")))
@@ -629,27 +629,27 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-class-attrs-class
-  [^StringBuilder sb tag-name tag-class ^java.util.Map attrs]
-  (let [tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-class ^java.util.Map attrs]
+  (let [head-class-frag (escape-attribute-value-fragment head-class)]
     (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))]
       (if (== (.size attrs) 1)
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\">"))
@@ -657,7 +657,7 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb " ")
           (.append sb attr-class-frag)
           (.append sb "\"")
@@ -668,43 +668,43 @@
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\">"))
         (do
           (.append sb "<")
           (.append sb tag-name)
           (.append sb " class=\"")
-          (.append sb tag-class-frag)
+          (.append sb head-class-frag)
           (.append sb "\"")
           (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-class-attrs
-  [^StringBuilder sb tag-name tag-class ^java.util.Map attrs]
-  (let [tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-class ^java.util.Map attrs]
+  (let [head-class-frag (escape-attribute-value-fragment head-class)]
     (if (zero? (.size attrs))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " class=\"")
-        (.append sb tag-class-frag)
+        (.append sb head-class-frag)
         (.append sb "\">"))
       (do
         (.append sb "<")
         (.append sb tag-name)
         (.append sb " class=\"")
-        (.append sb tag-class-frag)
+        (.append sb head-class-frag)
         (.append sb "\"")
         (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-class
-  [^StringBuilder sb tag-name tag-class]
-  (let [tag-class-frag (escape-attribute-value-fragment tag-class)]
+  [^StringBuilder sb tag-name head-class]
+  (let [head-class-frag (escape-attribute-value-fragment head-class)]
     (.append sb "<")
     (.append sb tag-name)
     (.append sb " class=\"")
-    (.append sb tag-class-frag)
+    (.append sb head-class-frag)
     (.append sb "\">")))
 
 (defn append-opening-tag-with-attrs-id-class
@@ -849,44 +849,44 @@
   (.append sb tag-name)
   (.append sb ">"))
 
-(deftype OpeningTag [^clojure.lang.Keyword tag tag-id tag-class ^java.util.Map attrs]
+(deftype OpeningTag [^clojure.lang.Keyword tag head-id head-class ^java.util.Map attrs]
   Token
   (append-fragment-to-string-builder [this sb]
     (let [tag-name (.getName tag)]
-      (if tag-id
-        (if tag-class
-          ;; +tag-id, +tag-class
+      (if head-id
+        (if head-class
+          ;; +head-id, +head-class
           (if attrs
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-id-class-attrs-id-class sb tag-name tag-id tag-class attrs)
-                (append-opening-tag-with-id-class-attrs-id sb tag-name tag-id tag-class attrs))
+                (append-opening-tag-with-id-class-attrs-id-class sb tag-name head-id head-class attrs)
+                (append-opening-tag-with-id-class-attrs-id sb tag-name head-id head-class attrs))
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-id-class-attrs-class sb tag-name tag-id tag-class attrs)
-                (append-opening-tag-with-id-class-attrs sb tag-name tag-id tag-class attrs)))
-            (append-opening-tag-with-id-class sb tag-name tag-id tag-class))
-          ;; +tag-id, -tag-class
+                (append-opening-tag-with-id-class-attrs-class sb tag-name head-id head-class attrs)
+                (append-opening-tag-with-id-class-attrs sb tag-name head-id head-class attrs)))
+            (append-opening-tag-with-id-class sb tag-name head-id head-class))
+          ;; +head-id, -head-class
           (if attrs
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-id-attrs-id-class sb tag-name tag-class attrs)
-                (append-opening-tag-with-id-attrs-id sb tag-name tag-class attrs))
+                (append-opening-tag-with-id-attrs-id-class sb tag-name head-class attrs)
+                (append-opening-tag-with-id-attrs-id sb tag-name head-class attrs))
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-id-attrs-class sb tag-name tag-class attrs)
-                (append-opening-tag-with-id-attrs sb tag-name tag-class attrs)))
-            (append-opening-tag-with-id sb tag-name tag-id)))
-        (if tag-class
-          ;; -tag-id, +tag-class
+                (append-opening-tag-with-id-attrs-class sb tag-name head-class attrs)
+                (append-opening-tag-with-id-attrs sb tag-name head-class attrs)))
+            (append-opening-tag-with-id sb tag-name head-id)))
+        (if head-class
+          ;; -head-id, +head-class
           (if attrs
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-class-attrs-id-class sb tag-name tag-class attrs)
-                (append-opening-tag-with-class-attrs-id sb tag-name tag-class attrs))
+                (append-opening-tag-with-class-attrs-id-class sb tag-name head-class attrs)
+                (append-opening-tag-with-class-attrs-id sb tag-name head-class attrs))
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-class-attrs-class sb tag-name tag-class attrs)
-                (append-opening-tag-with-class-attrs sb tag-name tag-class attrs)))
-            (append-opening-tag-with-class sb tag-name tag-class))
-          ;; -tag-id, -tag-class
+                (append-opening-tag-with-class-attrs-class sb tag-name head-class attrs)
+                (append-opening-tag-with-class-attrs sb tag-name head-class attrs)))
+            (append-opening-tag-with-class sb tag-name head-class))
+          ;; -head-id, -head-class
           (if attrs
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
