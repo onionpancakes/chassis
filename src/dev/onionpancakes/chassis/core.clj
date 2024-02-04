@@ -1037,14 +1037,15 @@
           (let [dot-idx-after (.indexOf head-name 46 #_(int \.) pound-idx)]
             (if (pos? dot-idx-after)
               ;; +head-id, +head-class-before, +head-class-after
-              (let [tag               (-> (.substring head-name 0 dot-idx)
-                                          (clojure.lang.Keyword/intern))
-                    head-id           (.substring head-name (inc pound-idx) dot-idx-after)
-                    head-class-before (-> (.substring head-name (inc dot-idx) pound-idx)
-                                          (.replace \. \space))
-                    head-class-after  (-> (.substring head-name (inc dot-idx-after))
-                                          (.replace \. \space))]
-                (OpeningTag. tag head-id (str head-class-before " " head-class-after) attrs))
+              (let [tag           (-> (.substring head-name 0 dot-idx)
+                                      (clojure.lang.Keyword/intern))
+                    head-id       (.substring head-name (inc pound-idx) dot-idx-after)
+                    head-class-sb (doto (StringBuilder. (.length head-name))
+                                    (.append head-name (inc dot-idx) pound-idx)
+                                    (.append head-name dot-idx-after (.length head-name)))
+                    head-class    (-> (.toString head-class-sb)
+                                      (.replace \. \space))]
+                (OpeningTag. tag head-id head-class attrs))
               ;; +head-id, +head-class-before, -head-class-after
               (let [tag        (-> (.substring head-name 0 dot-idx)
                                    (clojure.lang.Keyword/intern))
