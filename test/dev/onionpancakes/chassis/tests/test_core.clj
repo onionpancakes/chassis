@@ -74,6 +74,32 @@
       [:span {:id 2}
        "foo"]]]                  "<div id=\"0\"><p id=\"1\"><span id=\"2\">foo</span></p></div>"))
 
+(deftest test-html-tag-id-class
+  (are [node s] (= (c/html node) s)
+    ;; id
+    [:div#foo] "<div id=\"foo\"></div>"
+
+    ;; class
+    [:div.a]     "<div class=\"a\"></div>"
+    [:div.a.b]   "<div class=\"a b\"></div>"
+    [:div.a.b.c] "<div class=\"a b c\"></div>"
+
+    ;; id, class
+    [:div#foo.a]     "<div id=\"foo\" class=\"a\"></div>"
+    [:div#foo.a.b]   "<div id=\"foo\" class=\"a b\"></div>"
+    [:div#foo.a.b.c] "<div id=\"foo\" class=\"a b c\"></div>"
+
+    ;; class, id
+    [:div.a#foo]     "<div id=\"foo\" class=\"a\"></div>"
+    [:div.a.b#foo]   "<div id=\"foo\" class=\"a b\"></div>"
+    [:div.a.b.c#foo] "<div id=\"foo\" class=\"a b c\"></div>"
+
+    ;; class, id, class
+    [:div.a.b.c#foo.d.e.f] "<div id=\"foo\" class=\"a b c d e f\"></div>"
+
+    ;; class, id, class, pound
+    [:div.a.b.c#foo.d.e.f#bar.baz] "<div id=\"foo\" class=\"a b c d e f#bar baz\"></div>"))
+
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
     [:br]     "<br>"
