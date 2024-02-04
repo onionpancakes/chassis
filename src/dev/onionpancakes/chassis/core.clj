@@ -991,38 +991,38 @@
 
 (defn base-tag
   [^clojure.lang.Keyword tag]
-  (let [tname  (.getName tag)
-        id-idx (.indexOf tname 35 #_(int \#))
-        cl-idx (.indexOf tname 46 #_(int \.))]
+  (let [tag-name (.getName tag)
+        id-idx   (.indexOf tag-name 35 #_(int \#))
+        cl-idx   (.indexOf tag-name 46 #_(int \.))]
     (if (pos? cl-idx)
       (if (pos? id-idx)
-        (clojure.lang.Keyword/intern (.substring tname 0 (min id-idx cl-idx)))
-        (clojure.lang.Keyword/intern (.substring tname 0 cl-idx)))
+        (clojure.lang.Keyword/intern (.substring tag-name 0 (min id-idx cl-idx)))
+        (clojure.lang.Keyword/intern (.substring tag-name 0 cl-idx)))
       (if (pos? id-idx)
-        (clojure.lang.Keyword/intern (.substring tname 0 id-idx))
+        (clojure.lang.Keyword/intern (.substring tag-name 0 id-idx))
         tag))))
 
 (defn tag-id
   [^clojure.lang.Keyword tag]
-  (let [tname     (.getName tag)
-        start-idx (.indexOf tname 35 #_(int \#))
-        end-idx   (.indexOf tname 46 #_(int \.) start-idx)]
+  (let [tag-name  (.getName tag)
+        start-idx (.indexOf tag-name 35 #_(int \#))
+        end-idx   (.indexOf tag-name 46 #_(int \.) start-idx)]
     (if (pos? start-idx)
       (if (pos? end-idx)
-        (.substring tname (inc start-idx) end-idx)
-        (.substring tname (inc start-idx))))))
+        (.substring tag-name (inc start-idx) end-idx)
+        (.substring tag-name (inc start-idx))))))
 
 (defn tag-class
   [^clojure.lang.Keyword tag]
-  (let [tname     (.getName tag)
-        start-idx (.indexOf tname 46 #_(int \.))
-        end-idx   (.indexOf tname 35 #_(int \#) start-idx)]
+  (let [tag-name  (.getName tag)
+        start-idx (.indexOf tag-name 46 #_(int \.))
+        end-idx   (.indexOf tag-name 35 #_(int \#) start-idx)]
     (if (pos? start-idx)
       (if (pos? end-idx)
-        (.. tname
+        (.. tag-name
             (substring (inc start-idx) end-idx)
             (replace \. \space))
-        (.. tname
+        (.. tag-name
             (substring (inc start-idx))
             (replace \. \space))))))
 
