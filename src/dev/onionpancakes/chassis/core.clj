@@ -1347,7 +1347,7 @@
      (.nth elem 9)
      (ClosingTag. tag)]))
 
-(defn element-children-n-attrstcl
+(defn element-children-n-attrs
   [^clojure.lang.Indexed elem]
   (let [head  (.nth elem 0)
         tag   (head-tag head)
