@@ -5,10 +5,12 @@
 (deftest test-html
   (are [node s] (= (c/html node) s)
     ;; Primitives, non-elements
-    nil   ""
-    ""    ""
-    "foo" "foo"
-    0     "0"
+    nil      ""
+    ""       ""
+    "foo"    "foo"
+    0        "0"
+    :foo     "foo"
+    :foo/bar "foo/bar"
 
     ;; List non-elements
     ()                     ""
@@ -16,8 +18,8 @@
     (list "foo")           "foo"
     (list "foo" "bar")     "foobar"
     (list "foo" "bar" 123) "foobar123"
-    (list :foo)            ":foo"
-    (list :foo "bar")      ":foobar"
+    (list :foo)            "foo"
+    (list :foo "bar")      "foobar"
 
     ;; Vector non-elements
     []                ""
@@ -25,8 +27,8 @@
     ["foo" "bar"]     "foobar"
     ["foo" "bar" 123] "foobar123"
     [0]               "0"
-    [:foo/foo]        ":foo/foo"
-    [:foo/foo 123]    ":foo/foo123"
+    [:foo/foo]        "foo/foo"
+    [:foo/foo 123]    "foo/foo123"
 
     ;; Element, no attr
     [:div]    "<div></div>"
@@ -72,7 +74,46 @@
     [:div {:id 0}
      [:p {:id 1}
       [:span {:id 2}
-       "foo"]]]                  "<div id=\"0\"><p id=\"1\"><span id=\"2\">foo</span></p></div>"))
+       "foo"]]]                  "<div id=\"0\"><p id=\"1\"><span id=\"2\">foo</span></p></div>"
+
+    ;; Attribute values
+    [:div {:foo nil}]      "<div></div>"
+    [:div {:foo 0}]        "<div foo=\"0\"></div>"
+    [:div {:foo :bar}]     "<div foo=\"bar\"></div>"
+    [:div {:foo :foo/bar}] "<div foo=\"foo/bar\"></div>"
+    [:div {:foo true}]     "<div foo></div>"
+    [:div {:foo false}]    "<div></div>"
+
+    ;; Attribute vector value
+    [:div {:foo []}]                      "<div foo=\"\"></div>"
+    [:div {:foo [nil]}]                   "<div foo=\"\"></div>"
+    [:div {:foo [true]}]                  "<div foo=\"\"></div>"
+    [:div {:foo [false]}]                 "<div foo=\"\"></div>"
+    [:div {:foo [:a]}]                    "<div foo=\"a\"></div>"
+    [:div {:foo [:a/b]}]                  "<div foo=\"a/b\"></div>"
+    [:div {:foo ["a"]}]                   "<div foo=\"a\"></div>"
+    [:div {:foo ["a" "b"]}]               "<div foo=\"a b\"></div>"
+    [:div {:foo ["a" "b" nil 1 2 3]}]     "<div foo=\"a b 1 2 3\"></div>"
+    [:div {:foo [["a"] #{"b"} {:c "d"}]}] "<div foo=\"a b c: d;\"></div>"
+
+    ;; Attribute set value
+    [:div {:foo #{}}]        "<div foo=\"\"></div>"
+    [:div {:foo #{nil}}]     "<div foo=\"\"></div>"
+    [:div {:foo #{true}}]    "<div foo=\"\"></div>"
+    [:div {:foo #{false}}]   "<div foo=\"\"></div>"
+    [:div {:foo #{:a}}]      "<div foo=\"a\"></div>"
+    [:div {:foo #{0}}]       "<div foo=\"0\"></div>"
+    [:div {:foo #{[1 2 3]}}] "<div foo=\"1 2 3\"></div>"
+
+    ;; Attribute map value
+    [:div {:style {}}]                             "<div style=\"\"></div>"
+    [:div {:style {:color nil}}]                   "<div style=\"\"></div>"
+    [:div {:style {:color "red"}}]                 "<div style=\"color: red;\"></div>"
+    [:div {:style {:color :red}}]                  "<div style=\"color: red;\"></div>"
+    [:div {:style {:border [:1px :solid :black]}}] "<div style=\"border: 1px solid black;\"></div>"
+    [:div {:style (sorted-map :border [:1px :solid :black]
+                              :color :red )}]      "<div style=\"border: 1px solid black; color: red;\"></div>"
+    ))
 
 (deftest test-html-tag-id-class
   (are [node s] (= (c/html node) s)

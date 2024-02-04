@@ -107,17 +107,6 @@
   (escape-attribute-value s))
 
 (extend-protocol AttributeValue
-  clojure.lang.Keyword
-  (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
-    (if (namespace this)
-      nil ;; Handle namespaced keywords?
-      (let [val-frag (attribute-value-fragment this)]
-        (.append sb " ")
-        (.append sb attr-name)
-        (.append sb "=\"")
-        (.append sb val-frag)
-        (.append sb "\"")))
-    sb)
   Boolean
   (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
     (when this
@@ -159,6 +148,17 @@
   sb)
 
 (extend-protocol AttributeValueToken
+  clojure.lang.Keyword
+  (attribute-value-fragment [this]
+    (if-let [ns (namespace this)]
+      (let [ns-frag   (escape-attribute-value-fragment ns)
+            name-frag (escape-attribute-value-fragment (.getName this))
+            sb        (doto (StringBuilder.)
+                        (.append ns-frag)
+                        (.append "/")
+                        (.append name-frag))]
+        (.toString sb))
+      (escape-attribute-value-fragment (.getName this))))
   java.util.Collection
   (attribute-value-fragment [this]
     (let [sb (StringBuilder.)
@@ -940,6 +940,18 @@
   (raw-string value))
 
 (extend-protocol Token
+  clojure.lang.Keyword
+  (append-fragment-to-string-builder [this sb]
+    (if-let [ns (namespace this)]
+      (let [ns-frag   (escape-text-fragment ns)
+            name-frag (escape-text-fragment (.getName this))]
+        (.append ^StringBuilder sb ns-frag)
+        (.append ^StringBuilder sb "/")
+        (.append ^StringBuilder sb name-frag))
+      (let [name-frag (escape-text-fragment (.getName this))]
+        (.append ^StringBuilder sb name-frag))))
+  (fragment [this]
+    (escape-text-fragment this))
   java.util.UUID
   (append-fragment-to-string-builder [this sb]
     ;; Not escaped. Should be safe.
