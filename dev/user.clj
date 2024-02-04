@@ -7,6 +7,12 @@
             [selmer.parser :as selmer]
             [net.cgrand.enlive-html :as enlive]))
 
+(defmethod c/custom-element ::foo
+  [tag attrs content]
+  (println tag attrs content)
+  [:div.foo
+   "foo"])
+
 (def data
   {:title "Test Items"
    :items (for [i (range 200)]

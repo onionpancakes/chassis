@@ -27,8 +27,6 @@
     ["foo" "bar"]     "foobar"
     ["foo" "bar" 123] "foobar123"
     [0]               "0"
-    [:foo/foo]        "foo/foo"
-    [:foo/foo 123]    "foo/foo123"
 
     ;; Element, no attr
     [:div]    "<div></div>"

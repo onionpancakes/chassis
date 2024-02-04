@@ -13,6 +13,9 @@
 (defprotocol Node
   (children ^Iterable [this]))
 
+(defmulti custom-element
+  (fn [tag _ _] tag))
+
 ;; Implementation notes:
 ;; - HTML serialization is implemented as depth first search (DFS) traversal over Node.
 ;; - DFS is used to emit a series of Tokens (leaf nodes from the Node HTML tree).
@@ -1004,7 +1007,8 @@
 (defn make-opening-tag
   ^OpeningTag
   [^clojure.lang.Keyword head attrs]
-  (let [head-name (.getName head)
+  (let [head-ns   (namespace head)
+        head-name (.getName head)
         pound-idx (.indexOf head-name 35 #_(int \#))
         dot-idx   (.indexOf head-name 46 #_(int \.))]
     (if (pos? pound-idx)
@@ -1013,8 +1017,8 @@
           (let [dot-idx-after (.indexOf head-name 46 #_(int \.) pound-idx)]
             (if (pos? dot-idx-after)
               ;; +head-id, +head-class-before, +head-class-after
-              (let [tag           (-> (.substring head-name 0 dot-idx)
-                                      (clojure.lang.Keyword/intern))
+              (let [tag           (->> (.substring head-name 0 dot-idx)
+                                       (clojure.lang.Keyword/intern head-ns))
                     head-id       (.substring head-name (inc pound-idx) dot-idx-after)
                     head-class-sb (doto (StringBuilder. (.length head-name))
                                     (.append head-name (inc dot-idx) pound-idx)
@@ -1023,33 +1027,52 @@
                                       (.replace \. \space))]
                 (OpeningTag. tag head-id head-class attrs))
               ;; +head-id, +head-class-before, -head-class-after
-              (let [tag        (-> (.substring head-name 0 dot-idx)
-                                   (clojure.lang.Keyword/intern))
+              (let [tag        (->> (.substring head-name 0 dot-idx)
+                                    (clojure.lang.Keyword/intern head-ns))
                     head-id    (.substring head-name (inc pound-idx))
                     head-class (-> (.substring head-name (inc dot-idx) pound-idx)
                                    (.replace \. \space))]
                 (OpeningTag. tag head-id head-class attrs))))
           ;; +head-id, -head-class-before, +head-class-after
-          (let [tag        (-> (.substring head-name 0 pound-idx)
-                               (clojure.lang.Keyword/intern))
+          (let [tag        (->> (.substring head-name 0 pound-idx)
+                                (clojure.lang.Keyword/intern head-ns))
                 head-id    (.substring head-name (inc pound-idx) dot-idx)
                 head-class (-> (.substring head-name (inc dot-idx))
                                (.replace \. \space))]
             (OpeningTag. tag head-id head-class attrs)))
         ;; +head-id, -head-class
-        (let [tag     (-> (.substring head-name 0 pound-idx)
-                          (clojure.lang.Keyword/intern))
+        (let [tag     (->> (.substring head-name 0 pound-idx)
+                           (clojure.lang.Keyword/intern head-ns))
               head-id (.substring head-name (inc pound-idx))]
           (OpeningTag. tag head-id nil attrs)))
       (if (pos? dot-idx)
         ;; -head-id, +head-class
-        (let [tag        (-> (.substring head-name 0 dot-idx)
-                             (clojure.lang.Keyword/intern))
+        (let [tag        (->> (.substring head-name 0 dot-idx)
+                              (clojure.lang.Keyword/intern head-ns))
               head-class (-> (.substring head-name (inc dot-idx))
                              (.replace \. \space))]
           (OpeningTag. tag nil head-class attrs))
         ;; -head-id, -head-class
         (OpeningTag. head nil nil attrs)))))
+
+(defn custom-element-children-attrs
+  [head attrs elem]
+  (let [opening    (make-opening-tag head attrs)
+        tag        (.-tag opening)
+        head-id    (.-head-id opening)
+        head-class (.-head-class opening)
+        content    nil]
+    [(custom-element tag attrs content)]))
+
+(defn custom-element-children
+  [head elem]
+  (let [opening    (make-opening-tag head nil)
+        tag        (.-tag opening)
+        head-id    (.-head-id opening)
+        head-class (.-head-class opening)
+        attrs      nil
+        content    nil]
+    [(custom-element tag attrs content)]))
 
 (defn element-children-1
   [head]
@@ -1301,33 +1324,40 @@
   clojure.lang.IPersistentVector
   (children [this]
     (let [head (.nth this 0 nil)]
-      (if (and (keyword? head) (nil? (namespace head)))
-        (let [attrs (.nth this 1 nil)]
-          (if (or (instance? java.util.Map attrs) (nil? attrs))
-            (case (.count this)
-              1 (element-children-1 head)
-              2 (element-children-2-attrs head attrs)
-              3 (element-children-3-attrs head attrs this)
-              4 (element-children-4-attrs head attrs this)
-              5 (element-children-5-attrs head attrs this)
-              6 (element-children-6-attrs head attrs this)
-              7 (element-children-7-attrs head attrs this)
-              8 (element-children-8-attrs head attrs this)
-              9 (element-children-9-attrs head attrs this)
-              10 (element-children-10-attrs head attrs this)
-              (element-children-n-attrs head attrs this))
-            (case (.count this)
-              1 (element-children-1 head)
-              2 (element-children-2 head this)
-              3 (element-children-3 head this)
-              4 (element-children-4 head this)
-              5 (element-children-5 head this)
-              6 (element-children-6 head this)
-              7 (element-children-7 head this)
-              8 (element-children-8 head this)
-              9 (element-children-9 head this)
-              10 (element-children-10 head this)
-            (element-children-n head this))))
+      (if (keyword? head)
+        (if (some? (namespace head))
+          ;; Custom element
+          (let [attrs (.nth this 1 nil)]
+            (if (or (instance? java.util.Map attrs) (nil? attrs))
+              (custom-element-children-attrs head attrs this)
+              (custom-element-children head this)))
+          ;; Normal element
+          (let [attrs (.nth this 1 nil)]
+            (if (or (instance? java.util.Map attrs) (nil? attrs))
+              (case (.count this)
+                1  (element-children-1 head)
+                2  (element-children-2-attrs head attrs)
+                3  (element-children-3-attrs head attrs this)
+                4  (element-children-4-attrs head attrs this)
+                5  (element-children-5-attrs head attrs this)
+                6  (element-children-6-attrs head attrs this)
+                7  (element-children-7-attrs head attrs this)
+                8  (element-children-8-attrs head attrs this)
+                9  (element-children-9-attrs head attrs this)
+                10 (element-children-10-attrs head attrs this)
+                (element-children-n-attrs head attrs this))
+              (case (.count this)
+                1  (element-children-1 head)
+                2  (element-children-2 head this)
+                3  (element-children-3 head this)
+                4  (element-children-4 head this)
+                5  (element-children-5 head this)
+                6  (element-children-6 head this)
+                7  (element-children-7 head this)
+                8  (element-children-8 head this)
+                9  (element-children-9 head this)
+                10 (element-children-10 head this)
+                (element-children-n head this)))))
         this)))
   clojure.lang.ISeq
   (children [this] this)
