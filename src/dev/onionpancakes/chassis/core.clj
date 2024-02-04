@@ -1061,12 +1061,9 @@
   [head ^clojure.lang.Indexed elem]
   (let [opening (make-opening-tag head nil)
         tag     (.-tag opening)]
-    (if (and (void-tag? tag)
-             (nil? (.nth elem 1))) ;; TODO remove when second elem item nil is treated as map.
-      [opening]
-      [opening
-       (.nth elem 1)
-       (ClosingTag. tag)])))
+    [opening
+     (.nth elem 1)
+     (ClosingTag. tag)]))
 
 (defn element-children-3-attrs
   [head attrs ^clojure.lang.Indexed elem]
@@ -1294,8 +1291,9 @@
     (let [head (.nth this 0 nil)]
       (if (and (keyword? head) (nil? (namespace head)))
         (let [attrs (.nth this 1 nil)]
-          (if (instance? java.util.Map attrs)
+          (if (or (instance? java.util.Map attrs) (nil? attrs))
             (case (.count this)
+              1 (element-children-1 head)
               2 (element-children-2-attrs head attrs)
               3 (element-children-3-attrs head attrs this)
               4 (element-children-4-attrs head attrs this)
