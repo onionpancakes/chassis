@@ -1049,8 +1049,8 @@
    (if (or (< end start) (< start 0) (> end (.count v)))
      (throw (IndexOutOfBoundsException.)))
    (if (== start end)
-     [])
-   (content-subvec* v start end)))
+     (with-meta [] {::content true})
+     (content-subvec* v start end))))
 
 (defn custom-element-children-attrs
   [head attrs ^clojure.lang.IPersistentVector elem]
