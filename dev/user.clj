@@ -7,6 +7,13 @@
             [selmer.parser :as selmer]
             [net.cgrand.enlive-html :as enlive]))
 
+(def data
+  {:title "Test Items"
+   :items (for [i (range 200)]
+            {:type "foo"
+             :uuid (random-uuid)
+             :name (str "Item: " i)})})
+
 (defn page
   [data]
   [:html {:lang "en"}
@@ -79,10 +86,3 @@
 (defn enlive-page
   [data]
   (apply str (enlive-page-template data)))
-
-(def data
-  {:title "Test Items"
-   :items (for [i (range 200)]
-            {:type "foo"
-             :uuid (random-uuid)
-             :name (str "Item: " i)})})
