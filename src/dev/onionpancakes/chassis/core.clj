@@ -1317,31 +1317,25 @@
      (ClosingTag. tag)]))
 
 (defn element-children-n-attrs
-  [head attrs elem]
+  [head attrs ^clojure.lang.IPersistentVector elem]
   (let [opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      ;; Emit a coll Node in the element body.
      ;; Note that this increases depth of search by 2 instead of 1.
      ;; Use Subvec iterators as they are faster than Seq iterators.
-     ;; Reify as anon Node to avoid being interpreted as element.
-     (reify Node
-       (children [_]
-         (subvec elem 2)))
+     (content-subvec* elem 1 (.count elem))
      (ClosingTag. tag)]))
 
 (defn element-children-n
-  [head elem]
+  [head ^clojure.lang.IPersistentVector elem]
   (let [opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      ;; Emit a coll Node in the element body.
      ;; Note that this increases depth of search by 2 instead of 1.
      ;; Use Subvec iterators as they are faster than Seq iterators.
-     ;; Reify as anon Node to avoid being interpreted as element.
-     (reify Node
-       (children [_]
-         (subvec elem 1)))
+     (content-subvec* elem 1 (.count elem))
      (ClosingTag. tag)]))
 
 ;; Node impl
