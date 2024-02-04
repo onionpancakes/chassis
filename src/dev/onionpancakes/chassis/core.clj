@@ -985,29 +985,6 @@
   (append-fragment-to-string-builder [this sb] sb)
   (fragment [_] ""))
 
-;; Node impl
-
-;; https://developer.mozilla.org/en-US/docs/Glossary/Void_element
-
-(defn void-tag?
-  [tag]
-  (case tag
-    (:area
-     :base
-     :br
-     :col
-     :embed
-     :hr
-     :img
-     :input
-     :link
-     :meta
-     :param
-     :source
-     :track
-     :wbr) true
-    false))
-
 (defn make-opening-tag
   ^OpeningTag
   [^clojure.lang.Keyword head attrs]
@@ -1059,24 +1036,67 @@
         ;; -head-id, -head-class
         (OpeningTag. head nil nil attrs)))))
 
+;; Custom element
+
+(defn content-subvec*
+  [v start end]
+  (clojure.lang.APersistentVector$SubVector. {::content true} v start end))
+
+(defn content-subvec
+  ([^clojure.lang.IPersistentVector v start]
+   (content-subvec v start (.count v)))
+  ([^clojure.lang.IPersistentVector v start end]
+   (if (or (< end start) (< start 0) (> end (.count v)))
+     (throw (IndexOutOfBoundsException.)))
+   (if (== start end)
+     [])
+   (content-subvec* v start end)))
+
 (defn custom-element-children-attrs
-  [head attrs elem]
+  [head attrs ^clojure.lang.IPersistentVector elem]
   (let [opening    (make-opening-tag head attrs)
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)
-        content    nil]
+        elem-count (.count elem)
+        content    (if (> elem-count 2)
+                     (content-subvec* elem 2 elem-count))]
     [(custom-element tag attrs content)]))
 
 (defn custom-element-children
-  [head elem]
+  [head ^clojure.lang.IPersistentVector elem]
   (let [opening    (make-opening-tag head nil)
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)
         attrs      nil
-        content    nil]
+        elem-count (.count elem)
+        content    (if (> elem-count 1)
+                     (content-subvec* elem 1 elem-count))]
     [(custom-element tag attrs content)]))
+
+;; Normal element
+
+;; https://developer.mozilla.org/en-US/docs/Glossary/Void_element
+
+(defn void-tag?
+  [tag]
+  (case tag
+    (:area
+     :base
+     :br
+     :col
+     :embed
+     :hr
+     :img
+     :input
+     :link
+     :meta
+     :param
+     :source
+     :track
+     :wbr) true
+    false))
 
 (defn element-children-1
   [head]
@@ -1324,11 +1344,13 @@
          (subvec elem 1)))
      (ClosingTag. tag)]))
 
+;; Node impl
+
 (extend-protocol Node
   clojure.lang.IPersistentVector
   (children [this]
     (let [head (.nth this 0 nil)]
-      (if (keyword? head)
+      (if (and (keyword? head) (not (::content (meta this))))
         (if (some? (namespace head))
           ;; Custom element
           (let [attrs (.nth this 1 nil)]
