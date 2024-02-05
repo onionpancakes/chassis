@@ -13,7 +13,7 @@
 (defprotocol Node
   (children ^Iterable [this]))
 
-(defmulti custom-element
+(defmulti alias-element
   (fn [tag _ _] tag))
 
 ;; Implementation notes:
@@ -1052,7 +1052,7 @@
      (with-meta [] {::content true})
      (content-subvec* v start end))))
 
-(defn custom-element-children-attrs
+(defn alias-element-children-attrs
   [head attrs ^clojure.lang.IPersistentVector elem]
   (let [opening    (make-opening-tag head attrs)
         tag        (.-tag opening)
@@ -1061,9 +1061,9 @@
         elem-count (.count elem)
         content    (if (> elem-count 2)
                      (content-subvec* elem 2 elem-count))]
-    [(custom-element tag attrs content)]))
+    [(alias-element tag attrs content)]))
 
-(defn custom-element-children
+(defn alias-element-children
   [head ^clojure.lang.IPersistentVector elem]
   (let [opening    (make-opening-tag head nil)
         tag        (.-tag opening)
@@ -1073,7 +1073,7 @@
         elem-count (.count elem)
         content    (if (> elem-count 1)
                      (content-subvec* elem 1 elem-count))]
-    [(custom-element tag attrs content)]))
+    [(alias-element tag attrs content)]))
 
 ;; Normal element
 
@@ -1346,11 +1346,11 @@
     (let [head (.nth this 0 nil)]
       (if (and (keyword? head) (not (::content (meta this))))
         (if (some? (namespace head))
-          ;; Custom element
+          ;; Alias element
           (let [attrs (.nth this 1 nil)]
             (if (or (instance? java.util.Map attrs) (nil? attrs))
-              (custom-element-children-attrs head attrs this)
-              (custom-element-children head this)))
+              (alias-element-children-attrs head attrs this)
+              (alias-element-children head this)))
           ;; Normal element
           (let [attrs (.nth this 1 nil)]
             (if (or (instance? java.util.Map attrs) (nil? attrs))
