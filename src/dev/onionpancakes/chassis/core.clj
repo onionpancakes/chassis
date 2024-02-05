@@ -45,7 +45,7 @@
 
 ;; Reduce / HTML
 
-(def stack-max-depth 256)
+(def stack-max-depth 1024)
 
 (defn reduce-node
   [rf init root]
