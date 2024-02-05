@@ -152,6 +152,35 @@
     [:hr {:id "foo"} nil]   "<hr id=\"foo\"></hr>"
     [:hr {:id "foo"} "foo"] "<hr id=\"foo\">foo</hr>"))
 
+(deftest test-html-element-children
+  (are [node s] (= (c/html node) s)
+    [:div {}]                            "<div></div>"
+    [:div {} 1]                          "<div>1</div>"
+    [:div {} 1 2]                        "<div>12</div>"
+    [:div {} 1 2 3]                      "<div>123</div>"
+    [:div {} 1 2 3 4]                    "<div>1234</div>"
+    [:div {} 1 2 3 4 5]                  "<div>12345</div>"
+    [:div {} 1 2 3 4 5 6]                "<div>123456</div>"
+    [:div {} 1 2 3 4 5 6 7]              "<div>1234567</div>"
+    [:div {} 1 2 3 4 5 6 7 8]            "<div>12345678</div>"
+    [:div {} 1 2 3 4 5 6 7 8 9]          "<div>123456789</div>"
+    [:div {} 1 2 3 4 5 6 7 8 9 10]       "<div>12345678910</div>"
+    [:div {} 1 2 3 4 5 6 7 8 9 10 11]    "<div>1234567891011</div>"
+    [:div {} 1 2 3 4 5 6 7 8 9 10 11 12] "<div>123456789101112</div>"
+    [:div]                               "<div></div>"
+    [:div 1]                             "<div>1</div>"
+    [:div 1 2]                           "<div>12</div>"
+    [:div 1 2 3]                         "<div>123</div>"
+    [:div 1 2 3 4]                       "<div>1234</div>"
+    [:div 1 2 3 4 5]                     "<div>12345</div>"
+    [:div 1 2 3 4 5 6]                   "<div>123456</div>"
+    [:div 1 2 3 4 5 6 7]                 "<div>1234567</div>"
+    [:div 1 2 3 4 5 6 7 8]               "<div>12345678</div>"
+    [:div 1 2 3 4 5 6 7 8 9]             "<div>123456789</div>"
+    [:div 1 2 3 4 5 6 7 8 9 10]          "<div>12345678910</div>"
+    [:div 1 2 3 4 5 6 7 8 9 10 11]       "<div>1234567891011</div>"
+    [:div 1 2 3 4 5 6 7 8 9 10 11 12]    "<div>123456789101112</div>"))
+
 (deftest test-html-doctype-html5
   (are [node s] (= (c/html node) s)
     c/doctype-html5   "<!DOCTYPE html>"
