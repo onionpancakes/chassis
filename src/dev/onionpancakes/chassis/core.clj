@@ -53,11 +53,10 @@
     (loop [cur (.iterator ^Iterable (vector root)) ret init]
       (if (reduced? ret)
         (.deref ^clojure.lang.IDeref ret)
-        (if cur
+        (if (some? cur)
           (if (.hasNext cur)
-            (let [node (.next cur)
-                  ch   (children node)]
-              (if ch
+            (let [node (.next cur)]
+              (if-some [ch (children node)]
                 (do
                   (if (>= (.size stack) stack-max-depth)
                     (throw (IllegalArgumentException. "Stack max depth exceeded.")))
