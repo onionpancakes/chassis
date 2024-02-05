@@ -915,7 +915,9 @@
                                        (clojure.lang.Keyword/intern head-ns))
                     head-id       (.substring head-name (inc pound-idx) dot-idx-after)
                     head-class-sb (doto (StringBuilder. (.length head-name))
+                                    ;; Append class before # without (via inc) dot prefix.
                                     (.append head-name (inc dot-idx) pound-idx)
+                                    ;; Append class after # WITH (no inc) dot prefix.
                                     (.append head-name dot-idx-after (.length head-name)))
                     head-class    (-> (.toString head-class-sb)
                                       (.replace \. \space))]
