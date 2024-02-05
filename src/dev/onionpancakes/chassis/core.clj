@@ -1036,7 +1036,7 @@
         ;; -head-id, -head-class
         (OpeningTag. head nil nil attrs)))))
 
-;; Custom element
+;; Alias element
 
 (defn content-subvec*
   [v start end]
