@@ -1052,16 +1052,36 @@
      (with-meta [] {::content true})
      (content-subvec* v start end))))
 
+(defn merge-alias-element-attrs
+  [attrs head-id head-class]
+  (if (some? head-id)
+    (if (some? head-class)
+      (if (contains? attrs :class)
+        (-> (assoc attrs :id head-id)
+            (assoc :class [head-class (get attrs :class)]))
+        (-> (assoc attrs :id head-id)
+            (assoc :class head-class)))
+      (assoc attrs :id head-id))
+    (if (some? head-class)
+      (if (contains? attrs :class)
+        (assoc attrs :class [head-class (get attrs :class)])
+        (assoc attrs :class head-class))
+      attrs)))
+
 (defn alias-element-children-attrs
   [head attrs ^clojure.lang.IPersistentVector elem]
-  (let [opening    (make-opening-tag head attrs)
-        tag        (.-tag opening)
-        head-id    (.-head-id opening)
-        head-class (.-head-class opening)
-        elem-count (.count elem)
-        content    (if (> elem-count 2)
-                     (content-subvec* elem 2 elem-count))]
-    [(alias-element tag attrs content)]))
+  (let [opening      (make-opening-tag head attrs)
+        tag          (.-tag opening)
+        head-id      (.-head-id opening)
+        head-class   (.-head-class opening)
+        merged-attrs (if (or (map? attrs) (nil? attrs))
+                       (merge-alias-element-attrs attrs head-id head-class)
+                       (-> (into {} attrs) ; copy java map into clj map
+                           (merge-alias-element-attrs head-id head-class)))
+        elem-count   (.count elem)
+        content      (if (> elem-count 2)
+                       (content-subvec* elem 2 elem-count))]
+    [(alias-element tag merged-attrs content)]))
 
 (defn alias-element-children
   [head ^clojure.lang.IPersistentVector elem]
@@ -1069,7 +1089,13 @@
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)
-        attrs      nil
+        attrs      (if head-id
+                     (if head-class
+                       {:id head-id :head-class head-class}
+                       {:id head-id})
+                     (if head-class
+                       {:head-class head-class}
+                       nil))
         elem-count (.count elem)
         content    (if (> elem-count 1)
                      (content-subvec* elem 1 elem-count))]
