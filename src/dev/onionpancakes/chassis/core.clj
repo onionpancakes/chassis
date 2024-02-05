@@ -197,20 +197,7 @@
   nil
   (attribute-value-fragment [this] nil))
 
-;; Token impl
-
-(defn escape-text
-  ^String
-  [^String s]
-  (.. s
-      (replace "&" "&amp;")
-      (replace "<" "&lt;")
-      (replace ">" "&gt;")))
-
-(defn escape-text-fragment
-  ^String
-  [s]
-  (escape-text s))
+;; Opening Tag
 
 (defn append-attribute-fragment-kv-except-id-class
   [^StringBuilder sb k v]
@@ -911,80 +898,6 @@
   (toString [this]
     (fragment this)))
 
-(deftype ClosingTag [^clojure.lang.Keyword tag]
-  Token
-  (append-fragment-to-string-builder [this sb]
-    (let [tag-name (.getName tag)]
-      (.append ^StringBuilder sb "</")
-      (.append ^StringBuilder sb tag-name)
-      (.append ^StringBuilder sb ">")))
-  (fragment [this]
-    (let [sb (StringBuilder.)
-          _  (.append-fragment-to-string-builder this sb)]
-      (.toString sb)))
-  Object
-  (toString [this]
-    (fragment this)))
-
-(deftype RawString [value]
-  AttributeValueToken
-  (attribute-value-fragment [this] (str value))
-  Token
-  (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (str value)))
-  (fragment [this]
-    (str value))
-  Object
-  (toString [this]
-    (fragment this)))
-
-(defn raw-string
-  [value]
-  (RawString. value))
-
-(defn raw
-  [value]
-  (raw-string value))
-
-(extend-protocol Token
-  clojure.lang.Keyword
-  (append-fragment-to-string-builder [this sb]
-    (if-let [ns (namespace this)]
-      (let [ns-frag   (escape-text-fragment ns)
-            name-frag (escape-text-fragment (.getName this))]
-        (.append ^StringBuilder sb ns-frag)
-        (.append ^StringBuilder sb "/")
-        (.append ^StringBuilder sb name-frag))
-      (let [name-frag (escape-text-fragment (.getName this))]
-        (.append ^StringBuilder sb name-frag))))
-  (fragment [this]
-    (escape-text-fragment this))
-  java.util.UUID
-  (append-fragment-to-string-builder [this sb]
-    ;; Not escaped. Should be safe.
-    (.append ^StringBuilder sb (.toString this)))
-  (fragment [this]
-    (.toString this))
-  Number
-  (append-fragment-to-string-builder [this sb]
-    ;; Not escaped. Should be safe.
-    (.append ^StringBuilder sb (.toString this)))
-  (fragment [this]
-    (.toString this))
-  String
-  (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (escape-text-fragment this)))
-  (fragment [this]
-    (escape-text-fragment this))
-  Object
-  (append-fragment-to-string-builder [this sb]
-    (.append ^StringBuilder sb (escape-text-fragment (.toString this))))
-  (fragment [this]
-    (escape-text-fragment (.toString this)))
-  nil
-  (append-fragment-to-string-builder [this sb] sb)
-  (fragment [_] ""))
-
 (defn make-opening-tag
   ^OpeningTag
   [^clojure.lang.Keyword head attrs]
@@ -1036,7 +949,100 @@
         ;; -head-id, -head-class
         (OpeningTag. head nil nil attrs)))))
 
-;; Alias element
+;; Closing tag
+
+(deftype ClosingTag [^clojure.lang.Keyword tag]
+  Token
+  (append-fragment-to-string-builder [this sb]
+    (let [tag-name (.getName tag)]
+      (.append ^StringBuilder sb "</")
+      (.append ^StringBuilder sb tag-name)
+      (.append ^StringBuilder sb ">")))
+  (fragment [this]
+    (let [sb (StringBuilder.)
+          _  (.append-fragment-to-string-builder this sb)]
+      (.toString sb)))
+  Object
+  (toString [this]
+    (fragment this)))
+
+;; Raw string
+
+(deftype RawString [value]
+  AttributeValueToken
+  (attribute-value-fragment [this] (str value))
+  Token
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (str value)))
+  (fragment [this]
+    (str value))
+  Object
+  (toString [this]
+    (fragment this)))
+
+(defn raw-string
+  [value]
+  (RawString. value))
+
+(defn raw
+  [value]
+  (raw-string value))
+
+;; Token impl
+
+(defn escape-text
+  ^String
+  [^String s]
+  (.. s
+      (replace "&" "&amp;")
+      (replace "<" "&lt;")
+      (replace ">" "&gt;")))
+
+(defn escape-text-fragment
+  ^String
+  [s]
+  (escape-text s))
+
+(extend-protocol Token
+  clojure.lang.Keyword
+  (append-fragment-to-string-builder [this sb]
+    (if-let [ns (namespace this)]
+      (let [ns-frag   (escape-text-fragment ns)
+            name-frag (escape-text-fragment (.getName this))]
+        (.append ^StringBuilder sb ns-frag)
+        (.append ^StringBuilder sb "/")
+        (.append ^StringBuilder sb name-frag))
+      (let [name-frag (escape-text-fragment (.getName this))]
+        (.append ^StringBuilder sb name-frag))))
+  (fragment [this]
+    (escape-text-fragment this))
+  java.util.UUID
+  (append-fragment-to-string-builder [this sb]
+    ;; Not escaped. Should be safe.
+    (.append ^StringBuilder sb (.toString this)))
+  (fragment [this]
+    (.toString this))
+  Number
+  (append-fragment-to-string-builder [this sb]
+    ;; Not escaped. Should be safe.
+    (.append ^StringBuilder sb (.toString this)))
+  (fragment [this]
+    (.toString this))
+  String
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-text-fragment this)))
+  (fragment [this]
+    (escape-text-fragment this))
+  Object
+  (append-fragment-to-string-builder [this sb]
+    (.append ^StringBuilder sb (escape-text-fragment (.toString this))))
+  (fragment [this]
+    (escape-text-fragment (.toString this)))
+  nil
+  (append-fragment-to-string-builder [this sb] sb)
+  (fragment [_] ""))
+
+;; Content
 
 (defn content-subvec*
   [v start end]
@@ -1051,6 +1057,8 @@
    (if (== start end)
      (with-meta [] {::content true})
      (content-subvec* v start end))))
+
+;; Alias element
 
 (defn merge-alias-element-attrs
   [attrs head-id head-class]
