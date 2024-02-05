@@ -1069,8 +1069,10 @@
       attrs)))
 
 (defn alias-element-children-attrs
-  [head attrs ^clojure.lang.IPersistentVector elem]
-  (let [opening      (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head         (.nth elem 0)
+        attrs        (.nth elem 1)
+        opening      (make-opening-tag head attrs)
         tag          (.-tag opening)
         head-id      (.-head-id opening)
         head-class   (.-head-class opening)
@@ -1084,8 +1086,9 @@
     [(alias-element tag merged-attrs content)]))
 
 (defn alias-element-children
-  [head ^clojure.lang.IPersistentVector elem]
-  (let [opening    (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head       (.nth elem 0)
+        opening    (make-opening-tag head nil)
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)
@@ -1125,8 +1128,9 @@
     false))
 
 (defn element-children-1
-  [head]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     (if (void-tag? tag)
       [opening]
@@ -1134,8 +1138,10 @@
        (ClosingTag. tag)])))
 
 (defn element-children-2-attrs
-  [head attrs]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     (if (void-tag? tag)
       [opening]
@@ -1143,24 +1149,28 @@
        (ClosingTag. tag)])))
 
 (defn element-children-2
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
      (ClosingTag. tag)]))
 
 (defn element-children-3-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
      (ClosingTag. tag)]))
 
 (defn element-children-3
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1168,8 +1178,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-4-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1177,8 +1189,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-4
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1187,8 +1200,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-5-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1197,8 +1212,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-5
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1208,8 +1224,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-6-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1219,8 +1237,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-6
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1231,8 +1250,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-7-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1243,8 +1264,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-7
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1256,8 +1278,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-8-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1269,8 +1293,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-8
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1283,8 +1308,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-9-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1297,8 +1324,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-9
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1312,8 +1340,10 @@
      (ClosingTag. tag)]))
 
 (defn element-children-10-attrs
-  [head attrs ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      (.nth elem 2)
@@ -1327,8 +1357,9 @@
      (ClosingTag. tag)]))
 
 (defn element-children-10
-  [head ^clojure.lang.Indexed elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      (.nth elem 1)
@@ -1343,25 +1374,28 @@
      (ClosingTag. tag)]))
 
 (defn element-children-n-attrs
-  [head attrs ^clojure.lang.IPersistentVector elem]
-  (let [opening (make-opening-tag head attrs)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        attrs   (.nth elem 1)
+        opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
      ;; Emit a coll Node in the element body.
      ;; Note that this increases depth of search by 2 instead of 1.
      ;; Use Subvec iterators as they are faster than Seq iterators.
-     (content-subvec* elem 1 (.count elem))
+     (content-subvec elem 2 (.count elem))
      (ClosingTag. tag)]))
 
 (defn element-children-n
-  [head ^clojure.lang.IPersistentVector elem]
-  (let [opening (make-opening-tag head nil)
+  [^clojure.lang.IPersistentVector elem]
+  (let [head    (.nth elem 0)
+        opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
      ;; Emit a coll Node in the element body.
      ;; Note that this increases depth of search by 2 instead of 1.
      ;; Use Subvec iterators as they are faster than Seq iterators.
-     (content-subvec* elem 1 (.count elem))
+     (content-subvec elem 1 (.count elem))
      (ClosingTag. tag)]))
 
 ;; Node impl
@@ -1376,35 +1410,35 @@
             ;; Alias element
             (let [attrs (.nth this 1 nil)]
               (if (or (instance? java.util.Map attrs) (nil? attrs))
-                (alias-element-children-attrs head attrs this)
-                (alias-element-children head this)))
+                (alias-element-children-attrs this)
+                (alias-element-children this)))
             ;; Normal element
             (let [attrs (.nth this 1 nil)]
               (if (or (instance? java.util.Map attrs) (nil? attrs))
                 (case (.count this)
-                  1  (element-children-1 head)
-                  2  (element-children-2-attrs head attrs)
-                  3  (element-children-3-attrs head attrs this)
-                  4  (element-children-4-attrs head attrs this)
-                  5  (element-children-5-attrs head attrs this)
-                  6  (element-children-6-attrs head attrs this)
-                  7  (element-children-7-attrs head attrs this)
-                  8  (element-children-8-attrs head attrs this)
-                  9  (element-children-9-attrs head attrs this)
-                  10 (element-children-10-attrs head attrs this)
-                  (element-children-n-attrs head attrs this))
+                  1  (element-children-1 this)
+                  2  (element-children-2-attrs this)
+                  3  (element-children-3-attrs this)
+                  4  (element-children-4-attrs this)
+                  5  (element-children-5-attrs this)
+                  6  (element-children-6-attrs this)
+                  7  (element-children-7-attrs this)
+                  8  (element-children-8-attrs this)
+                  9  (element-children-9-attrs this)
+                  10 (element-children-10-attrs this)
+                  (element-children-n-attrs this))
                 (case (.count this)
-                  1  (element-children-1 head)
-                  2  (element-children-2 head this)
-                  3  (element-children-3 head this)
-                  4  (element-children-4 head this)
-                  5  (element-children-5 head this)
-                  6  (element-children-6 head this)
-                  7  (element-children-7 head this)
-                  8  (element-children-8 head this)
-                  9  (element-children-9 head this)
-                  10 (element-children-10 head this)
-                  (element-children-n head this)))))
+                  1  (element-children-1 this)
+                  2  (element-children-2 this)
+                  3  (element-children-3 this)
+                  4  (element-children-4 this)
+                  5  (element-children-5 this)
+                  6  (element-children-6 this)
+                  7  (element-children-7 this)
+                  8  (element-children-8 this)
+                  9  (element-children-9 this)
+                  10 (element-children-10 this)
+                  (element-children-n this)))))
         this)))
   clojure.lang.ISeq
   (children [this] this)
