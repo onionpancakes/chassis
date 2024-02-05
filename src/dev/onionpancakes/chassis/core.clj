@@ -1044,7 +1044,12 @@
   (append-fragment-to-string-builder [this sb] sb)
   (fragment [_] ""))
 
-;; Content
+;; Element utils
+
+(defn has-attrs?
+  [^clojure.lang.IPersistentVector elem]
+  (let [attrs (.nth elem 1 nil)]
+    (or (instance? java.util.Map attrs) (nil? attrs))))
 
 (defn content-subvec*
   [v start end]
@@ -1078,10 +1083,10 @@
         (assoc attrs :class head-class))
       attrs)))
 
-(defn alias-element-children-attrs
+(defn resolve-alias-element-attrs
   [^clojure.lang.IPersistentVector elem]
   (let [head         (.nth elem 0)
-        attrs        (.nth elem 1)
+        attrs        (.nth elem 1 nil)
         opening      (make-opening-tag head attrs)
         tag          (.-tag opening)
         head-id      (.-head-id opening)
@@ -1093,9 +1098,9 @@
         elem-count   (.count elem)
         content      (if (> elem-count 2)
                        (content-subvec* elem 2 elem-count))]
-    [(alias-element tag merged-attrs content)]))
+    (alias-element tag merged-attrs content)))
 
-(defn alias-element-children
+(defn resolve-alias-element
   [^clojure.lang.IPersistentVector elem]
   (let [head       (.nth elem 0)
         opening    (make-opening-tag head nil)
@@ -1104,15 +1109,21 @@
         head-class (.-head-class opening)
         attrs      (if head-id
                      (if head-class
-                       {:id head-id :head-class head-class}
+                       {:id head-id :class head-class}
                        {:id head-id})
                      (if head-class
-                       {:head-class head-class}
+                       {:class head-class}
                        nil))
         elem-count (.count elem)
         content    (if (> elem-count 1)
                      (content-subvec* elem 1 elem-count))]
-    [(alias-element tag attrs content)]))
+    (resolve-alias-element tag attrs content)))
+
+(defn alias-element-children
+  [elem]
+  (if (has-attrs? elem)
+    [(resolve-alias-element-attrs elem)]
+    [(resolve-alias-element elem)]))
 
 ;; Normal element
 
@@ -1408,6 +1419,34 @@
      (content-subvec elem 1 (.count elem))
      (ClosingTag. tag)]))
 
+(defn element-children
+  [^clojure.lang.IPersistentVector elem]
+  (if (has-attrs? elem)
+    (case (.count elem)
+      1  (element-children-1 elem)
+      2  (element-children-2-attrs elem)
+      3  (element-children-3-attrs elem)
+      4  (element-children-4-attrs elem)
+      5  (element-children-5-attrs elem)
+      6  (element-children-6-attrs elem)
+      7  (element-children-7-attrs elem)
+      8  (element-children-8-attrs elem)
+      9  (element-children-9-attrs elem)
+      10 (element-children-10-attrs elem)
+      (element-children-n-attrs elem))
+    (case (.count elem)
+      1  (element-children-1 elem)
+      2  (element-children-2 elem)
+      3  (element-children-3 elem)
+      4  (element-children-4 elem)
+      5  (element-children-5 elem)
+      6  (element-children-6 elem)
+      7  (element-children-7 elem)
+      8  (element-children-8 elem)
+      9  (element-children-9 elem)
+      10 (element-children-10 elem)
+      (element-children-n elem))))
+
 ;; Node impl
 
 (defn element-vector?
@@ -1421,46 +1460,13 @@
   (let [head (.nth elem 0 nil)]
     (some? (namespace head))))
 
-(defn attrs-element?
-  [^clojure.lang.IPersistentVector elem]
-  (let [attrs (.nth elem 1 nil)]
-    (or (instance? java.util.Map attrs) (nil? attrs))))
-
 (extend-protocol Node
   clojure.lang.IPersistentVector
   (children [this]
     (if (element-vector? this)
       (if (alias-element? this)
-        ;; Alias element
-        (if (attrs-element? this)
-          (alias-element-children-attrs this)
-          (alias-element-children this))
-        ;; Normal element
-        (if (attrs-element? this)
-          (case (.count this)
-            1  (element-children-1 this)
-            2  (element-children-2-attrs this)
-            3  (element-children-3-attrs this)
-            4  (element-children-4-attrs this)
-            5  (element-children-5-attrs this)
-            6  (element-children-6-attrs this)
-            7  (element-children-7-attrs this)
-            8  (element-children-8-attrs this)
-            9  (element-children-9-attrs this)
-            10 (element-children-10-attrs this)
-            (element-children-n-attrs this))
-          (case (.count this)
-            1  (element-children-1 this)
-            2  (element-children-2 this)
-            3  (element-children-3 this)
-            4  (element-children-4 this)
-            5  (element-children-5 this)
-            6  (element-children-6 this)
-            7  (element-children-7 this)
-            8  (element-children-8 this)
-            9  (element-children-9 this)
-            10 (element-children-10 this)
-            (element-children-n this))))
+        (alias-element-children this)
+        (element-children this))
       this))
   clojure.lang.ISeq
   (children [this] this)
