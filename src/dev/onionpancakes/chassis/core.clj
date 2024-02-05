@@ -1400,46 +1400,58 @@
 
 ;; Node impl
 
+(defn element-vector?
+  [^clojure.lang.IPersistentVector v]
+  (let [head (.nth v 0 nil)]
+    (and (keyword? head) (let [m (meta v)]
+                           (or (nil? m) (not (get m ::content)))))))
+
+(defn alias-element?
+  [^clojure.lang.IPersistentVector elem]
+  (let [head (.nth elem 0 nil)]
+    (some? (namespace head))))
+
+(defn attrs-element?
+  [^clojure.lang.IPersistentVector elem]
+  (let [attrs (.nth elem 1 nil)]
+    (or (instance? java.util.Map attrs) (nil? attrs))))
+
 (extend-protocol Node
   clojure.lang.IPersistentVector
   (children [this]
-    (let [head (.nth this 0 nil)]
-      (if (and (keyword? head) (let [meta-map (meta this)]
-                                 (or (nil? meta-map) (not (get meta-map ::content)))))
-          (if (some? (namespace head))
-            ;; Alias element
-            (let [attrs (.nth this 1 nil)]
-              (if (or (instance? java.util.Map attrs) (nil? attrs))
-                (alias-element-children-attrs this)
-                (alias-element-children this)))
-            ;; Normal element
-            (let [attrs (.nth this 1 nil)]
-              (if (or (instance? java.util.Map attrs) (nil? attrs))
-                (case (.count this)
-                  1  (element-children-1 this)
-                  2  (element-children-2-attrs this)
-                  3  (element-children-3-attrs this)
-                  4  (element-children-4-attrs this)
-                  5  (element-children-5-attrs this)
-                  6  (element-children-6-attrs this)
-                  7  (element-children-7-attrs this)
-                  8  (element-children-8-attrs this)
-                  9  (element-children-9-attrs this)
-                  10 (element-children-10-attrs this)
-                  (element-children-n-attrs this))
-                (case (.count this)
-                  1  (element-children-1 this)
-                  2  (element-children-2 this)
-                  3  (element-children-3 this)
-                  4  (element-children-4 this)
-                  5  (element-children-5 this)
-                  6  (element-children-6 this)
-                  7  (element-children-7 this)
-                  8  (element-children-8 this)
-                  9  (element-children-9 this)
-                  10 (element-children-10 this)
-                  (element-children-n this)))))
-        this)))
+    (if (element-vector? this)
+      (if (alias-element? this)
+        ;; Alias element
+        (if (attrs-element? this)
+          (alias-element-children-attrs this)
+          (alias-element-children this))
+        ;; Normal element
+        (if (attrs-element? this)
+          (case (.count this)
+            1  (element-children-1 this)
+            2  (element-children-2-attrs this)
+            3  (element-children-3-attrs this)
+            4  (element-children-4-attrs this)
+            5  (element-children-5-attrs this)
+            6  (element-children-6-attrs this)
+            7  (element-children-7-attrs this)
+            8  (element-children-8-attrs this)
+            9  (element-children-9-attrs this)
+            10 (element-children-10-attrs this)
+            (element-children-n-attrs this))
+          (case (.count this)
+            1  (element-children-1 this)
+            2  (element-children-2 this)
+            3  (element-children-3 this)
+            4  (element-children-4 this)
+            5  (element-children-5 this)
+            6  (element-children-6 this)
+            7  (element-children-7 this)
+            8  (element-children-8 this)
+            9  (element-children-9 this)
+            10 (element-children-10 this)
+            (element-children-n this))))
+      this))
   clojure.lang.ISeq
   (children [this] this)
   clojure.lang.IDeref
