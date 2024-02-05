@@ -1117,7 +1117,7 @@
         elem-count (.count elem)
         content    (if (> elem-count 1)
                      (content-subvec* elem 1 elem-count))]
-    (resolve-alias-element tag attrs content)))
+    (alias-element tag attrs content)))
 
 (defn alias-element-children
   [elem]
