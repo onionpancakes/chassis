@@ -1121,6 +1121,7 @@
 
 (defn alias-element-children
   [elem]
+  ;; Note: alias elements adds an additional depth to the search stack.
   (if (has-attrs? elem)
     [(resolve-alias-element-attrs elem)]
     [(resolve-alias-element elem)]))
@@ -1401,9 +1402,7 @@
         opening (make-opening-tag head attrs)
         tag     (.-tag opening)]
     [opening
-     ;; Emit a coll Node in the element body.
-     ;; Note that this increases depth of search by 2 instead of 1.
-     ;; Use Subvec iterators as they are faster than Seq iterators.
+     ;; Note: adds an additional depth to the search stack.
      (content-subvec elem 2 (.count elem))
      (ClosingTag. tag)]))
 
@@ -1413,9 +1412,7 @@
         opening (make-opening-tag head nil)
         tag     (.-tag opening)]
     [opening
-     ;; Emit a coll Node in the element body.
-     ;; Note that this increases depth of search by 2 instead of 1.
-     ;; Use Subvec iterators as they are faster than Seq iterators.
+     ;; Note: adds an additional depth to the search stack.
      (content-subvec elem 1 (.count elem))
      (ClosingTag. tag)]))
 
@@ -1472,9 +1469,11 @@
   (children [this] this)
   clojure.lang.IDeref
   (children [this]
+    ;; Note: adds an additional depth to the search stack.
     (vector (.deref this)))
   clojure.lang.Fn
   (children [this]
+    ;; Note: adds an additional depth to the search stack.
     (vector (this)))
   Object
   (children [_] nil)
