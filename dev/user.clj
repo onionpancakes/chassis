@@ -7,12 +7,12 @@
             [selmer.parser :as selmer]
             [net.cgrand.enlive-html :as enlive]))
 
-(defmethod c/alias-element ::foo
+(defmethod c/resolve-alias ::foo
   [tag attrs content]
   [:div.foo attrs
    [:p.bar content]])
 
-(defmethod c/alias-element ::item-link
+(defmethod c/resolve-alias ::item-link
   [tag attrs content]
   [:a.baz.buz attrs content])
 

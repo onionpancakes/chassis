@@ -13,7 +13,7 @@
 (defprotocol Node
   (children ^Iterable [this]))
 
-(defmulti alias-element
+(defmulti resolve-alias
   (fn [tag _ _] tag))
 
 ;; Implementation notes:
@@ -1097,7 +1097,7 @@
         elem-count   (.count elem)
         content      (if (> elem-count 2)
                        (content-subvec* elem 2 elem-count))]
-    (alias-element tag merged-attrs content)))
+    (resolve-alias tag merged-attrs content)))
 
 (defn resolve-alias-element
   [^clojure.lang.IPersistentVector elem]
@@ -1116,7 +1116,7 @@
         elem-count (.count elem)
         content    (if (> elem-count 1)
                      (content-subvec* elem 1 elem-count))]
-    (alias-element tag attrs content)))
+    (resolve-alias tag attrs content)))
 
 (defn alias-element-children
   [elem]

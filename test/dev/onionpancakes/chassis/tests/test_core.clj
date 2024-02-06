@@ -139,6 +139,39 @@
     ;; class, id, class, pound
     [:div.a.b.c#foo.d.e.f#bar.baz] "<div id=\"foo\" class=\"a b c d e f#bar baz\"></div>"))
 
+(defmethod c/resolve-alias ::Foo
+  [tag attrs content]
+  [:div.foo attrs content])
+
+(defmethod c/resolve-alias ::Bar
+  [tag attrs content]
+  [:span.bar attrs content])
+
+(defmethod c/resolve-alias ::Recursive
+  [tag {::keys [idx] :as attrs} content]
+  (if (and idx (>= idx 0))
+    [:div {:id idx}
+     [::Recursive {::idx (dec idx)}]]))
+
+(deftest test-html-alias
+  (are [node s] (= (c/html node) s)
+    [::Foo]                                   "<div class=\"foo\"></div>"
+    [::Foo#this]                              "<div id=\"this\" class=\"foo\"></div>"
+    [::Foo#this.bar]                          "<div id=\"this\" class=\"foo bar\"></div>"
+    [::Foo#this.bar {:class "baz"}]           "<div id=\"this\" class=\"foo bar baz\"></div>"
+    [::Foo#this.bar {:class "baz"} "abc" 123] "<div id=\"this\" class=\"foo bar baz\">abc123</div>"
+
+    [::Foo {:id "that"}]      "<div id=\"that\" class=\"foo\"></div>"
+    [::Foo#this {:id "that"}] "<div id=\"this\" class=\"foo\"></div>"
+
+    ;; Nested alias
+    [::Foo#this.bar {:class "baz"}
+     [::Bar#that.baz {:class "buz"}
+      "xyz"]] "<div id=\"this\" class=\"foo bar baz\"><span id=\"that\" class=\"bar baz buz\">xyz</span></div>"
+
+    ;; Recursive
+    [::Recursive {::idx 3}] "<div id=\"3\"><div id=\"2\"><div id=\"1\"><div id=\"0\"></div></div></div></div>"))
+
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
     [:br]     "<br>"
