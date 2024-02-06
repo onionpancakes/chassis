@@ -149,9 +149,10 @@
 
 (defmethod c/resolve-alias ::Recursive
   [tag {::keys [idx] :as attrs} content]
-  (if (and idx (>= idx 0))
-    [:div {:id idx}
-     [::Recursive {::idx (dec idx)}]]))
+  (let [idx (long idx)]
+    (if (and idx (>= idx 0))
+      [:div {:id idx}
+       [::Recursive {::idx (dec idx)}]])))
 
 (deftest test-html-alias
   (are [node s] (= (c/html node) s)
