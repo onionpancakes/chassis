@@ -486,7 +486,7 @@
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-attrs
-  [^StringBuilder sb tag-name head-id head-class ^java.util.Map attrs]
+  [^StringBuilder sb tag-name head-id ^java.util.Map attrs]
   (let [head-id-frag (escape-attribute-value-fragment head-id)]
     (if (zero? (.size attrs))
       (do
@@ -864,11 +864,11 @@
           (if attrs
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-id-attrs-id-class sb tag-name head-class attrs)
-                (append-opening-tag-with-id-attrs-id sb tag-name head-class attrs))
+                (append-opening-tag-with-id-attrs-id-class sb tag-name head-id attrs)
+                (append-opening-tag-with-id-attrs-id sb tag-name head-id attrs))
               (if (.containsKey attrs :class)
-                (append-opening-tag-with-id-attrs-class sb tag-name head-class attrs)
-                (append-opening-tag-with-id-attrs sb tag-name head-class attrs)))
+                (append-opening-tag-with-id-attrs-class sb tag-name head-id attrs)
+                (append-opening-tag-with-id-attrs sb tag-name head-id attrs)))
             (append-opening-tag-with-id sb tag-name head-id)))
         (if head-class
           ;; -head-id, +head-class
