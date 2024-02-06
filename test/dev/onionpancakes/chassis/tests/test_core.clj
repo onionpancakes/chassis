@@ -308,6 +308,18 @@
     [:div {:foo true}]                  "<div foo></div>"
     [:div {:foo false}]                 "<div></div>"
 
+    ;; Escapes
+    [:div#<>&']                     "<div id=\"&lt;&gt;&amp;&apos;\"></div>"
+    [:div.<>&']                     "<div class=\"&lt;&gt;&amp;&apos;\"></div>"
+    [:div#<>&'.<>&']                "<div id=\"&lt;&gt;&amp;&apos;\" class=\"&lt;&gt;&amp;&apos;\"></div>"
+    [(keyword "div#<>&\"'")]        "<div id=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
+    [(keyword "div.<>&\"'")]        "<div class=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
+    [(keyword "div#<>&\"'.<>&\"'")] "<div id=\"&lt;&gt;&amp;&quot;&apos;\" class=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
+    [:div {:foo "< > & \" '"}]      "<div foo=\"&lt; &gt; &amp; &quot; &apos;\"></div>"
+
+    ;; Escapes in class merge
+    [(keyword "div.<>&\"'") {:class "<>&\"'"}] "<div class=\"&lt;&gt;&amp;&quot;&apos; &lt;&gt;&amp;&quot;&apos;\"></div>"
+
     ;; Valid attribute keys.
     [:div {:foo-bar "foo"}] "<div foo-bar=\"foo\"></div>"
     [:div {:& "foo"}]       "<div &=\"foo\"></div>"
@@ -316,7 +328,7 @@
     [:div {'foo "bar"}]     "<div foo=\"bar\"></div>"
 
     ;; Non-attribute keys.
-    [:div {::foo "foo"}]            "<div></div>"
+    [:div {::foo "foo"}] "<div></div>"
     [:div {'foo/bar "foo"}]         "<div></div>"
     [:div {nil "foo"}]              "<div></div>"
     [:div {0 "foo"}]                "<div></div>"
@@ -355,7 +367,9 @@
     (fn [] :div)            "div"
     (reify Object
       (toString [_] "div")) "div"
-    nil                     ""))
+    nil                     ""
+    ;; Escapes
+    "< > & \" '"            "&lt; &gt; &amp; \" '"))
 
 (defmethod c/resolve-alias ::Foo
   [tag attrs content]
