@@ -122,12 +122,13 @@
     sb)
   Object
   (append-attribute-fragment-to-string-builder [this ^StringBuilder sb attr-name]
-    (let [val-frag (attribute-value-fragment this)]
+    (when-some [val-frag (attribute-value-fragment this)]
       (.append sb " ")
       (.append sb attr-name)
       (.append sb "=\"")
       (.append sb val-frag)
-      (.append sb "\"")))
+      (.append sb "\""))
+    sb)
   nil
   (append-attribute-fragment-to-string-builder [_ sb _] sb))
 
@@ -193,7 +194,7 @@
   (attribute-value-fragment [this]
     (escape-attribute-value-fragment (.toString this)))
   Boolean
-  (attribute-value-fragment [this] nil)
+  (attribute-value-fragment [this] (if this "" nil))
   nil
   (attribute-value-fragment [this] nil))
 

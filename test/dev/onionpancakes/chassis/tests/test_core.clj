@@ -138,6 +138,42 @@
     ;; class, id, class, pound
     [:div.a.b.c#foo.d.e.f#bar.baz] "<div id=\"foo\" class=\"a b c d e f#bar baz\"></div>"))
 
+(deftest test-html-attributes
+  (are [node s] (= (c/html node) s)
+    ;; id and class behave differently around boolean attributes.
+    [:div {:id nil}]                   "<div></div>"
+    [:div {:id ""}]                    "<div id=\"\"></div>"
+    [:div {:id "bar"}]                 "<div id=\"bar\"></div>"
+    [:div {:id :bar}]                  "<div id=\"bar\"></div>"
+    [:div {:id :foo/bar}]              "<div id=\"foo/bar\"></div>"
+    [:div {:id 0}]                     "<div id=\"0\"></div>"
+    [:div {:id 0.0}]                   "<div id=\"0.0\"></div>"
+    [:div {:id (java.util.UUID. 0 0)}] "<div id=\"00000000-0000-0000-0000-000000000000\"></div>"
+    [:div {:id true}]                  "<div id=\"\"></div>"
+    [:div {:id false}]                 "<div></div>"
+
+    [:div {:class nil}]                   "<div></div>"
+    [:div {:class ""}]                    "<div class=\"\"></div>"
+    [:div {:class "bar"}]                 "<div class=\"bar\"></div>"
+    [:div {:class :bar}]                  "<div class=\"bar\"></div>"
+    [:div {:class :foo/bar}]              "<div class=\"foo/bar\"></div>"
+    [:div {:class 0}]                     "<div class=\"0\"></div>"
+    [:div {:class 0.0}]                   "<div class=\"0.0\"></div>"
+    [:div {:class (java.util.UUID. 0 0)}] "<div class=\"00000000-0000-0000-0000-000000000000\"></div>"
+    [:div {:class true}]                  "<div class=\"\"></div>"
+    [:div {:class false}]                 "<div></div>"
+
+    [:div {:foo nil}]                   "<div></div>"
+    [:div {:foo ""}]                    "<div foo=\"\"></div>"
+    [:div {:foo "bar"}]                 "<div foo=\"bar\"></div>"
+    [:div {:foo :bar}]                  "<div foo=\"bar\"></div>"
+    [:div {:foo :foo/bar}]              "<div foo=\"foo/bar\"></div>"
+    [:div {:foo 0}]                     "<div foo=\"0\"></div>"
+    [:div {:foo 0.0}]                   "<div foo=\"0.0\"></div>"
+    [:div {:foo (java.util.UUID. 0 0)}] "<div foo=\"00000000-0000-0000-0000-000000000000\"></div>"
+    [:div {:foo true}]                  "<div foo></div>"
+    [:div {:foo false}]                 "<div></div>"))
+
 (deftest test-html-tokens
   (are [node s] (= (c/html node) s)
     nil                     ""
