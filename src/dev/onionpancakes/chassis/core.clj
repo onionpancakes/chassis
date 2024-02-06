@@ -66,6 +66,64 @@
             (recur (.pollFirst stack) ret))
           ret)))))
 
+;; vector check
+(defn reduce-node2
+  [rf init root]
+  (let [stack (java.util.ArrayDeque. 32)]
+    (loop [cur (.iterator ^Iterable (vector root)) ret init]
+      (if (reduced? ret)
+        (.deref ^clojure.lang.IDeref ret)
+        (if (some? cur)
+          (if (.hasNext cur)
+            (let [node (.next cur)]
+              (if-some [ch (children node)]
+                (if (vector? ch)
+                  (if (== (.count ^clojure.lang.IPersistentVector ch) 1)
+                    (let [node2 (.nth ^clojure.lang.IPersistentVector ch 0)]
+                      (if-some [ch2 (children node2)]
+                        (recur (.iterator ch2) ret)
+                        (recur cur (rf ret node2))))
+                    (do
+                      (if (>= (.size stack) stack-max-depth)
+                        (throw (IllegalArgumentException. "Stack max depth exceeded.")))
+                      (.addFirst stack cur)
+                      (recur (.iterator ch) ret)))
+                  (do
+                    (if (>= (.size stack) stack-max-depth)
+                      (throw (IllegalArgumentException. "Stack max depth exceeded.")))
+                    (.addFirst stack cur)
+                    (recur (.iterator ch) ret)))
+                (recur cur (rf ret node))))
+            (recur (.pollFirst stack) ret))
+          ret)))))
+
+;; hasNext after next
+(defn reduce-node3
+  [rf init root]
+  (let [stack (java.util.ArrayDeque. 32)]
+    (loop [cur (.iterator ^Iterable (vector root)) ret init]
+      (if (reduced? ret)
+        (.deref ^clojure.lang.IDeref ret)
+        (if (some? cur)
+          (let [node (.next cur)]
+            (if-some [ch (children node)]
+              (let [iter-next (.iterator ch)]
+                (if (.hasNext iter-next)
+                  (if (.hasNext cur)
+                    (do
+                      (if (< (.size stack) stack-max-depth)
+                        (.addFirst stack cur)
+                        (throw (IllegalArgumentException. "Stack max depth exceeded.")))
+                      (recur iter-next ret))
+                    (recur iter-next ret))
+                  (if (.hasNext cur)
+                    (recur cur ret)
+                    (recur (.pollFirst stack) ret))))
+              (if (.hasNext cur)
+                (recur cur (rf ret node))
+                (recur (.pollFirst stack) (rf ret node)))))
+          ret)))))
+
 (defn append-fragment
   [sb token]
   (append-fragment-to-string-builder token sb))
