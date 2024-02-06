@@ -160,7 +160,7 @@
 (defn html
   [root]
   (let [sb (StringBuilder. 16384)
-        _  (reduce-node4 append-fragment sb root)]
+        _  (reduce-node append-fragment sb root)]
     (.toString sb)))
 
 ;; Serializer
