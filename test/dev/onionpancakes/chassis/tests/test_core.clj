@@ -110,8 +110,7 @@
     [:div {:style {:color :red}}]                  "<div style=\"color: red;\"></div>"
     [:div {:style {:border [:1px :solid :black]}}] "<div style=\"border: 1px solid black;\"></div>"
     [:div {:style (sorted-map :border [:1px :solid :black]
-                              :color :red )}]      "<div style=\"border: 1px solid black; color: red;\"></div>"
-    ))
+                              :color :red)}]       "<div style=\"border: 1px solid black; color: red;\"></div>"))
 
 (deftest test-html-tag-id-class
   (are [node s] (= (c/html node) s)
@@ -138,6 +137,30 @@
 
     ;; class, id, class, pound
     [:div.a.b.c#foo.d.e.f#bar.baz] "<div id=\"foo\" class=\"a b c d e f#bar baz\"></div>"))
+
+(deftest test-html-tokens
+  (are [node s] (= (c/html node) s)
+    nil                     ""
+    ""                      ""
+    "foo"                   "foo"
+    :foo                    "foo"
+    :foo/bar                "foo/bar"
+    0                       "0"
+    0.0                     "0.0"
+    (java.util.UUID. 0 0)   "00000000-0000-0000-0000-000000000000"
+    (reify Object
+      (toString [_] "foo")) "foo"))
+
+(deftest test-html-nodes
+  (are [node s] (= (c/html node) s)
+    [:div]                  "<div></div>"
+    '(:div)                 "div"
+    (seq [:div])            "div"
+    (delay :div)            "div"
+    (fn [] :div)            "div"
+    (reify Object
+      (toString [_] "div")) "div"
+    nil                     ""))
 
 (defmethod c/resolve-alias ::Foo
   [tag attrs content]
