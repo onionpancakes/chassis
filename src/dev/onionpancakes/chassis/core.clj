@@ -283,7 +283,7 @@
           (.append sb "\" class=\"")
           (.append sb head-class-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-class-attrs-id
@@ -355,7 +355,7 @@
           (.append sb "\" class=\"")
           (.append sb head-class-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-class-attrs
@@ -430,7 +430,7 @@
           (.append sb " id=\"")
           (.append sb head-id-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-attrs-id
@@ -488,7 +488,7 @@
           (.append sb " id=\"")
           (.append sb head-id-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-id-attrs
@@ -564,7 +564,7 @@
             (.append sb "\" class=\"")
             (.append sb head-class-frag)
             (.append sb "\"")
-            (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+            (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
             (.append sb ">"))))
       (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))]
         (if (== (.size attrs) 2)
@@ -584,7 +584,7 @@
             (.append sb " ")
             (.append sb attr-class-frag)
             (.append sb "\"")
-            (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+            (reduce-kv append-attribute-fragment-kv-except-class sb attrs)
             (.append sb ">")))
         (if (== (.size attrs) 2)
           (do
@@ -599,7 +599,7 @@
             (.append sb " class=\"")
             (.append sb head-class-frag)
             (.append sb "\"")
-            (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+            (reduce-kv append-attribute-fragment-kv sb attrs)
             (.append sb ">")))))))
 
 (defn append-opening-tag-with-class-attrs-id
@@ -638,7 +638,7 @@
           (.append sb " class=\"")
           (.append sb head-class-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
+          (reduce-kv append-attribute-fragment-kv sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-class-attrs-class
@@ -677,7 +677,7 @@
           (.append sb " class=\"")
           (.append sb head-class-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-class-attrs
@@ -744,7 +744,7 @@
           (.append sb " id=\"")
           (.append sb attr-id-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
           (.append sb ">"))))
     (if-some [attr-class-frag (attribute-value-fragment (.get attrs :class))]
       (if (== (.size attrs) 2)
@@ -760,7 +760,7 @@
           (.append sb " class=\"")
           (.append sb attr-class-frag)
           (.append sb "\"")
-          (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv-except-class sb attrs)
           (.append sb ">")))
       (if (== (.size attrs) 2)
         (do
@@ -770,7 +770,7 @@
         (do
           (.append sb "<")
           (.append sb tag-name)
-          (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+          (reduce-kv append-attribute-fragment-kv sb attrs)
           (.append sb ">"))))))
 
 (defn append-opening-tag-with-attrs-id
@@ -789,7 +789,7 @@
         (.append sb " id=\"")
         (.append sb attr-id-frag)
         (.append sb "\"")
-        (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+        (reduce-kv append-attribute-fragment-kv-except-id sb attrs)
         (.append sb ">")))
     (if (== (.size attrs) 1)
       (do
@@ -799,7 +799,7 @@
       (do
         (.append sb "<")
         (.append sb tag-name)
-        (reduce-kv append-attribute-fragment-kv-except-id-class sb attrs)
+        (reduce-kv append-attribute-fragment-kv sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-attrs-class
@@ -828,7 +828,7 @@
       (do
         (.append sb "<")
         (.append sb tag-name)
-        (reduce-kv append-attribute-fragment-kv-except-class sb attrs)
+        (reduce-kv append-attribute-fragment-kv sb attrs)
         (.append sb ">")))))
 
 (defn append-opening-tag-with-attrs
