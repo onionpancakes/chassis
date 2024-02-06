@@ -1469,11 +1469,11 @@
   clojure.lang.IDeref
   (children [this]
     ;; Note: adds an additional depth to the search stack.
-    (vector (.deref this)))
+    [(.deref this)])
   clojure.lang.Fn
   (children [this]
     ;; Note: adds an additional depth to the search stack.
-    (vector (this)))
+    [(this)])
   Object
   (children [_] nil)
   nil
