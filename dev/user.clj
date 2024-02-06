@@ -7,12 +7,12 @@
             [selmer.parser :as selmer]
             [net.cgrand.enlive-html :as enlive]))
 
-(defmethod c/resolve-alias ::foo
+(defmethod c/resolve-alias ::Foo
   [tag attrs content]
   [:div.foo attrs
    [:p.bar content]])
 
-(defmethod c/resolve-alias ::item-link
+(defmethod c/resolve-alias ::ItemLink
   [tag attrs content]
   [:a.baz.buz attrs content])
 
@@ -56,9 +56,9 @@
     [:div
      (for [m (:items data)]
        [:div.foobar
-        [::item-link {:id    (:uuid m)
-                      :class (:type m)
-                      :href  (str "/item/" (:uuid m))}
+        [::ItemLink {:id    (:uuid m)
+                     :class (:type m)
+                     :href  (str "/item/" (:uuid m))}
          (:name m)]])]]])
 
 (defn chassis-page
