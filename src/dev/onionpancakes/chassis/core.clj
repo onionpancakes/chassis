@@ -1047,7 +1047,7 @@
 
 (defn has-attrs?
   [^clojure.lang.IPersistentVector elem]
-  (let [attrs (.nth elem 1 nil)]
+  (let [attrs (.nth elem 1 ::none)]
     (or (instance? java.util.Map attrs) (nil? attrs))))
 
 (defn content-subvec*
@@ -1085,7 +1085,7 @@
 (defn resolve-alias-element-attrs
   [^clojure.lang.IPersistentVector elem]
   (let [head         (.nth elem 0)
-        attrs        (.nth elem 1 nil)
+        attrs        (.nth elem 1)
         opening      (make-opening-tag head attrs)
         tag          (.-tag opening)
         head-id      (.-head-id opening)
@@ -1419,7 +1419,6 @@
   [^clojure.lang.IPersistentVector elem]
   (if (has-attrs? elem)
     (case (.count elem)
-      1  (element-children-1 elem)
       2  (element-children-2-attrs elem)
       3  (element-children-3-attrs elem)
       4  (element-children-4-attrs elem)
