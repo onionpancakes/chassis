@@ -138,6 +138,52 @@
     ;; class, id, class, pound
     [:div.a.b.c#foo.d.e.f#bar.baz] "<div id=\"foo\" class=\"a b c d e f#bar baz\"></div>"))
 
+(deftest test-html-tag-id-class-attrs-merge
+  (are [node s] (= (c/html node) s)
+    [:div]                            "<div></div>"
+    [:div nil]                        "<div></div>"
+    [:div {:id nil}]                  "<div></div>"
+    [:div {:id "bar"}]                "<div id=\"bar\"></div>"
+    [:div {:class nil}]               "<div></div>"
+    [:div {:class "3 4 5"}]           "<div class=\"3 4 5\"></div>"
+    [:div {:id nil :class nil}]       "<div></div>"
+    [:div {:id nil :class "3 4 5"}]   "<div class=\"3 4 5\"></div>"
+    [:div {:id "foo" :class nil}]     "<div id=\"foo\"></div>"
+    [:div {:id "foo" :class "3 4 5"}] "<div id=\"foo\" class=\"3 4 5\"></div>"
+    
+    [:div#foo]                            "<div id=\"foo\"></div>"
+    [:div#foo nil]                        "<div id=\"foo\"></div>"
+    [:div#foo {:id nil}]                  "<div id=\"foo\"></div>"
+    [:div#foo {:id "bar"}]                "<div id=\"foo\"></div>"
+    [:div#foo {:class nil}]               "<div id=\"foo\"></div>"
+    [:div#foo {:class "3 4 5"}]           "<div id=\"foo\" class=\"3 4 5\"></div>"
+    [:div#foo {:id nil :class nil}]       "<div id=\"foo\"></div>"
+    [:div#foo {:id nil :class "3 4 5"}]   "<div id=\"foo\" class=\"3 4 5\"></div>"
+    [:div#foo {:id "foo" :class nil}]     "<div id=\"foo\"></div>"
+    [:div#foo {:id "foo" :class "3 4 5"}] "<div id=\"foo\" class=\"3 4 5\"></div>"
+    
+    [:div.0.1.2]                            "<div class=\"0 1 2\"></div>"
+    [:div.0.1.2 nil]                        "<div class=\"0 1 2\"></div>"
+    [:div.0.1.2 {:id nil}]                  "<div class=\"0 1 2\"></div>"
+    [:div.0.1.2 {:id "foo"}]                "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div.0.1.2 {:class nil}]               "<div class=\"0 1 2\"></div>"
+    [:div.0.1.2 {:class "3 4 5"}]           "<div class=\"0 1 2 3 4 5\"></div>"
+    [:div.0.1.2 {:id nil :class nil}]       "<div class=\"0 1 2\"></div>"
+    [:div.0.1.2 {:id nil :class "3 4 5"}]   "<div class=\"0 1 2 3 4 5\"></div>"
+    [:div.0.1.2 {:id "foo" :class nil}]     "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div.0.1.2 {:id "foo" :class "3 4 5"}] "<div id=\"foo\" class=\"0 1 2 3 4 5\"></div>"
+
+    [:div#foo.0.1.2]                            "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 nil]                        "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {:id nil}]                  "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {:id "foo"}]                "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {:class nil}]               "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {:class "3 4 5"}]           "<div id=\"foo\" class=\"0 1 2 3 4 5\"></div>"
+    [:div#foo.0.1.2 {:id nil :class nil}]       "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {:id "bar" :class nil}]     "<div id=\"foo\" class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {:id nil :class "3 4 5"}]   "<div id=\"foo\" class=\"0 1 2 3 4 5\"></div>"
+    [:div#foo.0.1.2 {:id "bar" :class "3 4 5"}] "<div id=\"foo\" class=\"0 1 2 3 4 5\"></div>"))
+
 (deftest test-html-attributes
   (are [node s] (= (c/html node) s)
     ;; id and class behave differently around boolean attributes.
