@@ -49,7 +49,8 @@
 
 (defn reduce-node
   [rf init root]
-  (let [stack (java.util.ArrayDeque. 32)]
+  (let [stack     (java.util.ArrayDeque. 32)
+        max-depth (int stack-max-depth)]
     (loop [cur (.iterator ^Iterable (vector root)) ret init]
       (if (reduced? ret)
         (.deref ^clojure.lang.IDeref ret)
@@ -58,7 +59,7 @@
             (let [node (.next cur)]
               (if-some [ch (children node)]
                 (do
-                  (if (>= (.size stack) stack-max-depth)
+                  (if (>= (.size stack) max-depth)
                     (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                   (.addFirst stack cur)
                   (recur (.iterator ch) ret))
@@ -1051,13 +1052,13 @@
     (or (instance? java.util.Map attrs) (nil? attrs))))
 
 (defn content-subvec*
-  [v start end]
+  [v ^long start ^long end]
   (clojure.lang.APersistentVector$SubVector. {::content true} v start end))
 
 (defn content-subvec
-  ([^clojure.lang.IPersistentVector v start]
+  ([^clojure.lang.IPersistentVector v ^long start]
    (content-subvec v start (.count v)))
-  ([^clojure.lang.IPersistentVector v start end]
+  ([^clojure.lang.IPersistentVector v ^long start ^long end]
    (if (or (< end start) (< start 0) (> end (.count v)))
      (throw (IndexOutOfBoundsException.)))
    (if (== start end)
