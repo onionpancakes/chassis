@@ -200,35 +200,41 @@
 
 ;; Opening Tag
 
+(defn attribute-key?
+  [k]
+  (or (and (instance? clojure.lang.Named k)
+           (not (namespace k)))
+      (string? k)))
+
 (defn append-attribute-fragment-kv-except-id-class
   [^StringBuilder sb k v]
-  (when-not (or (nil? v)
-                (identical? k :class)
-                (identical? k :id)
-                (and (keyword? k) (namespace k)))
+  (when (and (attribute-key? k)
+             (not (identical? k :class))
+             (not (identical? k :id))
+             (some? v))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv-except-id
   [^StringBuilder sb k v]
-  (when-not (or (nil? v)
-                (identical? k :id)
-                (and (keyword? k) (namespace k)))
+  (when (and (attribute-key? k)
+             (not (identical? k :id))
+             (some? v))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv-except-class
   [^StringBuilder sb k v]
-  (when-not (or (nil? v)
-                (identical? k :class)
-                (and (keyword? k) (namespace k)))
+  (when (and (attribute-key? k)
+             (not (identical? k :class))
+             (some? v))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv
   [^StringBuilder sb k v]
-  (when-not (or (nil? v)
-                (and (keyword? k) (namespace k)))
+  (when (and (attribute-key? k)
+             (some? v))
     (append-attribute-fragment-to-string-builder v sb (name k)))
   sb)
 

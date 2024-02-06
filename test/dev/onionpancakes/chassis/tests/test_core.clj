@@ -306,7 +306,32 @@
     [:div {:foo 0.0}]                   "<div foo=\"0.0\"></div>"
     [:div {:foo (java.util.UUID. 0 0)}] "<div foo=\"00000000-0000-0000-0000-000000000000\"></div>"
     [:div {:foo true}]                  "<div foo></div>"
-    [:div {:foo false}]                 "<div></div>"))
+    [:div {:foo false}]                 "<div></div>"
+
+    ;; Valid attribute keys.
+    [:div {:foo-bar "foo"}] "<div foo-bar=\"foo\"></div>"
+    [:div {:& "foo"}]       "<div &=\"foo\"></div>"
+    [:div {:💀 "foo"}]      "<div 💀=\"foo\"></div>"
+    [:div {"foo" "bar"}]    "<div foo=\"bar\"></div>"
+    [:div {'foo "bar"}]     "<div foo=\"bar\"></div>"
+
+    ;; Non-attribute keys.
+    [:div {::foo "foo"}]            "<div></div>"
+    [:div {'foo/bar "foo"}]         "<div></div>"
+    [:div {nil "foo"}]              "<div></div>"
+    [:div {0 "foo"}]                "<div></div>"
+    [:div#foo {::foo "foo"}]        "<div id=\"foo\"></div>"
+    [:div#foo {'foo/bar "foo"}]     "<div id=\"foo\"></div>"
+    [:div#foo {nil "foo"}]          "<div id=\"foo\"></div>"
+    [:div#foo {0 "foo"}]            "<div id=\"foo\"></div>"
+    [:div.bar {::foo "foo"}]        "<div class=\"bar\"></div>"
+    [:div.bar {'foo/bar "foo"}]     "<div class=\"bar\"></div>"
+    [:div.bar {nil "foo"}]          "<div class=\"bar\"></div>"
+    [:div.bar {0 "foo"}]            "<div class=\"bar\"></div>"
+    [:div#foo.bar {::foo "foo"}]    "<div id=\"foo\" class=\"bar\"></div>"
+    [:div#foo.bar {'foo/bar "foo"}] "<div id=\"foo\" class=\"bar\"></div>"
+    [:div#foo.bar {nil "foo"}]      "<div id=\"foo\" class=\"bar\"></div>"
+    [:div#foo.bar {0 "foo"}]        "<div id=\"foo\" class=\"bar\"></div>"))
 
 (deftest test-html-tokens
   (are [node s] (= (c/html node) s)
