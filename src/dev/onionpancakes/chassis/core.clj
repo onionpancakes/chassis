@@ -49,7 +49,8 @@
 
 (defn reduce-node
   [rf init root]
-  (let [stack (java.util.ArrayDeque. 32)]
+  (let [stack     (java.util.ArrayDeque. 32)
+        max-depth (int stack-max-depth)]
     (loop [cur (.iterator ^Iterable (vector root)) ret init]
       (if (reduced? ret)
         (.deref ^clojure.lang.IDeref ret)
@@ -58,7 +59,7 @@
             (let [node (.next cur)]
               (if-some [ch (children node)]
                 (do
-                  (if (>= (.size stack) stack-max-depth)
+                  (if (>= (.size stack) max-depth)
                     (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                   (.addFirst stack cur)
                   (recur (.iterator ch) ret))
@@ -69,7 +70,8 @@
 ;; vector check
 (defn reduce-node2
   [rf init root]
-  (let [stack (java.util.ArrayDeque. 32)]
+  (let [stack     (java.util.ArrayDeque. 32)
+        max-depth (int stack-max-depth)]
     (loop [cur (.iterator ^Iterable (vector root)) ret init]
       (if (reduced? ret)
         (.deref ^clojure.lang.IDeref ret)
@@ -84,12 +86,12 @@
                         (recur (.iterator ch2) ret)
                         (recur cur (rf ret node2))))
                     (do
-                      (if (>= (.size stack) stack-max-depth)
+                      (if (>= (.size stack) max-depth)
                         (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                       (.addFirst stack cur)
                       (recur (.iterator ch) ret)))
                   (do
-                    (if (>= (.size stack) stack-max-depth)
+                    (if (>= (.size stack) max-depth)
                       (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                     (.addFirst stack cur)
                     (recur (.iterator ch) ret)))
@@ -100,7 +102,8 @@
 ;; hasNext after next
 (defn reduce-node3
   [rf init root]
-  (let [stack (java.util.ArrayDeque. 32)]
+  (let [stack     (java.util.ArrayDeque. 32)
+        max-depth (int stack-max-depth)]
     (loop [cur (.iterator ^Iterable (vector root)) ret init]
       (if (reduced? ret)
         (.deref ^clojure.lang.IDeref ret)
@@ -111,7 +114,7 @@
                 (if (.hasNext iter-next)
                   (if (.hasNext cur)
                     (do
-                      (if (< (.size stack) stack-max-depth)
+                      (if (< (.size stack) max-depth)
                         (.addFirst stack cur)
                         (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                       (recur iter-next ret))
@@ -124,6 +127,32 @@
                 (recur (.pollFirst stack) (rf ret node)))))
           ret)))))
 
+;; While loop
+(defn reduce-node4
+  [rf init root]
+  (let [stack     (doto (java.util.ArrayDeque. 32)
+                    (.addFirst (.iterator ^Iterable (vector root))))
+        max-depth (int stack-max-depth)
+        vret      (volatile! init)]
+    (while (> (.size stack) 0)
+      (let [^java.util.Iterator iter (.peekFirst stack)]
+        (loop []
+          (if (.hasNext iter)
+            (let [node (.next iter)]
+              (if-some [ch (children node)]
+                (do
+                  (if (>= (.size stack) max-depth)
+                    (throw (IllegalArgumentException. "Stack max depth exceeded.")))
+                  (.addFirst stack (.iterator ch)))
+                (if (reduced? (vswap! vret rf node))
+                  (.clear stack)
+                  (recur))))
+            (.pollFirst stack)))))
+    (let [ret @vret]
+      (if (reduced? ret)
+        @ret
+        ret))))
+
 (defn append-fragment
   [sb token]
   (append-fragment-to-string-builder token sb))
@@ -131,7 +160,7 @@
 (defn html
   [root]
   (let [sb (StringBuilder. 16384)
-        _  (reduce-node append-fragment sb root)]
+        _  (reduce-node4 append-fragment sb root)]
     (.toString sb)))
 
 ;; Serializer
@@ -1115,7 +1144,7 @@
 (defn content-subvec
   ([^clojure.lang.IPersistentVector v start]
    (content-subvec v start (.count v)))
-  ([^clojure.lang.IPersistentVector v start end]
+  ([^clojure.lang.IPersistentVector v ^long start ^long end]
    (if (or (< end start) (< start 0) (> end (.count v)))
      (throw (IndexOutOfBoundsException.)))
    (if (== start end)
