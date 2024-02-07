@@ -132,16 +132,19 @@
     (seq (vec this))))
 
 (defn token-serializer
+  "Returns a reducible and seqable emitting Tokens."
   [root]
   (TokenSerializer. root))
 
 (defn html-serializer
+  "Returns a reducible and seqable emitting HTML fragments."
   [root]
   (eduction (map fragment) (TokenSerializer. root)))
 
 ;; Append to
 
 (defn append-to-appendable
+  "Batch append strings to Appendable."
   ([this] this)
   ([^Appendable this a]
    (doto this
@@ -207,72 +210,6 @@
      (.append ^String h)
      (.append ^String i))))
 
-(defn append-to-string-builder
-  ([this] this)
-  ([^StringBuilder this a]
-   (doto this
-     (.append ^String a)))
-  ([^StringBuilder this a b]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)))
-  ([^StringBuilder this a b c]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)))
-  ([^StringBuilder this a b c d]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)))
-  ([^StringBuilder this a b c d e]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)))
-  ([^StringBuilder this a b c d e f]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)))
-  ([^StringBuilder this a b c d e f g]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)))
-  ([^StringBuilder this a b c d e f g h]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)))
-  ([^StringBuilder this a b c d e f g h i]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)
-     (.append ^String i))))
-
 (def append-to
   append-to-appendable)
 
@@ -310,8 +247,17 @@
   (when-some [v-frag (attribute-value-fragment v)]
     (let [k-frag (escape-attribute-value-fragment (name k))]
       (if (pos? (.length sb))
-        (append-to-string-builder sb " " k-frag ": " v-frag ";")
-        (append-to-string-builder sb k-frag ": " v-frag ";"))))
+        (doto sb
+          (.append " ")
+          (.append k-frag)
+          (.append ": ")
+          (.append v-frag)
+          (.append ";"))
+        (doto sb
+          (.append k-frag)
+          (.append ": ")
+          (.append v-frag)
+          (.append ";")))))
   sb)
 
 (extend-protocol AttributeValueFragment
@@ -321,7 +267,9 @@
       (let [ns-frag   (escape-attribute-value-fragment ns)
             name-frag (escape-attribute-value-fragment (.getName this))
             sb        (doto (StringBuilder.)
-                        (append-to-string-builder ns-frag "/" name-frag))]
+                        (.append ns-frag)
+                        (.append "/")
+                        (.append name-frag))]
         (.toString sb))
       (escape-attribute-value-fragment (.getName this))))
   java.util.Collection
@@ -329,7 +277,8 @@
     (let [sb (StringBuilder.)
           xf (comp (keep attribute-value-fragment)
                    (interpose " "))
-          _  (transduce xf append-to-string-builder sb this)]
+          rf (completing (memfn ^StringBuilder append s))
+          _  (transduce xf rf sb this)]
       (.toString sb)))
   java.util.Map
   (attribute-value-fragment [this]
