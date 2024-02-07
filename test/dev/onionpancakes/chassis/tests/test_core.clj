@@ -140,10 +140,14 @@
 
 (deftest test-html-tag-id-class-attrs-merge
   (are [node s] (= (c/html node) s)
+    ;; No attrs
+    [:div]              "<div></div>"
+    [:div nil]          "<div></div>"
+    [:div#foo {}]       "<div id=\"foo\"></div>"
+    [:div.0.1.2 {}]     "<div class=\"0 1 2\"></div>"
+    [:div#foo.0.1.2 {}] "<div id=\"foo\" class=\"0 1 2\"></div>"
+    
     ;; No tag id class
-    [:div]                                       "<div></div>"
-    [:div nil]                                   "<div></div>"
-    ;;
     [:div {:id nil}]                             "<div></div>"
     [:div {:id "bar"}]                           "<div id=\"bar\"></div>"
     [:div {:class nil}]                          "<div></div>"
