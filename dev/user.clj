@@ -69,6 +69,20 @@
   [data]
   (c/html [c/doctype-html5 (page-alias data)]))
 
+(defn chassis-page-writer
+  [data]
+  (let [wtr (java.io.CharArrayWriter. 16384)]
+    (with-open [w wtr]
+      (c/write-html w [c/doctype-html5 (page data)]))
+    (.toString wtr)))
+
+(defn chassis-page-print-stream
+  [data]
+  (let [bout (java.io.ByteArrayOutputStream.)]
+    (with-open [pout (java.io.PrintStream. bout true "UTF-8")]
+      (c/write-html pout [c/doctype-html5 (page data)]))
+    (String. (.toByteArray bout) "UTF-8")))
+
 (defn hiccup-page
   [data]
   (str
