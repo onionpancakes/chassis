@@ -103,6 +103,7 @@
 ;; AppendableTo
 
 (defn append-to-string-builder
+  ([this] this)
   ([^StringBuilder this a]
    (doto this
      (.append ^String a)))
@@ -204,27 +205,13 @@
   nil
   (attribute-fragment-append-to [_ sb _] sb))
 
-(defn append-sb
-  ([^StringBuilder sb] sb)
-  ([^StringBuilder sb ^String s]
-   (.append sb s)))
-
 (defn join-attribute-value-fragment-kv
-  [^StringBuilder sb k v]
+  [sb k v]
   (when-some [v-frag (attribute-value-fragment v)]
     (let [k-frag (escape-attribute-value-fragment (name k))]
       (if (pos? (.length sb))
-        (do
-          (.append sb " ")
-          (.append sb k-frag)
-          (.append sb ": ")
-          (.append sb v-frag)
-          (.append sb ";"))
-        (do
-          (.append sb k-frag)
-          (.append sb ": ")
-          (.append sb v-frag)
-          (.append sb ";")))))
+        (append-to-string-builder sb " " k-frag ": " v-frag ";")
+        (append-to-string-builder sb k-frag ": " v-frag ";"))))
   sb)
 
 (extend-protocol AttributeValueToken
@@ -234,9 +221,7 @@
       (let [ns-frag   (escape-attribute-value-fragment ns)
             name-frag (escape-attribute-value-fragment (.getName this))
             sb        (doto (StringBuilder.)
-                        (.append ns-frag)
-                        (.append "/")
-                        (.append name-frag))]
+                        (append-to-string-builder ns-frag "/" name-frag))]
         (.toString sb))
       (escape-attribute-value-fragment (.getName this))))
   java.util.Collection
@@ -244,7 +229,7 @@
     (let [sb (StringBuilder.)
           xf (comp (keep attribute-value-fragment)
                    (interpose " "))
-          _  (transduce xf append-sb sb this)]
+          _  (transduce xf append-to-string-builder sb this)]
       (.toString sb)))
   java.util.Map
   (attribute-value-fragment [this]
@@ -715,7 +700,8 @@
 
 (deftype RawString [value]
   AttributeValueToken
-  (attribute-value-fragment [this] (str value))
+  (attribute-value-fragment [this]
+    (str value))
   Token
   (fragment-append-to [this sb]
     (append sb (str value)))
