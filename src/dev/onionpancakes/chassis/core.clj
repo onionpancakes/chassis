@@ -72,8 +72,8 @@
           ret)))))
 
 (defn append-fragment
-  [sb token]
-  (fragment-append-to token sb))
+  [to token]
+  (fragment-append-to token to))
 
 (defn write-html
   [to root]
