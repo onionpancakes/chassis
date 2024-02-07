@@ -375,6 +375,20 @@
     ;; Escapes
     "< > & \" '"            "&lt; &gt; &amp; \" '"))
 
+(deftest test-html-deref-node-derefed-once
+  (let [counter (atom 0)
+        node    (reify clojure.lang.IDeref
+                  (deref [this]
+                    (swap! counter inc)))]
+    (is (= (c/html node) "1"))
+    (is (= @counter 1))))
+
+(deftest test-html-fn-node-invoked-once
+  (let [counter (atom 0)
+        node    (fn [] (swap! counter inc))]
+    (is (= (c/html node) "1"))
+    (is (= @counter 1))))
+
 (defmethod c/resolve-alias ::Foo
   [tag attrs content]
   [:div.foo attrs content])

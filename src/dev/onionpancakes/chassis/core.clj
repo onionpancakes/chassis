@@ -1,19 +1,21 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol AttributeValue
-  (attribute-fragment-append-to [this sb attr-name]))
+  (attribute-fragment-append-to [this sb attr-name] "Appends attribute key and value html fragment."))
 
 (defprotocol AttributeValueToken
-  (attribute-value-fragment ^String [this]))
+  (attribute-value-fragment ^String [this] "Returns attribute value fragment string or nil if none."))
 
 (defprotocol Token
-  (fragment-append-to [this sb])
-  (fragment ^String [this]))
+  (fragment-append-to [this sb] "Appends html fragment.")
+  (fragment ^String [this] "Returns HTML fragment."))
 
 (defprotocol Node
-  (children ^Iterable [this]))
+  (branch? [this] "Returns true if branch node.")
+  (children ^Iterable [this] "Returns children as Iterable."))
 
 (defmulti resolve-alias
+  "Resolve alias given tag, attrs map, and content vector, and return Node."
   (fn [tag _ _] tag))
 
 ;; Implementation notes:
@@ -84,12 +86,12 @@
         (if (some? cur)
           (if (.hasNext cur)
             (let [node (.next cur)]
-              (if-some [ch (children node)]
+              (if (branch? node)
                 (do
                   (if (>= (.size stack) max-depth)
                     (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                   (.addFirst stack cur)
-                  (recur (.iterator ch) ret))
+                  (recur (.iterator (children node)) ret))
                 (recur cur (rf ret node))))
             (recur (.pollFirst stack) ret))
           ret)))))
@@ -1269,6 +1271,7 @@
 
 (extend-protocol Node
   clojure.lang.IPersistentVector
+  (branch? [this] true)
   (children [this]
     (if (element-vector? this)
       (if (alias-element? this)
@@ -1276,18 +1279,23 @@
         (element-children this))
       this))
   clojure.lang.ISeq
+  (branch? [this] true)
   (children [this] this)
   clojure.lang.IDeref
+  (branch? [this] true)
   (children [this]
     ;; Note: adds an additional depth to the search stack.
     [(.deref this)])
   clojure.lang.Fn
+  (branch? [this] true)
   (children [this]
     ;; Note: adds an additional depth to the search stack.
     [(this)])
   Object
+  (branch? [this] false)
   (children [_] nil)
   nil
+  (branch? [this] false)
   (children [_] nil))
 
 ;; Raw consts
