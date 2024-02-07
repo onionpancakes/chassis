@@ -15,7 +15,7 @@
   (children ^Iterable [this] "Returns children as Iterable."))
 
 (defmulti resolve-alias
-  "Resolve alias given tag, attrs map, and content vector, and return Node."
+  "Resolves alias given tag, attrs map, and content vector, returning the resolved Node."
   (fn [tag _ _] tag))
 
 ;; Implementation notes:
@@ -77,6 +77,8 @@
 (def stack-max-depth 1024)
 
 (defn reduce-node
+  "Like reduce, but iterates over root Node in depth first search order.
+  Leaf nodes are accumulated with the reduction function in order they are encountered."
   [rf init root]
   (let [stack     (java.util.ArrayDeque. 32)
         max-depth (int stack-max-depth)]
@@ -97,14 +99,23 @@
           ret)))))
 
 (defn append-fragment
+  "Appends HTML token fragment to an appendable target.
+
+  By default, appendable targets is set to types implementing java.lang.Appendable
+  but can be made to target other types by altering the append-to var."
   [sb token]
   (fragment-append-to token sb))
 
 (defn write-html
+  "Writes HTML string to an appendable target.
+
+  By default, appendable targets is set to types implementing java.lang.Appendable
+  but can be made to target other types by altering the append-to var."
   [sb root]
   (reduce-node append-fragment sb root))
 
 (defn html
+  "Returns HTML string given a HTML Node tree."
   [root]
   (let [sb (StringBuilder. 16384)
         _  (write-html sb root)]
