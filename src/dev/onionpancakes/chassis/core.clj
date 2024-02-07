@@ -107,67 +107,67 @@
   (append
     ([this a]
      (doto this
-       (.append a)))
+       (.append ^String a)))
     ([this a b]
      (doto this
-       (.append a)
-       (.append b)))
+       (.append ^String a)
+       (.append ^String b)))
     ([this a b c]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)))
     ([this a b c d]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)
-       (.append d)))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)
+       (.append ^String d)))
     ([this a b c d e]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)
-       (.append d)
-       (.append e)))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)
+       (.append ^String d)
+       (.append ^String e)))
     ([this a b c d e f]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)
-       (.append d)
-       (.append e)
-       (.append f)))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)
+       (.append ^String d)
+       (.append ^String e)
+       (.append ^String f)))
     ([this a b c d e f g]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)
-       (.append d)
-       (.append e)
-       (.append f)
-       (.append g)))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)
+       (.append ^String d)
+       (.append ^String e)
+       (.append ^String f)
+       (.append ^String g)))
     ([this a b c d e f g h]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)
-       (.append d)
-       (.append e)
-       (.append f)
-       (.append g)
-       (.append h)))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)
+       (.append ^String d)
+       (.append ^String e)
+       (.append ^String f)
+       (.append ^String g)
+       (.append ^String h)))
     ([this a b c d e f g h i]
      (doto this
-       (.append a)
-       (.append b)
-       (.append c)
-       (.append d)
-       (.append e)
-       (.append f)
-       (.append g)
-       (.append h)
-       (.append i)))))
+       (.append ^String a)
+       (.append ^String b)
+       (.append ^String c)
+       (.append ^String d)
+       (.append ^String e)
+       (.append ^String f)
+       (.append ^String g)
+       (.append ^String h)
+       (.append ^String i)))))
 
 ;; Attributes impl
 
