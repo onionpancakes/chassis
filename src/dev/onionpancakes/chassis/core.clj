@@ -97,12 +97,12 @@
           ret)))))
 
 (defn append-fragment
-  [to token]
-  (fragment-append-to token to))
+  [sb token]
+  (fragment-append-to token sb))
 
 (defn write-html
-  [to root]
-  (reduce-node append-fragment to root))
+  [sb root]
+  (reduce-node append-fragment sb root))
 
 (defn html
   [root]
