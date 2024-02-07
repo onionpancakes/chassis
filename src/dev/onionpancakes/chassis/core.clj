@@ -75,10 +75,14 @@
   [sb token]
   (fragment-append-to token sb))
 
+(defn write-html
+  [to root]
+  (reduce-node append-fragment to root))
+
 (defn html
   [root]
   (let [sb (StringBuilder. 16384)
-        _  (reduce-node append-fragment sb root)]
+        _  (write-html sb root)]
     (.toString sb)))
 
 ;; Serializer
@@ -206,7 +210,7 @@
   (attribute-fragment-append-to [_ sb _] sb))
 
 (defn join-attribute-value-fragment-kv
-  [sb k v]
+  [^StringBuilder sb k v]
   (when-some [v-frag (attribute-value-fragment v)]
     (let [k-frag (escape-attribute-value-fragment (name k))]
       (if (pos? (.length sb))
