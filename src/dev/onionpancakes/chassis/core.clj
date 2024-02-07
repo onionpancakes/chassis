@@ -20,28 +20,55 @@
 ;; - HTML serialization is implemented as depth first search (DFS) traversal over Node.
 ;; - DFS is used to emit a series of Tokens (leaf nodes from the Node HTML tree).
 ;; - Tokens then write HTML fragments to a singular StringBuilder.
-;; For performance reasons:
 ;; - DFS is implemented as reduction over Node.
 ;; - DFS is implemented using a stack of Iterators. (java.util.Deque<Iterator>)
 ;;   Note that head of stack is held by loop binding rather than the actual head of stack.
 ;; - Node children returns a value that is as flat as possible
 ;;   to minimized the depth of search (size of Deque).
-;;   - See the count varying node-children-n implementations
+;;   See the count varying node-children-n implementations
 ;; - Iterables returned by Node children should prefer implementations
 ;;   that are internally indexes to arrays.
-;;   - Iterators over Vectors are fast, Iterators over Seqs are not as fast.
+;;   Iterators over Vectors are fast, Iterators over Seqs are not as fast.
 ;; - DFS emits a minimum number of Tokens. Therefore Node children emits
 ;;   OpeningTag and ClosingTag types as "fat" tokens capturing the bracket,
 ;;   tag name, and tag attributes data into one Token instance.
-;; - Tokens append fragment Strings to StringBuilder. Testing (adhoc in my repl) showed
-;;   that String appends to StringBuilder is the fastest implementation possible.
-;;   - It beat out CharSequence appends to Appendable. (2nd fastest, ~20% slower)
-;;   - It beat out String writes to Writer. (2nd fastest, ~20% slower)
-;;   - It beat out String prints to PrintStream. (slowest, +100% slower)
-;;   Ultimately, HTML fragments are written to some server I/O interface.
-;;   Appending fragments to StringBuilder seems wasteful and although
-;;   it is possible to avoid intermediate memory allocation and I/O
-;;   by avoiding StringBuilder, it is not a performant option at this time.
+;; - Coalesce appends in large chunks showed 20% performance boost compared to
+;;   to fragmented appends. Interleaving appends with branches and computation
+;;   is detrimental. Therefore, the code is structured like a decision
+;;   tree so the branches and computation happens early and the appends are
+;;   executed together at the leaves.
+
+(comment
+  ;; Bad - Branching inbetween appends
+  (do
+    (if (is-a? data)
+      (append sb "foo")
+      (append sb "bar"))
+    (if (is-b? data)
+      (append sb "123")
+      (append sb "456")))
+
+  ;; Good
+  (if (is-a? data)
+    (if (is-b? data)
+      (do (append sb "foo") (append sb "123"))
+      (do (append sb "foo") (append sb "456")))
+    (if (is-b? data)
+      (do (append sb "bar") (append sb "123"))
+      (do (append sb "bar") (append sb "456"))))
+
+  ;; Bad - Computing inbetween appends
+  (do
+    (append sb "foo")
+    (append sb (do-thing data))
+    (append sb "bar"))
+
+  ;; Good
+  (let [thing (do-thing data)]
+    (append sb "foo")
+    (append sb thing)
+    (append sb "bar"))
+  )
 
 ;; Reduce / HTML
 
