@@ -172,9 +172,79 @@
      (.append ^String h)
      (.append ^String i))))
 
+(defn append-to-appendable
+  ([this] this)
+  ([^Appendable this a]
+   (doto this
+     (.append ^String a)))
+  ([^Appendable this a b]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)))
+  ([^Appendable this a b c]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)))
+  ([^Appendable this a b c d]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)))
+  ([^Appendable this a b c d e]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)))
+  ([^Appendable this a b c d e f]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)))
+  ([^Appendable this a b c d e f g]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)
+     (.append ^String g)))
+  ([^Appendable this a b c d e f g h]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)
+     (.append ^String g)
+     (.append ^String h)))
+  ([^Appendable this a b c d e f g h i]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)
+     (.append ^String g)
+     (.append ^String h)
+     (.append ^String i))))
+
 (extend StringBuilder
   AppendableTo
   {:append-to append-to-string-builder})
+
+(extend Appendable
+  AppendableTo
+  {:append-to append-to-appendable})
 
 (def append append-to)
 
