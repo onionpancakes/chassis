@@ -101,8 +101,7 @@
 
 (defn html-serializer
   [root]
-  (eduction (map fragment)
-            (TokenSerializer. root)))
+  (eduction (map fragment) (TokenSerializer. root)))
 
 ;; AppendableTo
 

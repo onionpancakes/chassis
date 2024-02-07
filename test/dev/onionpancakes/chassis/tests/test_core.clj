@@ -460,3 +460,11 @@
     [c/doctype-html5
      [:html
       [:body "foo"]]] "<!DOCTYPE html><html><body>foo</body></html>"))
+
+(deftest test-html-serializer
+  (are [value expected] (= value expected)
+    (vec (c/html-serializer [:div "foo"])) ["<div>" "foo" "</div>"]
+    (seq (c/html-serializer [:div "foo"])) (list "<div>" "foo" "</div>")
+
+    (into [] (take 2) (c/html-serializer [:div "foo"]))             ["<div>" "foo"]
+    (into [] (halt-when #{"foo"}) (c/html-serializer [:div "foo"])) "foo"))
