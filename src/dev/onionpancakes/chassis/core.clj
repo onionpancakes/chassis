@@ -260,10 +260,8 @@
       (replace "\"" "&quot;")
       (replace "'" "&apos;")))
 
-(defn escape-attribute-value-fragment
-  ^String
-  [s]
-  (escape-attribute-value s))
+(def escape-attribute-value-fragment
+  escape-attribute-value)
 
 (extend-protocol AttributeValue
   Boolean
@@ -789,9 +787,8 @@
   [value]
   (RawString. value))
 
-(defn raw
-  [value]
-  (raw-string value))
+(def raw
+  raw-string)
 
 ;; Token impl
 
@@ -803,10 +800,8 @@
       (replace "<" "&lt;")
       (replace ">" "&gt;")))
 
-(defn escape-text-fragment
-  ^String
-  [s]
-  (escape-text s))
+(def escape-text-fragment
+  escape-text)
 
 (extend-protocol Token
   clojure.lang.Keyword
