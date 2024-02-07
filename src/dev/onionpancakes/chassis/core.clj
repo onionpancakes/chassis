@@ -3,7 +3,7 @@
 (defprotocol AttributeValue
   (attribute-fragment-append-to [this sb attr-name] "Appends attribute key and value html fragment."))
 
-(defprotocol AttributeValueToken
+(defprotocol AttributeValueFragment
   (attribute-value-fragment ^String [this] "Returns attribute value fragment string or nil if none."))
 
 (defprotocol Token
@@ -303,7 +303,7 @@
         (append-to-string-builder sb k-frag ": " v-frag ";"))))
   sb)
 
-(extend-protocol AttributeValueToken
+(extend-protocol AttributeValueFragment
   clojure.lang.Keyword
   (attribute-value-fragment [this]
     (if-let [ns (namespace this)]
@@ -788,7 +788,7 @@
 ;; Raw string
 
 (deftype RawString [value]
-  AttributeValueToken
+  AttributeValueFragment
   (attribute-value-fragment [this]
     (str value))
   Token
