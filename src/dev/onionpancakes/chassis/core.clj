@@ -1,9 +1,5 @@
 (ns dev.onionpancakes.chassis.core)
 
-(defprotocol AppendableTo
-  (append-to [this a] [this a b] [this a b c] [this a b c d] [this a b c d e] [this a b c d e f]
-    [this a b c d e f g] [this a b c d e f g h] [this a b c d e f g h i]))
-
 (defprotocol AttributeValue
   (attribute-fragment-append-to [this sb attr-name]))
 
@@ -103,73 +99,7 @@
   [root]
   (eduction (map fragment) (TokenSerializer. root)))
 
-;; AppendableTo
-
-(defn append-to-string-builder
-  ([this] this)
-  ([^StringBuilder this a]
-   (doto this
-     (.append ^String a)))
-  ([^StringBuilder this a b]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)))
-  ([^StringBuilder this a b c]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)))
-  ([^StringBuilder this a b c d]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)))
-  ([^StringBuilder this a b c d e]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)))
-  ([^StringBuilder this a b c d e f]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)))
-  ([^StringBuilder this a b c d e f g]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)))
-  ([^StringBuilder this a b c d e f g h]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)))
-  ([^StringBuilder this a b c d e f g h i]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)
-     (.append ^String i))))
+;; Append to
 
 (defn append-to-appendable
   ([this] this)
@@ -237,15 +167,73 @@
      (.append ^String h)
      (.append ^String i))))
 
-(extend StringBuilder
-  AppendableTo
-  {:append-to append-to-string-builder})
+(defn append-to-string-builder
+  ([this] this)
+  ([^StringBuilder this a]
+   (doto this
+     (.append ^String a)))
+  ([^StringBuilder this a b]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)))
+  ([^StringBuilder this a b c]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)))
+  ([^StringBuilder this a b c d]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)))
+  ([^StringBuilder this a b c d e]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)))
+  ([^StringBuilder this a b c d e f]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)))
+  ([^StringBuilder this a b c d e f g]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)
+     (.append ^String g)))
+  ([^StringBuilder this a b c d e f g h]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)
+     (.append ^String g)
+     (.append ^String h)))
+  ([^StringBuilder this a b c d e f g h i]
+   (doto this
+     (.append ^String a)
+     (.append ^String b)
+     (.append ^String c)
+     (.append ^String d)
+     (.append ^String e)
+     (.append ^String f)
+     (.append ^String g)
+     (.append ^String h)
+     (.append ^String i))))
 
-(extend Appendable
-  AppendableTo
-  {:append-to append-to-appendable})
-
-(def append append-to)
+(def append append-to-appendable)
 
 ;; Attributes impl
 
