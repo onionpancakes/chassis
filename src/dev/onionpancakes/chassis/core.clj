@@ -315,8 +315,7 @@
 
 (defn attribute-key?
   [k]
-  (or (and (instance? clojure.lang.Named k)
-           (not (namespace k)))
+  (or (and (keyword? k) (not (namespace k)))
       (string? k)))
 
 (defn append-attribute-fragment-kv-except-id-class
