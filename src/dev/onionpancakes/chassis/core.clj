@@ -211,11 +211,14 @@
      (.append ^String i))))
 
 (def append-to
+  "Fascade to function used for fragment appends. By default, it is set to
+  append-to-appendable. Alter this var to change the appendable target type."
   append-to-appendable)
 
 ;; Attributes impl
 
 (defn escape-attribute-value
+  "Escapes an attribute value string. Escapes &, <, >, \", and '."
   ^String
   [^String s]
   (.. s
@@ -226,6 +229,9 @@
       (replace "'" "&apos;")))
 
 (def escape-attribute-value-fragment
+  "Fascade to the function used for escaping attribute value fragments.
+  By default, it is set to escape-attribute-value. Alter this var to
+  change the behavior of escaping attribute value fragments."
   escape-attribute-value)
 
 (extend-protocol AttributeValue
@@ -243,10 +249,11 @@
   (attribute-fragment-append-to [_ sb _] sb))
 
 (defn join-attribute-value-fragment-kv
+  "Key-value reduction function for joining attribute style maps."
   [^StringBuilder sb k v]
   (when-some [v-frag (attribute-value-fragment v)]
     (let [k-frag (escape-attribute-value-fragment (name k))]
-      (if (pos? (.length sb))
+      (if (pos? (.length sb)) ; Note: if not empty, appends space as prefix!
         (doto sb
           (.append " ")
           (.append k-frag)
@@ -761,15 +768,18 @@
     (fragment this)))
 
 (defn raw-string
+  "Wraps value as an unescaped string."
   [value]
   (RawString. value))
 
 (def raw
+  "Alias for raw-string."
   raw-string)
 
 ;; Token impl
 
 (defn escape-text
+  "Escapes a text string. Escapes &, <, and >."
   ^String
   [^String s]
   (.. s
@@ -778,6 +788,9 @@
       (replace ">" "&gt;")))
 
 (def escape-text-fragment
+  "Fascade to the function used for escaping text fragments.
+  By default, it is set to escape-text. Alter this var to
+  change the behavior of escaping text fragments."
   escape-text)
 
 (extend-protocol Token
@@ -829,6 +842,7 @@
   (clojure.lang.APersistentVector$SubVector. {::content true} v start end))
 
 (defn content-subvec
+  "Creates a subvector with metadata key ::content set to true."
   ([^clojure.lang.IPersistentVector v ^long start]
    (content-subvec v start (.count v)))
   ([^clojure.lang.IPersistentVector v ^long start ^long end]
