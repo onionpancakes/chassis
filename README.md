@@ -1,10 +1,92 @@
 # Chassis
 
-HTML templating.
+Fast HTML5 serialization for Clojure.
+
+Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
 
 # Status
 
 Currently for my personal use. Future breaking changes possible.
+
+# Deps
+
+```clojure
+{:deps
+  {dev.onionpancakes/chassis
+    {:git/url "https://github.com/onionpancakes/chassis"
+     :git/sha "<GIT SHA>"}}}
+```
+
+# Usage
+
+Require the namespace.
+
+```clojure
+(require '[dev.onionpancakes.chassis.core :as c])
+```
+
+Use `html` function to generate HTML strings from vectors.
+
+Vectors with global keywords in the head position are treated as normal HTML elements. The keyword's name is used as the element's tag name.
+
+```clojure
+(c/html [:div "foo"])
+
+;; "<div>foo</div>"
+```
+
+Maps in the second position are treated as attributes. Use global keywords to name attribute keys.
+
+```clojure
+(c/html [:div {:id "my-id"} "foo"])
+
+;; "<div id=\"my-id\">foo</div>"
+```
+
+```clojure
+;; Strings also accepted, but discouraged.
+(c/html [:div {"id" "my-id"} "foo"]) 
+
+;; "<div id=\"my-id\">foo</div>"
+```
+
+Like Hiccup, id and class attributes can be specified along with the tag name using the `#` and `.` syntax.
+
+```clojure
+(c/html [:div#my-id.my-class "foo"])
+
+;; <div id=\"my-id\" class=\"my-class\">foo</div>
+```
+
+```clojure
+;; '#' id takes precedence over :id keyword
+(c/html [:div#my-id {:id "not-my-id"} "foo"])
+
+;; <div id=\"my-id\">foo</div>
+```
+
+```clojure
+;; Multiple '.' classes concatenates
+(c/html [:div.my-class-1.my-class-2 "foo"])
+
+;; <div id=\"my-id\" class=\"my-class-1 my-class-2\">foo</div>
+```
+
+```clojure
+;; '.' classes concatenates with :class keyword
+(c/html [:div.my-class-1 {:class "my-class-2"} "foo"])
+
+;; <div class=\"my-class-1 my-class-2\">foo</div>
+```
+
+Nest vector elements to create HTML documents.
+
+```clojure
+(c/html [:div#my-id
+         [:p.content "My content"]])
+
+;; <div id=\"my-id\"><p class=\"content\">My content</p></div>
+```
 
 # License
 
