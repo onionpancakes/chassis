@@ -1,7 +1,7 @@
 (ns user
   (:require [dev.onionpancakes.chassis.core :as c]
             [dev.onionpancakes.chassis.tests.test-core :as t]
-            [criterium.core :refer [quick-bench]]
+            [criterium.core :refer [bench quick-bench]]
             [hiccup2.core :as hiccup]
             [hiccup.page :as hiccup.page]
             [selmer.parser :as selmer]
