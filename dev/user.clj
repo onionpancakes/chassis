@@ -288,3 +288,15 @@
   (println "Enlive item template")
   (println "-------------------------------------")
   (bench (enlive-page-item-template data)))
+
+(defn bench-gen-results
+  []
+  (with-open [wtr (clojure.java.io/writer "resources/bench/results_big.txt")]
+    (binding [*out* wtr]
+      (bench-all data-big)))
+  (with-open [wtr (clojure.java.io/writer "resources/bench/results_mid.txt")]
+    (binding [*out* wtr]
+      (bench-all data-mid)))
+  (with-open [wtr (clojure.java.io/writer "resources/bench/results_small.txt")]
+    (binding [*out* wtr]
+      (bench-all data-small))))
