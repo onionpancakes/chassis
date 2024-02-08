@@ -632,10 +632,10 @@
   Token
   (fragment-append-to [this sb]
     (let [tag-name (.getName tag)]
-      (if head-id
-        (if head-class
+      (if (some? head-id)
+        (if (some? head-class)
           ;; +head-id, +head-class
-          (if attrs
+          (if (some? attrs)
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
                 (append-opening-tag-with-id-class-attrs-id-class sb tag-name head-id head-class attrs)
@@ -645,7 +645,7 @@
                 (append-opening-tag-with-id-class-attrs sb tag-name head-id head-class attrs)))
             (append-opening-tag-with-id-class sb tag-name head-id head-class))
           ;; +head-id, -head-class
-          (if attrs
+          (if (some? attrs)
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
                 (append-opening-tag-with-id-attrs-id-class sb tag-name head-id attrs)
@@ -654,9 +654,9 @@
                 (append-opening-tag-with-id-attrs-class sb tag-name head-id attrs)
                 (append-opening-tag-with-id-attrs sb tag-name head-id attrs)))
             (append-opening-tag-with-id sb tag-name head-id)))
-        (if head-class
+        (if (some? head-class)
           ;; -head-id, +head-class
-          (if attrs
+          (if (some? attrs)
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
                 (append-opening-tag-with-class-attrs-id-class sb tag-name head-class attrs)
@@ -666,7 +666,7 @@
                 (append-opening-tag-with-class-attrs sb tag-name head-class attrs)))
             (append-opening-tag-with-class sb tag-name head-class))
           ;; -head-id, -head-class
-          (if attrs
+          (if (some? attrs)
             (if (.containsKey attrs :id)
               (if (.containsKey attrs :class)
                 (append-opening-tag-with-attrs-id-class sb tag-name attrs)
@@ -795,8 +795,8 @@
 (extend-protocol Token
   clojure.lang.Keyword
   (fragment-append-to [this sb]
-    (if-let [ns (namespace this)]
-      (let [ns-frag   (escape-text-fragment ns)
+    (if-some [ns-str (namespace this)]
+      (let [ns-frag   (escape-text-fragment ns-str)
             name-frag (escape-text-fragment (.getName this))]
         (append-to sb ns-frag "/" name-frag))
       (let [name-frag (escape-text-fragment (.getName this))]
@@ -893,11 +893,11 @@
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)
-        attrs      (if head-id
-                     (if head-class
+        attrs      (if (some? head-id)
+                     (if (some? head-class)
                        {:id head-id :class head-class}
                        {:id head-id})
-                     (if head-class
+                     (if (some? head-class)
                        {:class head-class}
                        nil))
         elem-count (.count elem)
