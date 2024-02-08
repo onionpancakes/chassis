@@ -6,17 +6,28 @@
   <link href="/foobar2" rel="stylesheet">
   <link href="/foobar3" rel="stylesheet">
   <link href="/foobar4" rel="stylesheet">
+  <title>{{ title }}</title>
 </head>
 
 <body>
-  <h1>{{ title }}</h1>
-  <div>
-    {% for m in items %}
-    <div class="foobar">
-      <a id="{{ m.uuid }}" class="baz buz {{ m.type }}" href="/item/{{ m.uuid }}">{{ m.name }}</a>
+  <header>
+    <h1>{{ title }}</h1>
+  </header>
+  <main>
+    {% for item in items %}
+    {% if item.idx > 0 %}
+    <hr>
+    {% endif %}
+    <div id="{{ item.uuid }}" class="item {{ item.type }}">
+      <h2>{{ item.name }}</h2>
+      <p>{{ item.date }}</p>
+      <p><a href="/item/{{ item.uuid }}">See more details.</a></p>
+      <h3>Description</h3>
+      <p>{{ item.text }}</p>
     </div>
     {% endfor %}
-  </div>
+  </main>
+  <footer>Footer</footer>
 </body>
 
 </html>
