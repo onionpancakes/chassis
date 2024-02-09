@@ -155,6 +155,52 @@ However, there are differences from Hiccup.
 ;; "<div id=\"my-id\" class=\"my-class-1 my-class-2\">foo</div>"
 ```
 
+## Boolean Attributes
+
+Use `true`/`false` to toggle boolean attributes.
+
+```clojure
+(c/html [:button {:disabled true} "Submit"])
+
+;; "<button disabled>Submit</button>"
+
+(c/html [:button {:disabled false} "Submit"])
+
+;; "<button>Submit</button>"
+```
+
+## Composite Attribute Values
+
+Collection of attribute values are concatenated as spaced strings.
+
+```clojure
+(c/html [:div {:class ["foo" "bar"]}])
+
+;; "<div class=\"foo bar\"></div>"
+
+(c/html [:div {:class #{:foo :bar}}])
+
+;; "<div class=\"bar foo\"></div>"
+```
+
+Map of attribute values are concatenated as style strings.
+
+```clojure
+(c/html [:div {:style {:color  :red
+                       :border "1px solid black"}}])
+
+;; "<div style=\"color: red; border: 1px solid black;\"></div>"
+```
+
+They arbitrarily nest.
+
+```clojure
+(c/html [:div {:style {:color  :red
+                       :border [:1px :solid :black]}}])
+
+;; "<div style=\"color: red; border: 1px solid black;\"></div>"
+```
+
 ## Write to Appendable
 
 Avoid intermediate allocation by writing directly to [`java.lang.Appendable`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Appendable.html) by using the `write-html` function.
@@ -270,6 +316,30 @@ The metadata and tag (1st and 2nd arg) are not needed for normal use case, but i
          [:p "My content!"]])
 
 ;; "<div id=\"blog\" class=\"layout dark\"><h1>My title!</h1><main><p>My content!</p></main><footer>Some footer message.</footer></div>"
+```
+
+## Stateful Values
+
+Instances of `clojure.lang.IDeref` and `clojure.lang.Fn` are automatically dereferenced at serialization. Functions are invoked on their zero argument arity.
+
+Whether or not if this is a good idea is left to the user.
+
+```clojure
+(defn get-thing []
+  "foobar")
+
+(c/html [:div get-thing])
+
+;; #'user/get-thing"<div>foobar</div>"
+```
+
+```clojure
+(def delayed-thing
+  (delay "delayed"))
+
+(c/html [:div {:foo delayed-thing}])
+
+;; "<div foo=\"delayed\"></div>"
 ```
 
 ## Token and HTML Serializers
