@@ -60,7 +60,7 @@
     [:footer "Footer"]]])
 
 (defmethod c/resolve-alias ::Layout
-  [_ {title ::title :as attrs} content]
+  [_ _ {title ::title :as attrs} content]
   [:html (into {:lang "en"} attrs)
    [:head
     [:link {:href "/foobar1" :rel "stylesheet"}]
@@ -75,7 +75,7 @@
     [:footer "Footer"]]])
 
 (defmethod c/resolve-alias ::Item
-  [_ {item ::item :as attrs} content]
+  [_ _ {item ::item :as attrs} content]
   [:div.item (into {:id    (:uuid item)
                     :class (:type item)} attrs)
    [:h2 (:name item)]

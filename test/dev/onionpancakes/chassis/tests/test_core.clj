@@ -393,19 +393,23 @@
     (is (= @counter 1))))
 
 (defmethod c/resolve-alias ::Foo
-  [tag attrs content]
+  [_ _ attrs content]
   [:div.foo attrs content])
 
 (defmethod c/resolve-alias ::Bar
-  [tag attrs content]
+  [_ _ attrs content]
   [:span.bar attrs content])
 
 (defmethod c/resolve-alias ::Recursive
-  [tag {::keys [idx] :as attrs} content]
+  [_ _ {::keys [idx] :as attrs} content]
   (let [idx (long idx)]
     (if (and idx (>= idx 0))
       [:div {:id idx}
        [::Recursive {::idx (dec idx)}]])))
+
+(defmethod c/resolve-alias ::Meta
+  [metadata _ _ _]
+  [:div (::content metadata)])
 
 (deftest test-html-alias
   (are [node s] (= (c/html node) s)
@@ -424,7 +428,11 @@
       "xyz"]] "<div id=\"this\" class=\"foo bar baz\"><span id=\"that\" class=\"bar baz buz\">xyz</span></div>"
 
     ;; Recursive
-    [::Recursive {::idx 3}] "<div id=\"3\"><div id=\"2\"><div id=\"1\"><div id=\"0\"></div></div></div></div>"))
+    [::Recursive {::idx 3}] "<div id=\"3\"><div id=\"2\"><div id=\"1\"><div id=\"0\"></div></div></div></div>"
+
+    ;; Meta
+    ^{::content "foo"} [::Meta] "<div>foo</div>"
+    ))
 
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
@@ -477,6 +485,11 @@
     [c/doctype-html5
      [:html
       [:body "foo"]]] "<!DOCTYPE html><html><body>foo</body></html>"))
+
+(deftest test-token-serializer
+  (are [value expected] (= value expected)
+    ;; Metadata
+    (into [] (keep meta) (c/token-serializer [:div ^::foo [:p "foo"]])) [{::foo true} {::foo true}]))
 
 (deftest test-html-serializer
   (are [value expected] (= value expected)
