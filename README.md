@@ -32,7 +32,7 @@ Currently for my personal use. Future breaking changes possible.
 
 (defn my-blog
   [data]
-  [c/doctype-html5
+  [c/doctype-html5 ; Raw string for <!DOCTYPE html>
    [:html
     [:head
      [:link {:href "/css/styles.css" :rel "stylesheet"}]
@@ -372,6 +372,16 @@ Use `token-serializer` and `html-serializer` to access individual token and frag
      (vec))
 
 ;; ["<div>" "foo" "</div>"]
+```
+
+## DOCTYPE
+
+Use `doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because it's a RawString, it is safe to wrap in a vector to concatenate with the rest of the HTML document.
+
+```clojure
+(c/html [c/doctype-html5 [:html "..."]])
+
+;; "<!DOCTYPE html><html>...</html>"
 ```
 
 # Performance
