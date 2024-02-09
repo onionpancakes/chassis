@@ -4,15 +4,15 @@
   (attribute-fragment-append-to [this sb attr-name] "Appends attribute key and value html fragment."))
 
 (defprotocol AttributeValueFragment
-  (attribute-value-fragment ^String [this] "Returns attribute value fragment string or nil if none."))
+  (^String attribute-value-fragment [this] "Returns attribute value fragment string or nil if none."))
 
 (defprotocol Token
   (fragment-append-to [this sb] "Appends html fragment.")
-  (fragment ^String [this] "Returns HTML fragment."))
+  (^String fragment [this] "Returns HTML fragment."))
 
 (defprotocol Node
   (^Boolean branch? [this] "Returns true if branch node.")
-  (children ^Iterable [this] "Returns children as Iterable."))
+  (^Iterable children [this] "Returns children as Iterable."))
 
 (defmulti resolve-alias
   "Resolves alias given tag, attrs map, and content vector, returning the resolved Node."
@@ -219,7 +219,7 @@
 
 (defn escape-attribute-value
   "Escapes an attribute value string. Escapes &, <, >, \", and '."
-  ^String
+  {:tag String}
   [^String s]
   (.. s
       (replace "&" "&amp;")
@@ -685,7 +685,7 @@
     (fragment this)))
 
 (defn make-opening-tag
-  ^OpeningTag
+  {:tag OpeningTag}
   [^clojure.lang.Keyword head attrs]
   (let [head-ns   (namespace head)
         head-name (.getName head)
@@ -780,7 +780,7 @@
 
 (defn escape-text
   "Escapes a text string. Escapes &, <, and >."
-  ^String
+  {:tag String}
   [^String s]
   (.. s
       (replace "&" "&amp;")
