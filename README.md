@@ -322,7 +322,7 @@ nil
 
 ## Element Vector Allocation is Negligible
 
-Element vector allocation accounts for less than < 0.1% of the runtime cost.
+Element vector allocation accounts for less than 0.1% of the runtime cost.
 
 ```clojure
 user=> (quick-bench (page data-mid))
