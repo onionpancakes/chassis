@@ -289,6 +289,8 @@
     [:div {:id (java.util.UUID. 0 0)}] "<div id=\"00000000-0000-0000-0000-000000000000\"></div>"
     [:div {:id true}]                  "<div id=\"\"></div>"
     [:div {:id false}]                 "<div></div>"
+    [:div {:id (delay "bar")}]         "<div id=\"bar\"></div>"
+    [:div {:id (fn [] "bar")}]         "<div id=\"bar\"></div>"
 
     [:div {:class nil}]                   "<div></div>"
     [:div {:class ""}]                    "<div class=\"\"></div>"
@@ -300,6 +302,8 @@
     [:div {:class (java.util.UUID. 0 0)}] "<div class=\"00000000-0000-0000-0000-000000000000\"></div>"
     [:div {:class true}]                  "<div class=\"\"></div>"
     [:div {:class false}]                 "<div></div>"
+    [:div {:class (delay "bar")}]         "<div class=\"bar\"></div>"
+    [:div {:class (fn [] "bar")}]         "<div class=\"bar\"></div>"
 
     [:div {:foo nil}]                   "<div></div>"
     [:div {:foo ""}]                    "<div foo=\"\"></div>"
@@ -311,6 +315,8 @@
     [:div {:foo (java.util.UUID. 0 0)}] "<div foo=\"00000000-0000-0000-0000-000000000000\"></div>"
     [:div {:foo true}]                  "<div foo></div>"
     [:div {:foo false}]                 "<div></div>"
+    [:div {:foo (delay "bar")}]         "<div foo=\"bar\"></div>"
+    [:div {:foo (fn [] "bar")}]         "<div foo=\"bar\"></div>"
 
     ;; Escapes
     [:div#<>&']                     "<div id=\"&lt;&gt;&amp;&apos;\"></div>"

@@ -286,6 +286,12 @@
                         (.append name-frag))]
         (.toString sb))
       (escape-attribute-value-fragment (.getName this))))
+  clojure.lang.IDeref
+  (attribute-value-fragment [this]
+    (escape-attribute-value-fragment (.deref this)))
+  clojure.lang.Fn
+  (attribute-value-fragment [this]
+    (escape-attribute-value-fragment (this)))
   java.util.Collection
   (attribute-value-fragment [this]
     (let [sb (StringBuilder.)
