@@ -14,4 +14,12 @@
    :extra-paths ["test"]
    :exec-fn     cognitect.test-runner.api/test
    :exec-args   {:dirs     ["test"]
-                 :patterns ["dev\\.onionpancakes\\.chassis\\.tests\\..*"]}}}}
+                 :patterns ["dev\\.onionpancakes\\.chassis\\.tests\\..*"]}}
+
+  :bench-gen-results
+  {:extra-deps  {criterium/criterium {:mvn/version "0.4.6"}
+                 hiccup/hiccup       {:mvn/version "2.0.0-RC2"}
+                 selmer/selmer       {:mvn/version "1.12.59"}
+                 enlive/enlive       {:mvn/version "1.1.6"}}
+   :extra-paths ["dev" "test" "resources"]
+   :exec-fn     user/bench-gen-results}}}
