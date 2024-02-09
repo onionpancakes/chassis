@@ -146,7 +146,7 @@ However, there are differences from Hiccup.
 ```
 
 ```clojure
-;; '#' id can be place inbetween, but don't do this.
+;; '#' id can be place in-between, but don't do this.
 ;; It will be slightly slower.
 (c/html [:div.my-class-1#my-id.my-class-2 "foo"])
 
@@ -246,11 +246,11 @@ Only **global keywords** and **strings** are interpreted as attribute keys. Ever
 
 Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with a **namespaced keyword**.
 
-Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation recieving 4 arguments: metadata map, tag keyword, attributes map, and content vector.
+Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation receiving 4 arguments: metadata map, tag keyword, attributes map, and content vector.
 
-Since namespaced keywords are not intepreted as attributes, they can be used as arguments for alias elements.
+Since namespaced keywords are not interpreted as attributes, they can be used as arguments for alias elements.
 
-Attribute map received (3rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute of the resolved element, the attribute merges seemlessly.
+Attribute map received (3rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute of the resolved element, the attribute merges seamlessly.
 
 Content subvector received (4th arg) contains the content of the alias element. It has its metadata `{::c/content true}` to avoid being interpreted as an element.
 
@@ -272,7 +272,7 @@ The metadata and tag (1st and 2nd arg) are not needed for normal use case, but i
 
 ## Token and HTML Serializers
 
-Use `token-serializer` and `html-serializer` to access individual token and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and it intended to be used in a reduce.
+Use `token-serializer` and `html-serializer` to access individual token and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and it is intended to be used in a reduce.
 
 ```clojure
 (->> (c/token-serializer [:div "foo"])
