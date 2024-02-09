@@ -217,7 +217,7 @@
 
 ;; Attributes impl
 
-(defn escape-attribute-value
+(defn escape-attribute-value*
   "Escapes an attribute value string. Escapes &, <, >, \", and '."
   {:tag String}
   [^String s]
@@ -228,11 +228,18 @@
       (replace "\"" "&quot;")
       (replace "'" "&apos;")))
 
+(defn escape-attribute-value
+  "Escapes an attribute value string. Escapes &, <, >, \", and '."
+  {:tag String}
+  [^String s]
+  (if (some? s)
+    (escape-attribute-value* s)))
+
 (def escape-attribute-value-fragment
   "Fascade to the function used for escaping attribute value fragments.
-  By default, it is set to escape-attribute-value. Alter this var to
+  By default, it is set to escape-attribute-value*. Alter this var to
   change the behavior of escaping attribute value fragments."
-  escape-attribute-value)
+  escape-attribute-value*)
 
 (extend-protocol AttributeValue
   Boolean
@@ -778,7 +785,7 @@
 
 ;; Token impl
 
-(defn escape-text
+(defn escape-text*
   "Escapes a text string. Escapes &, <, and >."
   {:tag String}
   [^String s]
@@ -787,11 +794,18 @@
       (replace "<" "&lt;")
       (replace ">" "&gt;")))
 
+(defn escape-text
+  "Escapes a text string. Escapes &, <, and >."
+  {:tag String}
+  [^String s]
+  (if (some? s)
+    (escape-text* s)))
+
 (def escape-text-fragment
   "Fascade to the function used for escaping text fragments.
-  By default, it is set to escape-text. Alter this var to
+  By default, it is set to escape-text*. Alter this var to
   change the behavior of escaping text fragments."
-  escape-text)
+  escape-text*)
 
 (extend-protocol Token
   clojure.lang.Keyword
