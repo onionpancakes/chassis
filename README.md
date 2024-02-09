@@ -150,6 +150,31 @@ Escapes can be disabled globally by altering vars. Change `escape-text-fragment`
 ;; "<div><p>foo</p></div>"
 ```
 
+## Non-element Vectors
+
+Only vectors beginning with keywords are interpreted as elements. A vector can set its metadata `::c/content` key to true to avoid being interpreted as a element, even if it begins with a keyword.
+
+```clojure
+;; Not elements
+(c/html [0 1 2])                  ; => "123"
+(c/html ["foo" "bar"])            ; => "foobar"
+(c/html ^::c/content [:foo :bar]) ; => "foobar"
+
+;; Use this to generate fragments of elements
+(c/html [[:div "foo"]
+         [:div "bar"]]) ; "<div>foo</div><div>bar</div>"
+```
+
+## Non-attribute Keys
+
+Only global keywords and strings are interpreted as attribute keys. Everything else is ignored.
+
+```clojure
+(c/html [:div {:foo/bar "not here!"}])
+
+;; "<div></div>"
+```
+
 ## Alias Elements
 
 Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with a **namespaced keyword**.
@@ -176,6 +201,27 @@ The metadata and tag (1st and 2nd arg) are not needed for normal use case, but i
          [:p "My content!"]])
 
 ;; "<div id=\"blog\" class=\"layout dark\"><h1>My title!</h1><main><p>My content!</p></main><footer>Some footer message.</footer></div>"
+```
+
+## Token and HTML Serializers
+
+Use `token-serializer` and `html-serializer` to access individual token and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and it intended to be used in a reduce.
+
+```clojure
+(->> (c/token-serializer [:div "foo"])
+     (eduction (map type))
+     (vec))
+
+;; [dev.onionpancakes.chassis.core.OpeningTag
+;;  java.lang.String
+;;  dev.onionpancakes.chassis.core.ClosingTag]
+```
+
+```clojure
+(->> (c/html-serializer [:div "foo"])
+     (vec))
+
+;; ["<div>" "foo" "</div>"]
 ```
 
 # License
