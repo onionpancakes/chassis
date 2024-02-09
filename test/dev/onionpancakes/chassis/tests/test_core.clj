@@ -22,11 +22,12 @@
     (list :foo "bar")      "foobar"
 
     ;; Vector non-elements
-    []                ""
-    ["foo"]           "foo"
-    ["foo" "bar"]     "foobar"
-    ["foo" "bar" 123] "foobar123"
-    [0]               "0"
+    []                  ""
+    ["foo"]             "foo"
+    ["foo" "bar"]       "foobar"
+    ["foo" "bar" 123]   "foobar123"
+    [0]                 "0"
+    ^::c/content [:foo] "foo"
 
     ;; Element, no attr
     [:div]    "<div></div>"
@@ -437,8 +438,7 @@
     [::Recursive {::idx 3}] "<div id=\"3\"><div id=\"2\"><div id=\"1\"><div id=\"0\"></div></div></div></div>"
 
     ;; Meta
-    ^{::content "foo"} [::Meta] "<div>foo</div>"
-    ))
+    ^{::content "foo"} [::Meta] "<div>foo</div>"))
 
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
