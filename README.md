@@ -17,6 +17,35 @@ Currently for my personal use. Future breaking changes possible.
      :git/sha "<GIT SHA>"}}}
 ```
 
+# Example
+
+```clojure
+(require '[dev.onionpancakes.chassis.core :as c])
+
+(defn my-post
+  [post]
+  [:div {:id (:id post)}
+   [:h2.title (:title post)]
+   [:p.content (:content post)]])
+
+(defn my-blog
+  [data]
+  [c/doctype-html5
+   [:html
+    [:head
+     [:link {:href "/css/styles.css" :rel "stylesheet"}]
+     [:title "My Blog"]]
+    [:body
+     [:h1 "My Blog"]
+      (for [p (:posts data)]
+        (my-post p))]]])
+
+(let [data {:posts [{:id "1" :title "foo" :content "bar"}]}]
+  (c/html (my-blog data)))
+
+;; "<!DOCTYPE html><html><head><link href=\"/css/styles.css\" rel=\"stylesheet\"><title>My Blog</title></head><body><h1>My Blog</h1><div id=\"1\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
+```
+
 # Usage
 
 Require the namespace.
@@ -25,9 +54,11 @@ Require the namespace.
 (require '[dev.onionpancakes.chassis.core :as c])
 ```
 
+## Elements
+
 Use `html` function to generate HTML strings from vectors.
 
-Vectors with global keywords in the head position are treated as normal HTML elements. The keyword's name is used as the element's tag name.
+Vectors with **global keywords** in the head position are treated as normal HTML elements. The keyword's name is used as the element's tag name.
 
 ```clojure
 (c/html [:div "foo"])
@@ -35,7 +66,9 @@ Vectors with global keywords in the head position are treated as normal HTML ele
 ;; "<div>foo</div>"
 ```
 
-Maps in the second position are treated as attributes. Use global keywords to name attribute keys.
+## Attributes
+
+Maps in the second position are treated as attributes. Use **global keywords** to name attribute keys.
 
 ```clojure
 (c/html [:div {:id "my-id"} "foo"])
@@ -50,6 +83,8 @@ Maps in the second position are treated as attributes. Use global keywords to na
 
 ;; "<div id=\"my-id\">foo</div>"
 ```
+
+## Id and Class Sugar
 
 Like Hiccup, id and class attributes can be specified along with the tag name using the `#` and `.` syntax.
 
@@ -80,30 +115,6 @@ Like Hiccup, id and class attributes can be specified along with the tag name us
 ;; <div class=\"my-class-1 my-class-2\">foo</div>
 ```
 
-Nest vector elements and wrap them in functions to create composable HTML documents.
-
-```clojure
-(defn my-post
-  [post]
-  [:div.post
-   [:h2.title (:title post)]
-   [:p.content (:content post)]])
-
-(defn my-blog
-  [posts]
-  [c/doctype-html5 ; Chassis provided constant for !DOCTYPE
-   [:html
-    [:head [:title "My Blog"]]
-     [:body
-      [:h1 "My Blog"]
-       (for [p posts]
-         (my-post p))]]])
-
-(let [data [{:title "foo" :content "bar"}]]
-  (c/html (my-blog data)))
-
-;; "<!DOCTYPE html><html><head><title>My Blog</title></head><body><h1>My Blog</h1><div class=\"post\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
-```
 
 ## Write to Appendable
 
@@ -167,7 +178,7 @@ Only vectors beginning with keywords are interpreted as elements. A vector can s
 
 ## Non-attribute Keys
 
-Only global keywords and strings are interpreted as attribute keys. Everything else is ignored.
+Only **global keywords** and **strings** are interpreted as attribute keys. Everything else is ignored.
 
 ```clojure
 (c/html [:div {:foo/bar "not here!"}])
