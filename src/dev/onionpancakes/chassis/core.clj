@@ -11,7 +11,7 @@
   (fragment ^String [this] "Returns HTML fragment."))
 
 (defprotocol Node
-  (branch? [this] "Returns true if branch node.")
+  (^Boolean branch? [this] "Returns true if branch node.")
   (children ^Iterable [this] "Returns children as Iterable."))
 
 (defmulti resolve-alias
@@ -314,6 +314,7 @@
 ;; Opening Tag
 
 (defn attribute-key?
+  {:tag Boolean}
   [k]
   (or (and (keyword? k) (not (namespace k)))
       (string? k)))
@@ -832,6 +833,7 @@
 ;; Element utils
 
 (defn has-attrs?
+  {:tag Boolean}
   [^clojure.lang.IPersistentVector elem]
   (let [attrs (.nth elem 1 ::none)]
     (or (instance? java.util.Map attrs) (nil? attrs))))
@@ -917,6 +919,7 @@
 ;; https://developer.mozilla.org/en-US/docs/Glossary/Void_element
 
 (defn void-tag?
+  {:tag Boolean}
   [tag]
   (case tag
     (:area
@@ -1232,12 +1235,14 @@
 ;; Node impl
 
 (defn element-vector?
+  {:tag Boolean}
   [^clojure.lang.IPersistentVector v]
   (let [head (.nth v 0 nil)]
     (and (keyword? head) (let [m (meta v)]
                            (or (nil? m) (not (get m ::content)))))))
 
 (defn alias-element?
+  {:tag Boolean}
   [^clojure.lang.IPersistentVector elem]
   (let [head (.nth elem 0 nil)]
     (some? (namespace head))))
