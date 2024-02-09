@@ -305,6 +305,7 @@ Content subvector received (4th arg) contains the content of the alias element. 
 The metadata and tag (1st and 2nd arg) are not needed for normal use case, but is provided for advanced tinkering.
 
 ```clojure
+;; Capitalized name optional, just to make it distinctive.
 (defmethod c/resolve-alias ::Layout
   [_ _ {:layout/keys [title] :as attrs} content]
   [:div.layout attrs ; Merge attributes
