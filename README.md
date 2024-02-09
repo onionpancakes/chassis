@@ -105,6 +105,51 @@ Nest vector elements and wrap them in functions to create composable HTML docume
 ;; "<!DOCTYPE html><html><head><title>My Blog</title></head><body><h1>My Blog</h1><div class=\"post\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
 ```
 
+## Write to Appendable
+
+Avoid intermediate allocation by writing directly to [`java.lang.Appendable`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Appendable.html) by using the `write-html` function.
+
+However, [`java.lang.StringBuilder`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/StringBuilder.html) is highly optimized and it may be faster to write to it (and then write the string out) than to write to the Appendable directly. Performance testing is advised.
+
+```clojure
+(let [out (get-appendable-from-somewhere)]
+  (c/write-html out [:div "foo"]))
+```
+
+## Escapes
+
+By default, text and attribute values are escaped.
+
+```clojure
+(c/html [:div "& < >"])
+
+;; "<div>&amp; &lt; &gt;</div>"
+
+(c/html [:div {:foo "& < > \" '"}])
+
+;; "<div foo=\"&amp; &lt; &gt; &quot; &apos;\"></div>"
+```
+
+Escapes can be disabled locally by wrapping string values with `raw`.
+
+```clojure
+(c/html [:div (c/raw "<p>foo</p>")])
+
+;; "<div><p>foo</p></div>"
+```
+
+Escapes can be disabled globally by altering vars. Change `escape-text-fragment` and `escape-attribute-value-fragment` to
+`identity` function to allow fragment values to pass through unescaped.
+
+```clojure
+(alter-var-root #'c/escape-text-fragment (constantly identity))
+(alter-var-root #'c/escape-attribute-value-fragment (constantly identity))
+
+(c/html [:div "<p>foo</p>"])
+
+;; "<div><p>foo</p></div>"
+```
+
 # License
 
 Released under the MIT License.
