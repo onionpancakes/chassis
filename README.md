@@ -299,7 +299,7 @@ At this time, benchmarks shows Chassis to be ~50% to +100% faster when compared 
 
 However, the dev benchmark example is contrived and benchmarking with real world data is recommended.
 
-```bash
+```clojure
 $ clj -M:dev
 
 Clojure 1.11.1
@@ -320,6 +320,26 @@ Evaluation count : 1104 in 6 samples of 184 calls.
    Execution time upper quantile : 636.998749 µs (97.5%)
                    Overhead used : 8.824566 ns
 ```
+
+## Element Vector Allocation is Negligible
+
+Element vector allocation accounts for less than < 0.1% of the runtime cost.
+
+```clojure
+user=> (quick-bench (page data-mid))
+Evaluation count : 3926280 in 6 samples of 654380 calls.
+             Execution time mean : 166.441170 ns
+    Execution time std-deviation : 40.458902 ns
+   Execution time lower quantile : 131.334184 ns ( 2.5%)
+   Execution time upper quantile : 227.189879 ns (97.5%)
+                   Overhead used : 8.824566 ns
+```
+
+The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.
+
+### It's all Interned
+
+Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
 
 # License
 
