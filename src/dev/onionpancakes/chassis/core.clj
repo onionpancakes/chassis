@@ -15,7 +15,7 @@
   (^Iterable children [this] "Returns children as Iterable."))
 
 (defmulti resolve-alias
-  "Resolves alias given tag, attrs map, and content vector, returning the resolved Node."
+  "Resolves alias given metadata, tag, attrs map, and content vector, returning the resolved Node."
   (fn [_ tag _ _] tag))
 
 ;; Implementation notes:
