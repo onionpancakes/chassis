@@ -342,6 +342,17 @@ Whether or not if this is a good idea is left to the user.
 ;; "<div foo=\"delayed\"></div>"
 ```
 
+They can even deference into other elements.
+
+```clojure
+(defn get-children []
+  [:p "Child element"])
+
+(c/html [:div.parent get-children])
+
+;; "<div class=\"parent\"><p>Child element</p></div>"
+```
+
 ## Token and HTML Serializers
 
 Use `token-serializer` and `html-serializer` to access individual token and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and it is intended to be used in a reduce.
