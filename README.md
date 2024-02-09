@@ -150,6 +150,34 @@ Escapes can be disabled globally by altering vars. Change `escape-text-fragment`
 ;; "<div><p>foo</p></div>"
 ```
 
+## Alias Elements
+
+Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with a **namespaced keyword**.
+
+Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation recieving 4 arguments: metadata map, tag keyword, attributes map, and content vector.
+
+Since namespaced keywords are not intepreted as attributes, they can be used as arguments for alias elements.
+
+Attribute map received (3rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute of the resolved element, the attribute merges seemlessly.
+
+Content subvector received (4th arg) contains the content of the alias element. It has its metadata `{::c/content true}` to avoid being interpreted as an element.
+
+The metadata and tag (1st and 2nd arg) are not needed for normal use case, but is provided for advanced tinkering.
+
+```clojure
+(defmethod c/resolve-alias ::Layout
+  [_ _ {:layout/keys [title] :as attrs} content]
+  [:div.layout attrs ; Merge attributes
+   [:h1 title]
+   [:main content]
+   [:footer "Some footer message."]])
+
+(c/html [::Layout#blog.dark {:layout/title "My title!"}
+         [:p "My content!"]])
+
+;; "<div id=\"blog\" class=\"layout dark\"><h1>My title!</h1><main><p>My content!</p></main><footer>Some footer message.</footer></div>"
+```
+
 # License
 
 Released under the MIT License.
