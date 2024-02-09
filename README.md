@@ -1,8 +1,10 @@
 # Chassis
 
-Fast HTML5 serialization for Clojure.
+HTML5 serialization for Clojure.
 
 Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
+
+Highly optimized runtime serialization, no macros. See [Performance](#performance).
 
 # Status
 
@@ -289,6 +291,34 @@ Use `token-serializer` and `html-serializer` to access individual token and frag
      (vec))
 
 ;; ["<div>" "foo" "</div>"]
+```
+
+# Performance
+
+At this time, benchmarks shows Chassis to be ~50% to +100% faster when compared to other Clojure HTML templating libraries. See bench results in the resource folder.
+
+However, the dev benchmark example is contrived and benchmarking with real world data is recommended.
+
+```bash
+$ clj -M:dev
+
+Clojure 1.11.1
+user=> (quick-bench (chassis-page data-mid))
+Evaluation count : 2040 in 6 samples of 340 calls.
+             Execution time mean : 296.440399 µs
+    Execution time std-deviation : 18.138611 µs
+   Execution time lower quantile : 280.674056 µs ( 2.5%)
+   Execution time upper quantile : 319.907138 µs (97.5%)
+                   Overhead used : 8.824566 ns
+
+nil
+user=> (quick-bench (hiccup-page data-mid))
+Evaluation count : 1104 in 6 samples of 184 calls.
+             Execution time mean : 594.344971 µs
+    Execution time std-deviation : 37.178706 µs
+   Execution time lower quantile : 562.081951 µs ( 2.5%)
+   Execution time upper quantile : 636.998749 µs (97.5%)
+                   Overhead used : 8.824566 ns
 ```
 
 # License
