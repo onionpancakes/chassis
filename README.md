@@ -301,7 +301,6 @@ However, the dev benchmark example is contrived and benchmarking with real world
 
 ```clojure
 $ clj -M:dev
-
 Clojure 1.11.1
 user=> (quick-bench (chassis-page data-mid))
 Evaluation count : 2040 in 6 samples of 340 calls.
@@ -310,7 +309,6 @@ Evaluation count : 2040 in 6 samples of 340 calls.
    Execution time lower quantile : 280.674056 µs ( 2.5%)
    Execution time upper quantile : 319.907138 µs (97.5%)
                    Overhead used : 8.824566 ns
-
 nil
 user=> (quick-bench (hiccup-page data-mid))
 Evaluation count : 1104 in 6 samples of 184 calls.
@@ -319,6 +317,7 @@ Evaluation count : 1104 in 6 samples of 184 calls.
    Execution time lower quantile : 562.081951 µs ( 2.5%)
    Execution time upper quantile : 636.998749 µs (97.5%)
                    Overhead used : 8.824566 ns
+nil
 ```
 
 ## Element Vector Allocation is Negligible
