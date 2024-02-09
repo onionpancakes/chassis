@@ -109,6 +109,7 @@
     [:div {:style {:color nil}}]                   "<div style=\"\"></div>"
     [:div {:style {:color "red"}}]                 "<div style=\"color: red;\"></div>"
     [:div {:style {:color :red}}]                  "<div style=\"color: red;\"></div>"
+    [:div {:style {:foo/color :red}}]              "<div style=\"\"></div>"
     [:div {:style {:border [:1px :solid :black]}}] "<div style=\"border: 1px solid black;\"></div>"
     [:div {:style (sorted-map :border [:1px :solid :black]
                               :color :red)}]       "<div style=\"border: 1px solid black; color: red;\"></div>"))

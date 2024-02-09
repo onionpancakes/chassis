@@ -241,6 +241,12 @@
   change the behavior of escaping attribute value fragments."
   escape-attribute-value*)
 
+(defn attribute-key?
+  {:tag Boolean}
+  [k]
+  (or (and (keyword? k) (not (namespace k)))
+      (string? k)))
+
 (extend-protocol AttributeValue
   Boolean
   (attribute-fragment-append-to [this sb attr-name]
@@ -258,20 +264,21 @@
 (defn join-attribute-value-fragment-kv
   "Key-value reduction function for joining attribute style maps."
   [^StringBuilder sb k v]
-  (when-some [v-frag (attribute-value-fragment v)]
-    (let [k-frag (escape-attribute-value-fragment (name k))]
-      (if (pos? (.length sb)) ; Note: if not empty, appends space as prefix!
-        (doto sb
-          (.append " ")
-          (.append k-frag)
-          (.append ": ")
-          (.append v-frag)
-          (.append ";"))
-        (doto sb
-          (.append k-frag)
-          (.append ": ")
-          (.append v-frag)
-          (.append ";")))))
+  (when (attribute-key? k) ; Same rules as attribute keys.
+    (when-some [v-frag (attribute-value-fragment v)]
+      (let [k-frag (escape-attribute-value-fragment (name k))]
+        (if (pos? (.length sb)) ; Note: if not empty, appends space as prefix!
+          (doto sb
+            (.append " ")
+            (.append k-frag)
+            (.append ": ")
+            (.append v-frag)
+            (.append ";"))
+          (doto sb
+            (.append k-frag)
+            (.append ": ")
+            (.append v-frag)
+            (.append ";"))))))
   sb)
 
 (extend-protocol AttributeValueFragment
@@ -325,12 +332,6 @@
   (attribute-value-fragment [this] nil))
 
 ;; Opening Tag
-
-(defn attribute-key?
-  {:tag Boolean}
-  [k]
-  (or (and (keyword? k) (not (namespace k)))
-      (string? k)))
 
 (defn append-attribute-fragment-kv-except-id-class
   [sb k v]
