@@ -198,6 +198,25 @@ Escapes can be disabled globally by altering vars. Change `escape-text-fragment`
 ;; "<div><p>foo</p></div>"
 ```
 
+### Vetted Unescaped Types
+
+For performance, `java.lang.Number` and `java.util.UUID` bypass the default escapement.
+
+### Tags and Attribute Keys are not escaped!
+
+Element tags and attribute keys are not escaped. Be careful when placing dangerous text in these positions.
+
+```clojure
+;; uhoh
+(c/html [:<> "This is bad!"])
+
+;; "<<>>This is bad!</<>>"
+
+(c/html [:div {:<> "This is bad!"}])
+
+;; "<div <>=\"This is bad!\"></div>"
+```
+
 ## Non-element Vectors
 
 Only vectors beginning with keywords are interpreted as elements. A vector can set its metadata `::c/content` key to true to avoid being interpreted as a element, even if it begins with a keyword.
