@@ -406,7 +406,7 @@ Evaluation count : 3926280 in 6 samples of 654380 calls.
 
 The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.
 
-### It's all Interned
+### It's All Interned
 
 Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
 
