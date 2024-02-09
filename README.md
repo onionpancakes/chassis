@@ -66,8 +66,6 @@ Vectors with **global keywords** in the head position are treated as normal HTML
 ;; "<div>foo</div>"
 ```
 
-## Attributes
-
 Maps in the second position are treated as attributes. Use **global keywords** to name attribute keys.
 
 ```clojure
@@ -84,6 +82,17 @@ Maps in the second position are treated as attributes. Use **global keywords** t
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
+The rest of the vector is treated as the element's content. They may be of any type, including other elements. Sequences are flattened into the parent element's content.
+
+```clojure
+(c/html [:div {:id "my-id"}
+         "foo"
+         (for [i (range 3)] i)
+         "bar"])
+
+;; "<div id=\"my-id\">foo012bar</div>"
+```
+
 ## Id and Class Sugar
 
 Like Hiccup, id and class attributes can be specified along with the tag name using the `#` and `.` syntax.
@@ -91,30 +100,58 @@ Like Hiccup, id and class attributes can be specified along with the tag name us
 ```clojure
 (c/html [:div#my-id.my-class "foo"])
 
-;; <div id=\"my-id\" class=\"my-class\">foo</div>
-```
-
-```clojure
-;; '#' id takes precedence over :id keyword
-(c/html [:div#my-id {:id "not-my-id"} "foo"])
-
-;; <div id=\"my-id\">foo</div>
+;; "<div id=\"my-id\" class=\"my-class\">foo</div>"
 ```
 
 ```clojure
 ;; Multiple '.' classes concatenates
 (c/html [:div.my-class-1.my-class-2 "foo"])
 
-;; <div id=\"my-id\" class=\"my-class-1 my-class-2\">foo</div>
+;; "<div class=\"my-class-1 my-class-2\">foo</div>"
 ```
 
 ```clojure
 ;; '.' classes concatenates with :class keyword
 (c/html [:div.my-class-1 {:class "my-class-2"} "foo"])
 
-;; <div class=\"my-class-1 my-class-2\">foo</div>
+;; "<div class=\"my-class-1 my-class-2\">foo</div>"
 ```
 
+
+```clojure
+;; Extra '#' are uninterpreted.
+(c/html [:div## "foo"])
+
+;; "<div id=\"#\">foo</div>"
+
+(c/html [:div#my-id.my-class-1#not-id "foo"])
+
+;; "<div id=\"my-id\" class=\"my-class-1#not-id\">foo</div>"
+```
+
+However, there are differences from Hiccup.
+
+```clojure
+;; '#' id takes precedence over :id keyword
+(c/html [:div#my-id {:id "not-my-id"} "foo"])
+
+;; "<div id=\"my-id\">foo</div>"
+```
+
+```clojure
+;; '#' id can be place anywhere
+(c/html [:div.my-class-1#my-id "foo"])
+
+;; "<div id=\"my-id\" class=\"my-class-1\">foo</div>"
+```
+
+```clojure
+;; '#' id can be place inbetween, but don't do this.
+;; It will be slightly slower.
+(c/html [:div.my-class-1#my-id.my-class-2 "foo"])
+
+;; "<div id=\"my-id\" class=\"my-class-1 my-class-2\">foo</div>"
+```
 
 ## Write to Appendable
 
