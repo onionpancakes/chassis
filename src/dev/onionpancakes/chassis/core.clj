@@ -327,7 +327,15 @@
   (attribute-value-fragment [this]
     (escape-attribute-value-fragment (.toString this)))
   Boolean
-  (attribute-value-fragment [this] (if this "" nil))
+  (attribute-value-fragment [this]
+    ;; Without special Boolean processing, reasoning
+    ;; with the default AttributeValue Object case.
+    ;; The correct behavior is:
+    ;;   [:div {:foo true}]  => <div foo=\"\"></div>
+    ;;   [:div {:foo false}] => <div></div>
+    ;; This suggests true has a fragment value of empty string,
+    ;; and false has a fragment value of nil.
+    (if this "" nil))
   nil
   (attribute-value-fragment [this] nil))
 
