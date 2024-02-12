@@ -4,7 +4,7 @@ HTML5 serialization for Clojure.
 
 Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
 
-Highly optimized runtime serialization, no macros. See [Performance](#performance).
+Highly optimized runtime serialization without macros. See [Performance](#performance).
 
 # Status
 
@@ -84,7 +84,7 @@ Maps in the second position are treated as attributes. Use **global keywords** t
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
-The rest of the vector is treated as the element's content. They may be of any type, including other elements. Sequences are flattened into the parent element's content.
+The rest of the vector is treated as the element's content. They may be of any type, including other elements. Sequences are logically flattened along with the rest of the content.
 
 ```clojure
 (c/html [:div {:id "my-id"}
@@ -97,7 +97,7 @@ The rest of the vector is treated as the element's content. They may be of any t
 
 ## Id and Class Sugar
 
-Like Hiccup, id and class attributes can be specified along with the tag name using the `#` and `.` syntax.
+Like Hiccup, id and class attributes can be specified along with the tag name using css style `#` and `.` syntax.
 
 ```clojure
 (c/html [:div#my-id.my-class "foo"])
@@ -171,7 +171,7 @@ Use `true`/`false` to toggle boolean attributes.
 
 ## Composite Attribute Values
 
-Collection of attribute values are concatenated as spaced strings.
+A collection of attribute values are concatenated as a spaced string.
 
 ```clojure
 (c/html [:div {:class ["foo" "bar"]}])
@@ -183,7 +183,7 @@ Collection of attribute values are concatenated as spaced strings.
 ;; "<div class=\"bar foo\"></div>"
 ```
 
-Map of attribute values are concatenated as style strings.
+A map of attribute values are concatenated as a style string.
 
 ```clojure
 (c/html [:div {:style {:color  :red
@@ -192,7 +192,7 @@ Map of attribute values are concatenated as style strings.
 ;; "<div style=\"color: red; border: 1px solid black;\"></div>"
 ```
 
-They arbitrarily nest.
+Attribute collections and maps arbitrarily nest.
 
 ```clojure
 (c/html [:div {:style {:color  :red
@@ -267,7 +267,7 @@ Element tags and attribute keys are not escaped. Be careful when placing dangero
 
 ## Non-element Vectors
 
-Only vectors beginning with keywords are interpreted as elements. A vector can set its metadata `::c/content` key to true to avoid being interpreted as a element, even if it begins with a keyword.
+Only vectors beginning with keywords are interpreted as elements. A vector can set its metadata `::c/content` key to true to avoid being interpreted as an element, even if it begins with a keyword.
 
 ```clojure
 ;; Not elements
@@ -292,17 +292,17 @@ Only **global keywords** and **strings** are interpreted as attribute keys. Ever
 
 ## Alias Elements
 
-Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with a **namespaced keyword**.
+Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with **namespaced keywords**.
 
 Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation receiving 4 arguments: metadata map, tag keyword, attributes map, and content vector.
 
 Since namespaced keywords are not interpreted as attributes, they can be used as arguments for alias elements.
 
-Attribute map received (3rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute of the resolved element, the attribute merges seamlessly.
+Attribute map received (3rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute map of a resolved element, the attributes transfers seamlessly between the two.
 
-Content subvector received (4th arg) contains the content of the alias element. It has its metadata `{::c/content true}` to avoid being interpreted as an element.
+Content subvector received (4th arg) contains the content of the alias element. It has metadata `{::c/content true}` to avoid being interpreted as an element.
 
-The metadata and tag (1st and 2nd arg) are not needed for normal use case, but is provided for advanced tinkering.
+The metadata and tag (1st and 2nd arg) are not needed for normal use case but is provided for advanced tinkering.
 
 ```clojure
 ;; Capitalized name optional, just to make it distinctive.
@@ -326,12 +326,12 @@ Instances of `clojure.lang.IDeref` and `clojure.lang.Fn` are automatically deref
 Whether or not if this is a good idea is left to the user.
 
 ```clojure
-(defn get-thing []
-  "foobar")
+(defn current-year []
+  (.getValue (java.time.Year/now)))
 
-(c/html [:div get-thing])
+(c/html [:footer "My Company Inc " current-year])
 
-;; #'user/get-thing"<div>foobar</div>"
+;; #'user/current-year"<footer>My Company Inc 2024</footer>"
 ```
 
 ```clojure
@@ -356,7 +356,7 @@ They can even deference into other elements.
 
 ## Token and HTML Serializers
 
-Use `token-serializer` and `html-serializer` to access individual token and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and it is intended to be used in a reduce.
+Use `token-serializer` and `html-serializer` to access individual tokens and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and is intended to be used in a reduce.
 
 ```clojure
 (->> (c/token-serializer [:div "foo"])
@@ -375,7 +375,9 @@ Use `token-serializer` and `html-serializer` to access individual token and frag
 ;; ["<div>" "foo" "</div>"]
 ```
 
-## DOCTYPE
+## RawString Constants
+
+### DOCTYPE
 
 Use `doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because it's a RawString, it is safe to wrap in a vector to concatenate with the rest of the HTML document.
 
@@ -383,6 +385,16 @@ Use `doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because i
 (c/html [c/doctype-html5 [:html "..."]])
 
 ;; "<!DOCTYPE html><html>...</html>"
+```
+
+### &amp;nbsp;
+
+Use the `nbsp` constant.
+
+```clojure
+(c/html [:div "foo" c/nbsp "bar"])
+
+;; "<div>foo&nbsp;bar</div>"
 ```
 
 # Performance
