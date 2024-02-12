@@ -1335,4 +1335,9 @@
 ;; Raw consts
 
 (def doctype-html5
+  "RawString for <!DOCTYPE html>"
   (raw "<!DOCTYPE html>"))
+
+(def nbsp
+  "RawString for &nbsp;"
+  (raw "&nbsp;"))

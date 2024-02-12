@@ -483,7 +483,7 @@
     [:div 1 2 3 4 5 6 7 8 9 10 11]       "<div>1234567891011</div>"
     [:div 1 2 3 4 5 6 7 8 9 10 11 12]    "<div>123456789101112</div>"))
 
-(deftest test-html-doctype-html5
+(deftest test-html-raw-string-consts
   (are [node s] (= (c/html node) s)
     c/doctype-html5   "<!DOCTYPE html>"
     [c/doctype-html5] "<!DOCTYPE html>"
@@ -491,7 +491,8 @@
      [:html]]         "<!DOCTYPE html><html></html>"
     [c/doctype-html5
      [:html
-      [:body "foo"]]] "<!DOCTYPE html><html><body>foo</body></html>"))
+      [:body "foo"]]] "<!DOCTYPE html><html><body>foo</body></html>"
+    c/nbsp            "&nbsp;"))
 
 (deftest test-token-serializer
   (are [value expected] (= value expected)
