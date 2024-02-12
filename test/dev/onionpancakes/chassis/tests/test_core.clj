@@ -378,6 +378,8 @@
     [:div]                  "<div></div>"
     '(:div)                 "div"
     (seq [:div])            "div"
+    (eduction (map inc)
+              (range 5))    "12345"
     (delay :div)            "div"
     (fn [] :div)            "div"
     (reify Object

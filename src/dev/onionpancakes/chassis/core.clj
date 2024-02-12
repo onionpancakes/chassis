@@ -1316,6 +1316,9 @@
   clojure.lang.ISeq
   (branch? [this] true)
   (children [this] this)
+  clojure.core.Eduction
+  (branch? [this] true)
+  (children [this] this)
   clojure.lang.IDeref
   (branch? [this] true)
   (children [this]
