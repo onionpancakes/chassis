@@ -782,19 +782,18 @@
 
 (deftype RawString [value]
   AttributeValueFragment
-  (attribute-value-fragment [this]
-    (str value))
+  (attribute-value-fragment [this] value)
   Token
   (fragment-append-to [this sb]
-    (append-to sb (str value)))
-  (fragment [this]
-    (str value))
+    (append-to sb value))
+  (fragment [this] value)
   Object
   (toString [this]
     (fragment this)))
 
 (defn raw-string
   "Wraps value as an unescaped string."
+  ([] (RawString. ""))
   ([value]
    (RawString. (str value)))
   ([value & more]

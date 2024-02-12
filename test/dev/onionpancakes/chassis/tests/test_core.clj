@@ -485,6 +485,7 @@
 
 (deftest test-html-raw
   (are [node s] (= (c/html node) s)
+    (c/raw)                        ""
     (c/raw "foo")                  "foo"
     (c/raw "foo" "bar")            "foobar"
     (c/raw "&<>\"'")               "&<>\"'"
