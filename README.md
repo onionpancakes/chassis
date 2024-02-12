@@ -426,18 +426,18 @@ Evaluation count : 1104 in 6 samples of 184 calls.
 nil
 ```
 
-## Element Vector Allocation is Negligible
+## Element Vector Allocation is Small
 
-Element vector allocation accounts for less than 0.1% of the runtime cost.
+Element vector allocation accounts for ~5% of the runtime cost.
 
 ```clojure
 user=> (quick-bench (page data-mid))
-Evaluation count : 3926280 in 6 samples of 654380 calls.
-             Execution time mean : 166.441170 ns
-    Execution time std-deviation : 40.458902 ns
-   Execution time lower quantile : 131.334184 ns ( 2.5%)
-   Execution time upper quantile : 227.189879 ns (97.5%)
-                   Overhead used : 8.824566 ns
+Evaluation count : 36822 in 6 samples of 6137 calls.
+             Execution time mean : 17.147674 µs
+    Execution time std-deviation : 681.270025 ns
+   Execution time lower quantile : 16.491111 µs ( 2.5%)
+   Execution time upper quantile : 18.017150 µs (97.5%)
+                   Overhead used : 8.800156 ns
 ```
 
 The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.

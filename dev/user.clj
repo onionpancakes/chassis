@@ -56,7 +56,8 @@
     [:main
      (->> (:items data)
           (map item-element)
-          (interpose [:hr]))]
+          (interpose [:hr])
+          (doall))]
     [:footer "Footer"]]])
 
 (defmethod c/resolve-alias ::Layout
