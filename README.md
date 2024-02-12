@@ -86,7 +86,7 @@ Maps in the second position are treated as attributes. Use **global keywords** t
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
-The rest of the vector is treated as the element's content. They may be of any type, including other elements. Sequences are logically flattened along with the rest of the content.
+The rest of the vector is treated as the element's content. They may be of any type, including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
 
 ```clojure
 (c/html [:div {:id "my-id"}
