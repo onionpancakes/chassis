@@ -8,6 +8,8 @@ Highly optimized runtime serialization without macros. See [Performance](#perfor
 
 # Status
 
+[![Run tests](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml/badge.svg)](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml)
+
 Currently for my personal use. Future breaking changes possible.
 
 # Deps
