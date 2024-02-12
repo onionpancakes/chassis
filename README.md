@@ -431,13 +431,13 @@ nil
 Element vector allocation accounts for ~5% of the runtime cost.
 
 ```clojure
-user=> (quick-bench (page data-mid))
-Evaluation count : 36822 in 6 samples of 6137 calls.
-             Execution time mean : 17.147674 µs
-    Execution time std-deviation : 681.270025 ns
-   Execution time lower quantile : 16.491111 µs ( 2.5%)
-   Execution time upper quantile : 18.017150 µs (97.5%)
-                   Overhead used : 8.800156 ns
+user=> (quick-bench (page-doall data-mid))
+Evaluation count : 36984 in 6 samples of 6164 calls.
+             Execution time mean : 17.095326 µs
+    Execution time std-deviation : 655.426436 ns
+   Execution time lower quantile : 16.600814 µs ( 2.5%)
+   Execution time upper quantile : 17.966604 µs (97.5%)
+                   Overhead used : 8.799089 ns
 ```
 
 The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.

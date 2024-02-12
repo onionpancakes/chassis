@@ -56,6 +56,24 @@
     [:main
      (->> (:items data)
           (map item-element)
+          (interpose [:hr]))]
+    [:footer "Footer"]]])
+
+(defn page-doall
+  [data]
+  [:html {:lang "en"}
+   [:head
+    [:link {:href "/foobar1" :rel "stylesheet"}]
+    [:link {:href "/foobar2" :rel "stylesheet"}]
+    [:link {:href "/foobar3" :rel "stylesheet"}]
+    [:link {:href "/foobar4" :rel "stylesheet"}]
+    [:title (:title data)]]
+   [:body
+    [:header
+     [:h1 (:title data)]]
+    [:main
+     (->> (:items data)
+          (map item-element)
           (interpose [:hr])
           (doall))]
     [:footer "Footer"]]])
