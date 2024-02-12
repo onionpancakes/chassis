@@ -333,7 +333,7 @@ Whether or not if this is a good idea is left to the user.
 
 (c/html [:footer "My Company Inc " current-year])
 
-;; #'user/current-year"<footer>My Company Inc 2024</footer>"
+;; "<footer>My Company Inc 2024</footer>"
 ```
 
 ```clojure
