@@ -795,8 +795,10 @@
 
 (defn raw-string
   "Wraps value as an unescaped string."
-  [value]
-  (RawString. value))
+  ([value]
+   (RawString. (str value)))
+  ([value & more]
+   (RawString. (apply str value more))))
 
 (def raw
   "Alias for raw-string."

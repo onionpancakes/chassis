@@ -483,6 +483,14 @@
     [:div 1 2 3 4 5 6 7 8 9 10 11]       "<div>1234567891011</div>"
     [:div 1 2 3 4 5 6 7 8 9 10 11 12]    "<div>123456789101112</div>"))
 
+(deftest test-html-raw
+  (are [node s] (= (c/html node) s)
+    (c/raw "foo")                  "foo"
+    (c/raw "foo" "bar")            "foobar"
+    (c/raw "&<>\"'")               "&<>\"'"
+    [:div {:foo (c/raw "bar")}]    "<div foo=\"bar\"></div>"
+    [:div {:foo (c/raw "&<>\"'")}] "<div foo=\"&<>\"'\"></div>"))
+
 (deftest test-html-raw-string-consts
   (are [node s] (= (c/html node) s)
     c/doctype-html5   "<!DOCTYPE html>"
