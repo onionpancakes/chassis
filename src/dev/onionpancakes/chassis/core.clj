@@ -715,11 +715,11 @@
         head-name (.getName head)
         pound-idx (.indexOf head-name 35 #_(int \#))
         dot-idx   (.indexOf head-name 46 #_(int \.))]
-    (if (pos? pound-idx)
-      (if (pos? dot-idx)
+    (if (>= pound-idx 0)
+      (if (>= dot-idx 0)
         (if (< dot-idx pound-idx)
           (let [dot-idx-after (.indexOf head-name 46 #_(int \.) pound-idx)]
-            (if (pos? dot-idx-after)
+            (if (>= dot-idx-after 0)
               ;; +head-id, +head-class-before, +head-class-after
               (let [tag           (->> (.substring head-name 0 dot-idx)
                                        (clojure.lang.Keyword/intern head-ns))
@@ -751,7 +751,7 @@
                            (clojure.lang.Keyword/intern head-ns))
               head-id (.substring head-name (inc pound-idx))]
           (OpeningTag. metadata tag head-id nil attrs)))
-      (if (pos? dot-idx)
+      (if (>= dot-idx 0)
         ;; -head-id, +head-class
         (let [tag        (->> (.substring head-name 0 dot-idx)
                               (clojure.lang.Keyword/intern head-ns))

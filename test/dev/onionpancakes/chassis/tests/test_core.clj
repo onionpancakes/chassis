@@ -117,27 +117,33 @@
 (deftest test-html-tag-id-class
   (are [node s] (= (c/html node) s)
     ;; id
+    [:#foo]    "< id=\"foo\"></>"
     [:div#foo] "<div id=\"foo\"></div>"
 
     ;; class
+    [:.a]        "< class=\"a\"></>"
     [:div.a]     "<div class=\"a\"></div>"
     [:div.a.b]   "<div class=\"a b\"></div>"
     [:div.a.b.c] "<div class=\"a b c\"></div>"
 
     ;; id, class
+    [:#foo.a]        "< id=\"foo\" class=\"a\"></>"
     [:div#foo.a]     "<div id=\"foo\" class=\"a\"></div>"
     [:div#foo.a.b]   "<div id=\"foo\" class=\"a b\"></div>"
     [:div#foo.a.b.c] "<div id=\"foo\" class=\"a b c\"></div>"
 
     ;; class, id
+    [:.a#foo]        "< id=\"foo\" class=\"a\"></>"
     [:div.a#foo]     "<div id=\"foo\" class=\"a\"></div>"
     [:div.a.b#foo]   "<div id=\"foo\" class=\"a b\"></div>"
     [:div.a.b.c#foo] "<div id=\"foo\" class=\"a b c\"></div>"
 
     ;; class, id, class
+    [:.a.b.c#foo.d.e.f]    "< id=\"foo\" class=\"a b c d e f\"></>"
     [:div.a.b.c#foo.d.e.f] "<div id=\"foo\" class=\"a b c d e f\"></div>"
 
     ;; class, id, class, pound
+    [:.a.b.c#foo.d.e.f#bar.baz]    "< id=\"foo\" class=\"a b c d e f#bar baz\"></>"
     [:div.a.b.c#foo.d.e.f#bar.baz] "<div id=\"foo\" class=\"a b c d e f#bar baz\"></div>"))
 
 (deftest test-html-tag-id-class-attrs-merge
