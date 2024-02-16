@@ -442,6 +442,50 @@ Evaluation count : 36984 in 6 samples of 6164 calls.
 
 The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.
 
+```clojure
+(defn make-tokens [data]
+  (vec (c/token-serializer (page data))))
+
+(defn make-fragments [tokens]
+  (mapv c/fragment tokens))
+
+(defn append-fragments [fragments]
+  (let [sb (StringBuilder.)
+        _  (doseq [frag fragments]
+             (.append sb frag))]
+    (.toString sb)))
+```
+
+```clojure
+user=> (quick-bench (make-tokens data-mid))
+Evaluation count : 3396 in 6 samples of 566 calls.
+             Execution time mean : 187.299683 µs
+    Execution time std-deviation : 5.033401 µs
+   Execution time lower quantile : 180.625763 µs ( 2.5%)
+   Execution time upper quantile : 192.547499 µs (97.5%)
+                   Overhead used : 8.804641 ns
+nil
+user=> (let [tokens (make-tokens data-mid)]
+         (quick-bench (make-fragments tokens)))
+Evaluation count : 6012 in 6 samples of 1002 calls.
+             Execution time mean : 108.332455 µs
+    Execution time std-deviation : 4.746967 µs
+   Execution time lower quantile : 104.293707 µs ( 2.5%)
+   Execution time upper quantile : 115.190764 µs (97.5%)
+                   Overhead used : 8.804641 ns
+nil
+user=> (let [tokens    (make-tokens data-mid)
+             fragments (make-fragments tokens)]
+         (quick-bench (append-fragments fragments)))
+Evaluation count : 20880 in 6 samples of 3480 calls.
+             Execution time mean : 29.528853 µs
+    Execution time std-deviation : 643.002252 ns
+   Execution time lower quantile : 28.468082 µs ( 2.5%)
+   Execution time upper quantile : 30.049316 µs (97.5%)
+                   Overhead used : 8.804641 ns
+nil
+```
+
 ### It's All Interned
 
 Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
