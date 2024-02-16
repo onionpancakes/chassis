@@ -1,13 +1,13 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol AttributeValue
-  (attribute-fragment-append-to [this sb attr-name] "Appends attribute key and value html fragment."))
+  (append-attribute-fragment-to [this sb attr-name] "Appends attribute key and value html fragment."))
 
 (defprotocol AttributeValueFragment
   (^String attribute-value-fragment [this] "Returns attribute value fragment string or nil if none."))
 
 (defprotocol Token
-  (fragment-append-to [this sb] "Appends html fragment.")
+  (append-fragment-to [this sb] "Appends html fragment.")
   (^String fragment [this] "Returns HTML fragment."))
 
 (defprotocol Node
@@ -104,7 +104,7 @@
   By default, appendable targets is set to types implementing java.lang.Appendable
   but can be made to target other types by altering the append-to var."
   [sb token]
-  (fragment-append-to token sb))
+  (append-fragment-to token sb))
 
 (defn write-html
   "Writes HTML string to an appendable target.
@@ -249,17 +249,17 @@
 
 (extend-protocol AttributeValue
   Boolean
-  (attribute-fragment-append-to [this sb attr-name]
+  (append-attribute-fragment-to [this sb attr-name]
     (when this
       (append-to sb " " attr-name))
     sb)
   Object
-  (attribute-fragment-append-to [this sb attr-name]
+  (append-attribute-fragment-to [this sb attr-name]
     (when-some [val-frag (attribute-value-fragment this)]
       (append-to sb " " attr-name "=\"" val-frag "\""))
     sb)
   nil
-  (attribute-fragment-append-to [_ sb _] sb))
+  (append-attribute-fragment-to [_ sb _] sb))
 
 (defn join-attribute-value-fragment-kv
   "Key-value reduction function for joining attribute style maps."
@@ -347,7 +347,7 @@
                       (identical? k :id)
                       (identical? k :class)))
              (attribute-key? k))
-    (attribute-fragment-append-to v sb (name k)))
+    (append-attribute-fragment-to v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv-except-id
@@ -355,7 +355,7 @@
   (when (and (not (or (nil? v)
                       (identical? k :id)))
              (attribute-key? k))
-    (attribute-fragment-append-to v sb (name k)))
+    (append-attribute-fragment-to v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv-except-class
@@ -363,14 +363,14 @@
   (when (and (not (or (nil? v)
                       (identical? k :class)))
              (attribute-key? k))
-    (attribute-fragment-append-to v sb (name k)))
+    (append-attribute-fragment-to v sb (name k)))
   sb)
 
 (defn append-attribute-fragment-kv
   [sb k v]
   (when (and (some? v)
              (attribute-key? k))
-    (attribute-fragment-append-to v sb (name k)))
+    (append-attribute-fragment-to v sb (name k)))
   sb)
 
 (defn append-opening-tag-with-id-class-attrs-id-class
@@ -653,7 +653,7 @@
 
 (deftype OpeningTag [metadata ^clojure.lang.Keyword tag head-id head-class ^java.util.Map attrs]
   Token
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     (let [tag-name (.getName tag)]
       (if (some? head-id)
         (if (some? head-class)
@@ -700,7 +700,7 @@
             (append-opening-tag sb tag-name))))))
   (fragment [this]
     (let [sb (StringBuilder. 64)
-          _  (.fragment-append-to this sb)]
+          _  (.append-fragment-to this sb)]
       (.toString sb)))
   clojure.lang.IMeta
   (meta [this] metadata)
@@ -765,12 +765,12 @@
 
 (deftype ClosingTag [metadata ^clojure.lang.Keyword tag]
   Token
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     (let [tag-name (.getName tag)]
       (append-to sb "</" tag-name ">")))
   (fragment [this]
     (let [sb (StringBuilder.)
-          _  (.fragment-append-to this sb)]
+          _  (.append-fragment-to this sb)]
       (.toString sb)))
   clojure.lang.IMeta
   (meta [this] metadata)
@@ -784,7 +784,7 @@
   AttributeValueFragment
   (attribute-value-fragment [this] value)
   Token
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     (append-to sb value))
   (fragment [this] value)
   Object
@@ -829,7 +829,7 @@
 
 (extend-protocol Token
   clojure.lang.Keyword
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     (if-some [ns-str (namespace this)]
       (let [ns-frag   (escape-text-fragment ns-str)
             name-frag (escape-text-fragment (.getName this))]
@@ -839,29 +839,29 @@
   (fragment [this]
     (escape-text-fragment this))
   java.util.UUID
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     ;; Not escaped. Should be safe.
     (append-to sb (.toString this)))
   (fragment [this]
     (.toString this))
   Number
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     ;; Not escaped. Should be safe.
     (append-to sb (.toString this)))
   (fragment [this]
     (.toString this))
   String
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     (append-to sb (escape-text-fragment this)))
   (fragment [this]
     (escape-text-fragment this))
   Object
-  (fragment-append-to [this sb]
+  (append-fragment-to [this sb]
     (append-to sb (escape-text-fragment (.toString this))))
   (fragment [this]
     (escape-text-fragment (.toString this)))
   nil
-  (fragment-append-to [_ sb] sb)
+  (append-fragment-to [_ sb] sb)
   (fragment [_] ""))
 
 ;; Element utils
