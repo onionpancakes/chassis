@@ -89,10 +89,10 @@
                           ~(.-head-id opening)
                           ~(.-head-class opening)
                           ~attrs-sym)
-          [(c/->OpeningTag ~metadata
-                           ~(.-tag opening)
-                           ~(.-head-id opening)
-                           ~(.-head-class opening)
+          [~(c/->OpeningTag metadata
+                           (.-tag opening)
+                           (.-head-id opening)
+                           (.-head-class opening)
                            nil)
            ~attrs-sym]))
      (into [] (drop 2) elem)
