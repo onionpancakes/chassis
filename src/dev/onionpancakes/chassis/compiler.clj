@@ -1,0 +1,102 @@
+(ns dev.onionpancakes.chassis.compiler
+  (:refer-clojure :exclude [compile])
+  (:require [dev.onionpancakes.chassis.core :as c]))
+
+(defprotocol CompilableNode
+  (compilable-node [this]))
+
+;; Compile
+
+(defmacro compile
+  [node]
+  (vec (c/token-serializer (compilable-node node))))
+
+;; Compilable
+
+(defn attrs-present?
+  [elem]
+  (c/has-attrs? elem))
+
+(defn attrs-absent?
+  [elem]
+  (or (== (count elem) 1)
+      (and (vector? (nth elem 1 nil))
+           (c/element-vector? (nth elem 1 nil)))
+      (string? (nth elem 1 nil))
+      (number? (nth elem 1 nil))))
+
+(defn compilable-element-children-attrs-present
+  [elem]
+  (let [metadata (meta elem)
+        head     (nth elem 0)
+        opening  (c/make-opening-tag metadata head nil)
+        attrs    (nth elem 1)]
+    [`(c/->OpeningTag ~metadata
+                      ~(.-tag opening)
+                      ~(.-head-id opening)
+                      ~(.-head-class opening)
+                      ~attrs)
+     (with-meta (into [] (drop 2) elem)
+       {::c/content true})
+     (c/->ClosingTag metadata (.-tag opening))]))
+
+(defn compilable-element-children-attrs-absent
+  [elem]
+  (let [metadata (meta elem)
+        head     (nth elem 0)
+        opening  (c/make-opening-tag metadata head nil)]
+    [(c/->OpeningTag metadata
+                     (.-tag opening)
+                     (.-head-id opening)
+                     (.-head-class opening)
+                     nil)
+     (into [] (drop 1) elem)
+     (c/->ClosingTag metadata (.-tag opening))]))
+
+(defn compilable-element-children-attrs-ambig
+  [elem]
+  (let [metadata  (meta elem)
+        head      (nth elem 0)
+        opening   (c/make-opening-tag metadata head nil)
+        attrs     (nth elem 1)
+        attrs-sym (gensym "attrs")]
+    [`(let [~attrs-sym ~attrs]
+        (if (c/attrs? ~attrs-sym)
+          (c/->OpeningTag ~metadata
+                          ~(.-tag opening)
+                          ~(.-head-id opening)
+                          ~(.-head-class opening)
+                          ~attrs-sym)
+          [(c/->OpeningTag ~metadata
+                           ~(.-tag opening)
+                           ~(.-head-id opening)
+                           ~(.-head-class opening)
+                           nil)
+           ~attrs-sym]))
+     (into [] (drop 2) elem)
+     (c/->ClosingTag metadata (.-tag opening))]))
+
+(defn compilable-element-children
+  [elem]
+  (if (attrs-present? elem)
+    (compilable-element-children-attrs-present elem)
+    (if (attrs-absent? elem)
+      (compilable-element-children-attrs-absent elem)
+      (compilable-element-children-attrs-ambig elem))))
+
+(extend-protocol CompilableNode
+  clojure.lang.IPersistentVector
+  (compilable-node [this]
+    (reify c/Node
+      (branch? [_] true)
+      (children [_]
+        (if (c/element-vector? this)
+          (mapv compilable-node (compilable-element-children this))
+          (mapv compilable-node this)))))
+  clojure.lang.ISeq
+  (compilable-node [this]
+    (vary-meta this assoc ::c/branch? false))
+  Object
+  (compilable-node [this] this)
+  nil
+  (compilable-node [_] nil))

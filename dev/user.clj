@@ -1,5 +1,6 @@
 (ns user
   (:require [dev.onionpancakes.chassis.core :as c]
+            [dev.onionpancakes.chassis.compiler :as cc]
             [dev.onionpancakes.chassis.tests.test-core :as t]
             [criterium.core :refer [bench quick-bench]]
             [hiccup2.core :as hiccup]
@@ -78,6 +79,37 @@
           (doall))]
     [:footer "Footer"]]])
 
+(defn item-element-compiled
+  [item]
+  (cc/compile
+   [:div.item {:id    (:uuid item)
+               :class (:type item)}
+    [:h2 nil (:name item)]
+    [:p nil (:date item)]
+    [:p [:a.baz.buz {:href (str "/item/" (:uuid item))}
+         "See more details."]]
+    [:h3 "Description"]
+    [:p nil (:text item)]]))
+
+(defn page-compiled
+  [data]
+  (cc/compile
+   [:html {:lang "en"}
+    [:head
+     [:link {:href "/foobar1" :rel "stylesheet"}]
+     [:link {:href "/foobar2" :rel "stylesheet"}]
+     [:link {:href "/foobar3" :rel "stylesheet"}]
+     [:link {:href "/foobar4" :rel "stylesheet"}]
+     [:title nil (:title data)]]
+    [:body
+     [:header
+      [:h1 nil (:title data)]]
+     [:main nil
+      (->> (:items data)
+           (map item-element-compiled)
+           (interpose [:hr]))]
+     [:footer "Footer"]]]))
+
 (defmethod c/resolve-alias ::Layout
   [_ _ {title ::title :as attrs} content]
   [:html (into {:lang "en"} attrs)
@@ -118,6 +150,10 @@
 (defn chassis-page-alias
   [data]
   (c/html [c/doctype-html5 (page-alias data)]))
+
+(defn chassis-page-compiled
+  [data]
+  (c/html [c/doctype-html5 (page-compiled data)]))
 
 (defn chassis-page-writer
   [data]

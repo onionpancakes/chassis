@@ -866,11 +866,14 @@
 
 ;; Element utils
 
+(defn attrs?
+  [attrs]
+  (or (instance? java.util.Map attrs) (nil? attrs)))
+
 (defn has-attrs?
   {:tag Boolean}
   [^clojure.lang.IPersistentVector elem]
-  (let [attrs (.nth elem 1 ::none)]
-    (or (instance? java.util.Map attrs) (nil? attrs))))
+  (attrs? (.nth elem 1 ::none)))
 
 (defn content-subvec*
   [v ^long start ^long end]
@@ -1314,7 +1317,8 @@
         (element-children this))
       this))
   clojure.lang.ISeq
-  (branch? [this] true)
+  (branch? [this]
+    (boolean (::branch? (meta this) true)))
   (children [this] this)
   clojure.core.Eduction
   (branch? [this] true)
