@@ -58,8 +58,7 @@
                       ~(.-head-id opening)
                       ~(.-head-class opening)
                       ~attrs)
-     (with-meta (into [] (drop 2) elem)
-       {::c/content true})
+     (c/content-subvec elem 2)
      (c/->ClosingTag metadata (.-tag opening))]))
 
 (defn compilable-element-children-attrs-absent
@@ -72,7 +71,7 @@
                      (.-head-id opening)
                      (.-head-class opening)
                      nil)
-     (into [] (drop 1) elem)
+     (c/content-subvec elem 1)
      (c/->ClosingTag metadata (.-tag opening))]))
 
 (defn compilable-element-children-attrs-ambig
@@ -95,7 +94,7 @@
                            (.-head-class opening)
                            nil)
            ~attrs-sym]))
-     (into [] (drop 2) elem)
+     (c/content-subvec elem 2)
      (c/->ClosingTag metadata (.-tag opening))]))
 
 (defn compilable-element-children
