@@ -107,7 +107,7 @@
      [:main nil
       (->> (:items data)
            (map item-element-compiled)
-           (interpose [:hr]))]
+           (interpose (cc/compile [:hr])))]
      [:footer "Footer"]]]))
 
 (defmethod c/resolve-alias ::Layout
