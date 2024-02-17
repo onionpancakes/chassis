@@ -7,9 +7,31 @@
 
 ;; Compile
 
+(defn compactable?
+  [token]
+  (or (string? token)
+      (instance? dev.onionpancakes.chassis.core.OpeningTag token)
+      (instance? dev.onionpancakes.chassis.core.ClosingTag token)))
+
+(defn compact-tokens
+  [tokens]
+  (let [sb (StringBuilder.)
+        _  (reduce c/append-fragment sb tokens)]
+    (c/raw (.toString sb))))
+
+(def compact-xf
+  (comp (partition-by compactable?)
+        (mapcat (fn [tokens]
+                  (if (compactable? (first tokens))
+                    [(compact-tokens tokens)]
+                    tokens)))))
+
 (defmacro compile
   [node]
-  (vec (c/token-serializer (compilable-node node))))
+  (->> (compilable-node node)
+       (c/token-serializer)
+       (eduction compact-xf)
+       (vec)))
 
 ;; Compilable
 
