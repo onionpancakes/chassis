@@ -84,6 +84,37 @@
   (cc/compile
    [:div.item {:id    (:uuid item)
                :class (:type item)}
+    [:h2 (:name item)]
+    [:p (:date item)]
+    [:p [:a.baz.buz {:href (str "/item/" (:uuid item))}
+         "See more details."]]
+    [:h3 "Description"]
+    [:p (:text item)]]))
+
+(defn page-compiled
+  [data]
+  (cc/compile
+   [:html {:lang "en"}
+    [:head
+     [:link {:href "/foobar1" :rel "stylesheet"}]
+     [:link {:href "/foobar2" :rel "stylesheet"}]
+     [:link {:href "/foobar3" :rel "stylesheet"}]
+     [:link {:href "/foobar4" :rel "stylesheet"}]
+     [:title (:title data)]]
+    [:body
+     [:header
+      [:h1 (:title data)]]
+     [:main
+      (->> (:items data)
+           (map item-element-compiled)
+           (interpose (cc/compile [:hr])))]
+     [:footer "Footer"]]]))
+
+(defn item-element-compiled-unambig
+  [item]
+  (cc/compile
+   [:div.item {:id    (:uuid item)
+               :class (:type item)}
     [:h2 nil (:name item)]
     [:p nil (:date item)]
     [:p [:a.baz.buz {:href (str "/item/" (:uuid item))}
@@ -91,7 +122,7 @@
     [:h3 "Description"]
     [:p nil (:text item)]]))
 
-(defn page-compiled
+(defn page-compiled-unambig
   [data]
   (cc/compile
    [:html {:lang "en"}
@@ -106,7 +137,7 @@
       [:h1 nil (:title data)]]
      [:main nil
       (->> (:items data)
-           (map item-element-compiled)
+           (map item-element-compiled-unambig)
            (interpose (cc/compile [:hr])))]
      [:footer "Footer"]]]))
 
@@ -154,6 +185,10 @@
 (defn chassis-page-compiled
   [data]
   (c/html [c/doctype-html5 (page-compiled data)]))
+
+(defn chassis-page-compiled-unambig
+  [data]
+  (c/html [c/doctype-html5 (page-compiled-unambig data)]))
 
 (defn chassis-page-writer
   [data]
@@ -217,6 +252,40 @@
       [:main
        (->> (:items data)
             (map hiccup-item-element)
+            (interpose (hiccup/html [:hr])))]
+      [:footer "Footer"]]])))
+
+(defn hiccup-item-element-unambig
+  [item]
+  (hiccup/html
+   [:div.item {:id    (:uuid item)
+               :class (:type item)}
+    [:h2 nil (:name item)]
+    [:p nil (:date item)]
+    [:p [:a.baz.buz {:href (str "/item/" (:uuid item))}
+         "See more details."]]
+    [:h3 "Description"]
+    [:p nil (:text item)]]))
+
+(defn hiccup-page-unambig
+  [data]
+  (str
+   (hiccup/html
+    {:mode :html}
+    (hiccup.page/doctype :html5)
+    [:html {:lang "en"}
+     [:head
+      [:link {:href "/foobar1" :rel "stylesheet"}]
+      [:link {:href "/foobar2" :rel "stylesheet"}]
+      [:link {:href "/foobar3" :rel "stylesheet"}]
+      [:link {:href "/foobar4" :rel "stylesheet"}]
+      [:title nil (:title data)]]
+     [:body
+      [:header
+       [:h1 nil (:title data)]]
+      [:main nil
+       (->> (:items data)
+            (map hiccup-item-element-unambig)
             (interpose (hiccup/html [:hr])))]
       [:footer "Footer"]]])))
 
