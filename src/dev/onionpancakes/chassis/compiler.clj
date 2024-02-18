@@ -3,6 +3,11 @@
   (:require [dev.onionpancakes.chassis.core :as c]))
 
 (defprotocol CompilableForm
+  ;; 99.99% cases, evaluated == constant.
+  ;; Via data readers, it is possible to generate
+  ;; an evaluated stateful value.
+  ;; This split is the cover that pendantic case.
+  (constant? [this])
   (evaluated? [this]))
 
 (defprotocol CompilableNode
@@ -11,66 +16,81 @@
 ;; Compile
 
 (defn compact-forms
-  [tokens]
+  [forms]
   (let [sb (StringBuilder.)
-        _  (reduce c/append-fragment sb tokens)]
+        _  (reduce c/append-fragment sb forms)]
     (c/raw (.toString sb))))
 
-(def compact-xf
-  (comp (partition-by evaluated?)
-        (mapcat (fn [tokens]
-                  (if (evaluated? (first tokens))
-                    [(compact-forms tokens)]
-                    tokens)))))
+(defn compact
+  [forms]
+  (eduction (partition-by constant?)
+            (mapcat (fn [tokens]
+                      (if (constant? (first tokens))
+                        [(compact-forms tokens)]
+                        tokens)))
+            forms))
 
 (defmacro compile
   [node]
   (->> (compilable-node node)
        (c/token-serializer)
-       (eduction compact-xf)
+       (compact)
        (vec)))
 
 ;; CompilableForm
 
 (extend-protocol CompilableForm
   dev.onionpancakes.chassis.core.OpeningTag
-  (evaluated? [this]
-    ;; Only clj maps can be evaluated.
-    (evaluated? (.-attrs this)))
+  (constant? [this]
+    ;; Attrs is evaluated, but may not constant.
+    (constant? (.-attrs this)))
+  (evaluated? [this] true)
   dev.onionpancakes.chassis.core.ClosingTag
-  (evaluated? [this] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
   dev.onionpancakes.chassis.core.RawString
-  (evaluated? [this] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
   clojure.lang.IPersistentCollection
+  (constant? [this]
+    (every? constant? this))
   (evaluated? [this]
     (every? evaluated? this))
   clojure.lang.Keyword
+  (constant? [_] true)
   (evaluated? [_] true)
   clojure.lang.ISeq
+  (constant? [_] false)
   (evaluated? [_] false)
   clojure.lang.Symbol
+  (constant? [_] false)
   (evaluated? [_] false)
   ;; This catches Strings, constant Numbers, and a bit more.
   java.lang.constant.Constable
+  (constant? [_] true)
   (evaluated? [_] true)
   Object
+  (constant? [_] false)
   (evaluated? [_] false)
   nil
+  (constant? [_] true)
   (evaluated? [_] true))
 
 ;; CompilableNode
 
-(defn attrs-present?
+(defn compilable-element-children-attrs-present-evaluated
   [elem]
-  (c/has-attrs? elem))
-
-(defn attrs-absent?
-  [elem]
-  (or (== (count elem) 1)
-      (and (vector? (nth elem 1 nil))
-           (c/element-vector? (nth elem 1 nil)))
-      (string? (nth elem 1 nil))
-      (number? (nth elem 1 nil))))
+  (let [metadata (meta elem)
+        head     (nth elem 0)
+        opening  (c/make-opening-tag metadata head nil)
+        attrs    (nth elem 1)]
+    [(c/->OpeningTag metadata
+                     (.-tag opening)
+                     (.-head-id opening)
+                     (.-head-class opening)
+                     attrs)
+     (c/content-subvec elem 2)
+     (c/->ClosingTag metadata (.-tag opening))]))
 
 (defn compilable-element-children-attrs-present
   [elem]
@@ -122,10 +142,30 @@
      (c/content-subvec elem 2)
      (c/->ClosingTag metadata (.-tag opening))]))
 
+(defn attrs-present?
+  [elem]
+  (c/has-attrs? elem))
+
+(defn attrs-present-evaluated?
+  [elem]
+  (let [attrs (nth elem 1)
+        _     (assert (c/attrs? attrs))]
+    (evaluated? attrs)))
+
+(defn attrs-absent?
+  [elem]
+  (or (== (count elem) 1)
+      (and (vector? (nth elem 1 nil))
+           (c/element-vector? (nth elem 1 nil)))
+      (string? (nth elem 1 nil))
+      (number? (nth elem 1 nil))))
+
 (defn compilable-element-children
   [elem]
   (if (attrs-present? elem)
-    (compilable-element-children-attrs-present elem)
+    (if (attrs-present-evaluated? elem)
+      (compilable-element-children-attrs-present-evaluated elem)
+      (compilable-element-children-attrs-present elem))
     (if (attrs-absent? elem)
       (compilable-element-children-attrs-absent elem)
       (compilable-element-children-attrs-ambig elem))))
