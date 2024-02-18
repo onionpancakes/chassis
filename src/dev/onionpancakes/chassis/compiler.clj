@@ -4,12 +4,14 @@
 
 (defprotocol CompilableForm
   (constant? [this] "Returns true if form is constant, safe to make fragments with at compile time.")
-  (evaluated? [this] "Returns true if form is evaluated, safe to make tokens with at compile time."))
+  (evaluated? [this] "Returns true if form is evaluated, safe to make tokens with at compile time.")
+  (resolved [this] "Returns the form in which symbols and coll of symbols are resolved."))
 
 (defprotocol CompilableNode
   (compilable-node [this] "Returns Node when traversed via reduce-node emits compiled token forms."))
 
-(def ^:dynamic *env* "Binding of macro &env." nil)
+;; Binding of macro &env, for resolving symbols.
+(def ^:dynamic *env*)
 
 ;; Compile
 
@@ -60,36 +62,67 @@
     ;; Attrs is evaluated, but may not constant.
     (constant? (.-attrs this)))
   (evaluated? [this] true)
+  (resolved [this]
+    (c/->OpeningTag (.-metadata this)
+                    (.-tag this)
+                    (.-head-id this)
+                    (.-head-class this)
+                    (resolved (.-attrs this))))
   dev.onionpancakes.chassis.core.ClosingTag
   (constant? [_] true)
   (evaluated? [_] true)
+  (resolved [this] this)
   dev.onionpancakes.chassis.core.RawString
   (constant? [_] true)
   (evaluated? [_] true)
+  (resolved [this] this)
+  clojure.lang.MapEntry
+  (constant? [this]
+    (every? constant? this))
+  (evaluated? [this]
+    (every? evaluated? this))
+  (resolved [this]
+    (clojure.lang.MapEntry. (resolved (key this))
+                            (resolved (val this))))
   clojure.lang.IPersistentCollection
   (constant? [this]
     (every? constant? this))
   (evaluated? [this]
     (every? evaluated? this))
+  (resolved [this]
+    (into (empty this) (map resolved) this))
   clojure.lang.Keyword
   (constant? [_] true)
   (evaluated? [_] true)
+  (resolved [this] this)
+  ;; Lists are compilation barriers.
+  ;; Not constants, not evaluated, not resolved.
   clojure.lang.ISeq
   (constant? [_] false)
   (evaluated? [_] false)
+  (resolved [this] this)
   clojure.lang.Symbol
   (constant? [_] false)
   (evaluated? [_] false)
+  (resolved [this]
+    (if-some [resolved (resolve *env* this)]
+      (if (var? resolved)
+        (deref resolved)
+        resolved)
+      this))
   ;; This catches Strings, constant Numbers, and a bit more.
   java.lang.constant.Constable
   (constant? [_] true)
   (evaluated? [_] true)
+  (resolved [this] this)
   Object
   (constant? [_] false)
   (evaluated? [_] true)
+  (resolved [this] this)
   nil
   (constant? [_] true)
-  (evaluated? [_] true))
+  (evaluated? [_] true)
+  (resolved [_] nil))
 
 ;; CompilableNode
 
@@ -270,20 +303,14 @@
       (children [_]
         (if (c/element-vector? this)
           (if (c/alias-element? this)
-            (mapv compilable-node (compilable-alias-element-children this))
-            (mapv compilable-node (compilable-element-children this)))
-          (mapv compilable-node this)))))
+            (mapv compilable-node (compilable-alias-element-children (resolved this)))
+            (mapv compilable-node (compilable-element-children (resolved this))))
+          (mapv compilable-node (resolved this))))))
   clojure.lang.ISeq
   (compilable-node [this]
-    (vary-meta this assoc ::c/leaf true))
-  clojure.lang.Symbol
-  (compilable-node [this]
-    (if-some [resolved (resolve *env* this)]
-      (if (var? resolved)
-        (deref resolved)
-        resolved)
-      this))
+    (-> (resolved this) ; Default no-op in CompilableForm for lists.
+        (vary-meta assoc ::c/leaf true)))
   Object
-  (compilable-node [this] this)
+  (compilable-node [this] (resolved this))
   nil
-  (compilable-node [_] nil))
+  (compilable-node [_] (resolved nil)))
