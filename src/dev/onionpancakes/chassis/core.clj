@@ -893,21 +893,29 @@
 
 ;; Alias element
 
-(defn merge-alias-element-attrs
-  [attrs head-id head-class]
-  (if (some? head-id)
-    (if (some? head-class)
-      (if (contains? attrs :class)
-        (-> (assoc attrs :id head-id)
-            (assoc :class [head-class (get attrs :class)]))
-        (-> (assoc attrs :id head-id)
-            (assoc :class head-class)))
-      (assoc attrs :id head-id))
-    (if (some? head-class)
-      (if (contains? attrs :class)
-        (assoc attrs :class [head-class (get attrs :class)])
-        (assoc attrs :class head-class))
-      attrs)))
+(defn make-head-attrs
+  ([head-id head-class]
+   (if (some? head-id)
+     (if (some? head-class)
+       {:id head-id :class head-class}
+       {:id head-id})
+     (if (some? head-class)
+       {:class head-class}
+       nil)))
+  ([head-id head-class attrs]
+   (if (some? head-id)
+     (if (some? head-class)
+       (if (contains? attrs :class)
+         (-> (assoc attrs :id head-id)
+             (assoc :class [head-class (get attrs :class)]))
+         (-> (assoc attrs :id head-id)
+             (assoc :class head-class)))
+       (assoc attrs :id head-id))
+     (if (some? head-class)
+       (if (contains? attrs :class)
+         (assoc attrs :class [head-class (get attrs :class)])
+         (assoc attrs :class head-class))
+       attrs))))
 
 (defn resolve-alias-element-attrs
   [^clojure.lang.IPersistentVector elem]
@@ -919,9 +927,9 @@
         head-id      (.-head-id opening)
         head-class   (.-head-class opening)
         merged-attrs (if (or (map? attrs) (nil? attrs)) ; check if clj attrs map
-                       (merge-alias-element-attrs attrs head-id head-class)
-                       (-> (into {} attrs) ; else copy java map into clj map
-                           (merge-alias-element-attrs head-id head-class)))
+                       (make-head-attrs head-id head-class attrs)
+                       ;; Copy java map into clj map.
+                       (make-head-attrs head-id head-class (into {} attrs)))
         elem-count   (.count elem)
         content      (if (> elem-count 2)
                        (content-subvec* elem 2 elem-count))]
