@@ -71,7 +71,7 @@
   (evaluated? [_] true)
   Object
   (constant? [_] false)
-  (evaluated? [_] false)
+  (evaluated? [_] true)
   nil
   (constant? [_] true)
   (evaluated? [_] true))
