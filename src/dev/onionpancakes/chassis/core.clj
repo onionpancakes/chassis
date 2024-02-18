@@ -103,8 +103,9 @@
 
   By default, appendable targets is set to types implementing java.lang.Appendable
   but can be made to target other types by altering the append-to var."
-  [sb token]
-  (append-fragment-to token sb))
+  ([sb] sb)
+  ([sb token]
+   (append-fragment-to token sb)))
 
 (defn write-html
   "Writes HTML string to an appendable target.

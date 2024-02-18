@@ -15,20 +15,23 @@
 
 ;; Compile
 
-(defn compact-forms
+(defn compacted-form
   [forms]
   (let [sb (StringBuilder.)
-        _  (reduce c/append-fragment sb forms)]
+        tf (fn [_ form]
+             (throw (IllegalArgumentException. (str "Not constant form: " form))))
+        xf (halt-when (complement constant?) tf)
+        _  (transduce xf c/append-fragment sb forms)]
     (c/raw (.toString sb))))
 
 (defn compact
-  [forms]
+  [tokens]
   (eduction (partition-by constant?)
-            (mapcat (fn [tokens]
-                      (if (constant? (first tokens))
-                        [(compact-forms tokens)]
-                        tokens)))
-            forms))
+            (mapcat (fn [forms]
+                      (if (constant? (first forms))
+                        [(compacted-form forms)]
+                        forms)))
+            tokens))
 
 (defmacro compile
   [node]
