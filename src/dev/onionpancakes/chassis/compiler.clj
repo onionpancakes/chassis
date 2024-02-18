@@ -92,12 +92,10 @@
     (evaluated? attrs)))
 
 (defn attrs-absent?
-  [elem]
+  [[_ x :as elem]]
   (or (== (count elem) 1)
-      (and (vector? (nth elem 1 nil))
-           (c/element-vector? (nth elem 1 nil)))
-      (string? (nth elem 1 nil))
-      (number? (nth elem 1 nil))))
+      (and (vector? x) (c/element-vector? x))
+      (and (not (c/attrs? x)) (evaluated? x))))
 
 (defn compilable-alias-element-children-attrs-present-evaluated
   [elem]
