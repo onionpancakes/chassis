@@ -2,6 +2,9 @@
   (:refer-clojure :exclude [compile])
   (:require [dev.onionpancakes.chassis.core :as c]))
 
+(defprotocol CompilableForm
+  (evaluated? [this]))
+
 (defprotocol CompilableNode
   (compilable-node [this]))
 
@@ -33,7 +36,27 @@
        (eduction compact-xf)
        (vec)))
 
-;; Compilable
+;; CompilableForm
+
+(extend-protocol CompilableForm
+  clojure.lang.IPersistentCollection
+  (evaluated? [this]
+    (every? evaluated? this))
+  clojure.lang.Keyword
+  (evaluated? [_] true)
+  clojure.lang.ISeq
+  (evaluated? [_] false)
+  clojure.lang.Symbol
+  (evaluated? [_] false)
+  ;; This catches Strings, constant Numbers, and a bit more.
+  java.lang.constant.Constable
+  (evaluated? [_] true)
+  Object
+  (evaluated? [_] false)
+  nil
+  (evaluated? [_] true))
+
+;; CompilableNode
 
 (defn attrs-present?
   [elem]
