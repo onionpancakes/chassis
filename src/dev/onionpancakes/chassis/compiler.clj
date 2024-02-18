@@ -81,6 +81,45 @@
 
 ;; CompilableNode
 
+(defn attrs-present?
+  [elem]
+  (c/has-attrs? elem))
+
+(defn attrs-present-evaluated?
+  [elem]
+  (let [attrs (nth elem 1)
+        _     (assert (c/attrs? attrs))]
+    (evaluated? attrs)))
+
+(defn attrs-absent?
+  [elem]
+  (or (== (count elem) 1)
+      (and (vector? (nth elem 1 nil))
+           (c/element-vector? (nth elem 1 nil)))
+      (string? (nth elem 1 nil))
+      (number? (nth elem 1 nil))))
+
+(defn compilable-alias-element-children-attrs-present-evaluated
+  [elem]
+  (let [metadata   (meta elem)
+        head       (nth elem 0)
+        attrs      (nth elem 1)
+        opening    (c/make-opening-tag metadata head attrs)
+        tag        (.-tag opening)
+        head-id    (.-head-id opening)
+        head-class (.-head-class opening)]
+    [`(identity ~elem)]))
+
+(defn compilable-alias-element-children
+  [elem]
+  (if (attrs-present? elem)
+    (if (attrs-present-evaluated? elem)
+      (compilable-alias-element-children-attrs-present-evaluated elem)
+      [`(identity ~elem)])
+    (if (attrs-absent? elem)
+      [`(identity ~elem)]
+      [`(identity ~elem)])))
+
 (defn compilable-element-children-attrs-present-evaluated
   [elem]
   (let [metadata (meta elem)
@@ -148,24 +187,6 @@
        (c/content-subvec elem 2)
        (c/->ClosingTag metadata tag)])))
 
-(defn attrs-present?
-  [elem]
-  (c/has-attrs? elem))
-
-(defn attrs-present-evaluated?
-  [elem]
-  (let [attrs (nth elem 1)
-        _     (assert (c/attrs? attrs))]
-    (evaluated? attrs)))
-
-(defn attrs-absent?
-  [elem]
-  (or (== (count elem) 1)
-      (and (vector? (nth elem 1 nil))
-           (c/element-vector? (nth elem 1 nil)))
-      (string? (nth elem 1 nil))
-      (number? (nth elem 1 nil))))
-
 (defn compilable-element-children
   [elem]
   (if (attrs-present? elem)
@@ -183,7 +204,9 @@
       (branch? [_] true)
       (children [_]
         (if (c/element-vector? this)
-          (mapv compilable-node (compilable-element-children this))
+          (if (c/alias-element? this)
+            (mapv compilable-node (compilable-alias-element-children this))
+            (mapv compilable-node (compilable-element-children this)))
           (mapv compilable-node this)))))
   clojure.lang.ISeq
   (compilable-node [this]
