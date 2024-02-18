@@ -1318,7 +1318,7 @@
       this))
   clojure.lang.ISeq
   (branch? [this]
-    (boolean (::branch? (meta this) true)))
+    (not (get (meta this) ::leaf)))
   (children [this] this)
   clojure.core.Eduction
   (branch? [this] true)

@@ -141,7 +141,7 @@
           (mapv compilable-node this)))))
   clojure.lang.ISeq
   (compilable-node [this]
-    (vary-meta this assoc ::c/branch? false))
+    (vary-meta this assoc ::c/leaf true))
   Object
   (compilable-node [this] this)
   nil
