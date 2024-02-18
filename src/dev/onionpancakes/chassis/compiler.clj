@@ -3,17 +3,13 @@
   (:require [dev.onionpancakes.chassis.core :as c]))
 
 (defprotocol CompilableForm
-  ;; 99.99% cases, evaluated == constant.
-  ;; Via data readers, it is possible to generate
-  ;; an evaluated stateful value.
-  ;; This split is the cover that pendantic case.
-  (constant? [this])
-  (evaluated? [this]))
+  (constant? [this] "Returns true if form is constant, safe to make fragments with at compile time.")
+  (evaluated? [this] "Returns true if form is evaluated, safe to make tokens with at compile time."))
 
 (defprotocol CompilableNode
-  (compilable-node [this]))
+  (compilable-node [this] "Returns Node when traversed via reduce-node emits compiled token forms."))
 
-(def ^:dynamic *env* nil)
+(def ^:dynamic *env* "Binding of macro &env." nil)
 
 ;; Compile
 
