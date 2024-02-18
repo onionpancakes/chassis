@@ -6,7 +6,8 @@
             [hiccup2.core :as hiccup]
             [hiccup.page :as hiccup.page]
             [selmer.parser :as selmer]
-            [net.cgrand.enlive-html :as enlive]))
+            [net.cgrand.enlive-html :as enlive]
+            [clojure.walk :refer [macroexpand-all]]))
 
 (defmethod c/resolve-alias ::Foo
   [_ _ {:as attrs} content]
@@ -98,21 +99,22 @@
 (defn page-compiled
   [data]
   (cc/compile
-   [:html {:lang "en"}
-    [:head
-     [:link {:href "/foobar1" :rel "stylesheet"}]
-     [:link {:href "/foobar2" :rel "stylesheet"}]
-     [:link {:href "/foobar3" :rel "stylesheet"}]
-     [:link {:href "/foobar4" :rel "stylesheet"}]
-     [:title (:title data)]]
-    [:body
-     [:header
-      [:h1 (:title data)]]
-     [:main
-      (->> (:items data)
-           (map item-element-compiled)
-           (interpose (cc/compile [:hr])))]
-     [:footer "Footer"]]]))
+   [c/doctype-html5
+    [:html {:lang "en"}
+     [:head
+      [:link {:href "/foobar1" :rel "stylesheet"}]
+      [:link {:href "/foobar2" :rel "stylesheet"}]
+      [:link {:href "/foobar3" :rel "stylesheet"}]
+      [:link {:href "/foobar4" :rel "stylesheet"}]
+      [:title (:title data)]]
+     [:body
+      [:header
+       [:h1 (:title data)]]
+      [:main
+       (->> (:items data)
+            (map item-element-compiled)
+            (interpose (cc/compile [:hr])))]
+      [:footer "Footer"]]]]))
 
 (defn item-element-compiled-unambig
   [item]
@@ -129,21 +131,22 @@
 (defn page-compiled-unambig
   [data]
   (cc/compile
-   [:html {:lang "en"}
-    [:head
-     [:link {:href "/foobar1" :rel "stylesheet"}]
-     [:link {:href "/foobar2" :rel "stylesheet"}]
-     [:link {:href "/foobar3" :rel "stylesheet"}]
-     [:link {:href "/foobar4" :rel "stylesheet"}]
-     [:title nil (:title data)]]
-    [:body
-     [:header
-      [:h1 nil (:title data)]]
-     [:main nil
-      (->> (:items data)
-           (map item-element-compiled-unambig)
-           (interpose (cc/compile [:hr])))]
-     [:footer "Footer"]]]))
+   [c/doctype-html5
+    [:html {:lang "en"}
+     [:head
+      [:link {:href "/foobar1" :rel "stylesheet"}]
+      [:link {:href "/foobar2" :rel "stylesheet"}]
+      [:link {:href "/foobar3" :rel "stylesheet"}]
+      [:link {:href "/foobar4" :rel "stylesheet"}]
+      [:title nil (:title data)]]
+     [:body
+      [:header
+       [:h1 nil (:title data)]]
+      [:main nil
+       (->> (:items data)
+            (map item-element-compiled-unambig)
+            (interpose (cc/compile [:hr])))]
+      [:footer "Footer"]]]]))
 
 (defmethod c/resolve-alias ::Layout
   [_ _ {title ::title :as attrs} content]
@@ -188,11 +191,11 @@
 
 (defn chassis-page-compiled
   [data]
-  (c/html [c/doctype-html5 (page-compiled data)]))
+  (c/html (page-compiled data)))
 
 (defn chassis-page-compiled-unambig
   [data]
-  (c/html [c/doctype-html5 (page-compiled-unambig data)]))
+  (c/html (page-compiled-unambig data)))
 
 (defn chassis-page-writer
   [data]
