@@ -13,6 +13,8 @@
 (defprotocol CompilableNode
   (compilable-node [this]))
 
+(def ^:dynamic *env* nil)
+
 ;; Compile
 
 (defn compacted-form
@@ -35,22 +37,24 @@
 
 (defmacro compile*
   [node]
-  (-> (compilable-node node)
-      (c/token-serializer)
-      (compact)
-      (vec)
-      (vary-meta assoc ::c/content true)))
+  (binding [*env* &env]
+    (-> (compilable-node node)
+        (c/token-serializer)
+        (compact)
+        (vec)
+        (vary-meta assoc ::c/content true))))
 
 (defmacro compile
   [node]
-  (let [ret (-> (compilable-node node)
-                (c/token-serializer)
-                (compact)
-                (vec)
-                (vary-meta assoc ::c/content true))]
-    (if (== (count ret) 1)
-      (nth ret 0)
-      ret)))
+  (binding [*env* &env]
+    (let [ret (-> (compilable-node node)
+                  (c/token-serializer)
+                  (compact)
+                  (vec)
+                  (vary-meta assoc ::c/content true))]
+      (if (== (count ret) 1)
+        (nth ret 0)
+        ret))))
 
 ;; CompilableForm
 
@@ -276,6 +280,13 @@
   clojure.lang.ISeq
   (compilable-node [this]
     (vary-meta this assoc ::c/leaf true))
+  clojure.lang.Symbol
+  (compilable-node [this]
+    (if-some [resolved (resolve *env* this)]
+      (if (var? resolved)
+        (deref resolved)
+        resolved)
+      this))
   Object
   (compilable-node [this] this)
   nil
