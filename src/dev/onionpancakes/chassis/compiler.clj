@@ -33,12 +33,24 @@
                         forms)))
             tokens))
 
+(defmacro compile*
+  [node]
+  (-> (compilable-node node)
+      (c/token-serializer)
+      (compact)
+      (vec)
+      (vary-meta assoc ::c/content true)))
+
 (defmacro compile
   [node]
-  (->> (compilable-node node)
-       (c/token-serializer)
-       (compact)
-       (vec)))
+  (let [ret (-> (compilable-node node)
+                (c/token-serializer)
+                (compact)
+                (vec)
+                (vary-meta assoc ::c/content true))]
+    (if (== (count ret) 1)
+      (nth ret 0)
+      ret)))
 
 ;; CompilableForm
 
