@@ -120,7 +120,7 @@
         head-class (.-head-class opening)]
     [`(c/resolve-alias ~metadata
                        ~tag
-                       ~(c/merge-alias-element-attrs attrs head-id head-class)
+                       ~(c/make-head-attrs head-id head-class attrs)
                        (compile* ~(c/content-subvec elem 2)))]))
 
 (defn compilable-alias-element-children-attrs-present
