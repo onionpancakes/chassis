@@ -85,65 +85,68 @@
   [elem]
   (let [metadata (meta elem)
         head     (nth elem 0)
-        opening  (c/make-opening-tag metadata head nil)
-        attrs    (nth elem 1)]
-    [(c/->OpeningTag metadata
-                     (.-tag opening)
-                     (.-head-id opening)
-                     (.-head-class opening)
-                     attrs)
-     (c/content-subvec elem 2)
-     (c/->ClosingTag metadata (.-tag opening))]))
+        attrs    (nth elem 1)
+        opening  (c/make-opening-tag metadata head attrs)
+        tag      (.-tag opening)]
+    (if (and (c/void-tag? tag) (<= (count elem) 2))
+      [opening]
+      [opening
+       (c/content-subvec elem 2)
+       (c/->ClosingTag metadata tag)])))
 
 (defn compilable-element-children-attrs-present
   [elem]
-  (let [metadata (meta elem)
-        head     (nth elem 0)
-        opening  (c/make-opening-tag metadata head nil)
-        attrs    (nth elem 1)]
-    [`(c/->OpeningTag ~metadata
-                      ~(.-tag opening)
-                      ~(.-head-id opening)
-                      ~(.-head-class opening)
-                      ~attrs)
-     (c/content-subvec elem 2)
-     (c/->ClosingTag metadata (.-tag opening))]))
+  (let [metadata   (meta elem)
+        head       (nth elem 0)
+        attrs      (nth elem 1)
+        opening    (c/make-opening-tag metadata head attrs)
+        tag        (.-tag opening)
+        head-id    (.-head-id opening)
+        head-class (.-head-class opening)]
+    (if (and (c/void-tag? tag) (<= (count elem) 2))
+      [`(c/->OpeningTag ~metadata ~tag ~head-id ~head-class ~attrs)]
+      [`(c/->OpeningTag ~metadata ~tag ~head-id ~head-class ~attrs)
+       (c/content-subvec elem 2)
+       (c/->ClosingTag metadata tag)])))
 
 (defn compilable-element-children-attrs-absent
   [elem]
-  (let [metadata (meta elem)
-        head     (nth elem 0)
-        opening  (c/make-opening-tag metadata head nil)]
-    [(c/->OpeningTag metadata
-                     (.-tag opening)
-                     (.-head-id opening)
-                     (.-head-class opening)
-                     nil)
-     (c/content-subvec elem 1)
-     (c/->ClosingTag metadata (.-tag opening))]))
+  (let [metadata   (meta elem)
+        head       (nth elem 0)
+        opening    (c/make-opening-tag metadata head nil)
+        tag        (.-tag opening)
+        head-id    (.-head-id opening)
+        head-class (.-head-class opening)]
+    (if (and (c/void-tag? tag) (<= (count elem) 1))
+      [(c/->OpeningTag metadata tag head-id head-class nil)]
+      [(c/->OpeningTag metadata tag head-id head-class nil)
+       (c/content-subvec elem 1)
+       (c/->ClosingTag metadata tag)])))
 
 (defn compilable-element-children-attrs-ambig
   [elem]
-  (let [metadata  (meta elem)
-        head      (nth elem 0)
-        opening   (c/make-opening-tag metadata head nil)
-        attrs     (nth elem 1)
-        attrs-sym (gensym "attrs")]
-    [`(let [~attrs-sym ~attrs]
-        (if (c/attrs? ~attrs-sym)
-          (c/->OpeningTag ~metadata
-                          ~(.-tag opening)
-                          ~(.-head-id opening)
-                          ~(.-head-class opening)
-                          ~attrs-sym)
-          [~(c/->OpeningTag metadata
-                           (.-tag opening)
-                           (.-head-id opening)
-                           (.-head-class opening)
-                           nil)
-           ~attrs-sym]))
-     (c/content-subvec elem 2)
-     (c/->ClosingTag metadata (.-tag opening))]))
+  (let [metadata   (meta elem)
+        head       (nth elem 0)
+        attrs      (nth elem 1)
+        opening    (c/make-opening-tag metadata head nil)
+        tag        (.-tag opening)
+        head-id    (.-head-id opening)
+        head-class (.-head-class opening)
+        attrs-sym  (gensym "attrs")]
+    (if (and (c/void-tag? tag) (<= (count elem) 2))
+      [`(let [~attrs-sym ~attrs]
+          (if (c/attrs? ~attrs-sym)
+            (c/->OpeningTag ~metadata ~tag ~head-id ~head-class ~attrs-sym)
+            [~(c/->OpeningTag metadata tag head-id head-class nil)
+             ~attrs-sym
+             ~(c/->ClosingTag metadata tag)]))]
+      [`(let [~attrs-sym ~attrs]
+          (if (c/attrs? ~attrs-sym)
+            (c/->OpeningTag ~metadata ~tag ~head-id ~head-class ~attrs-sym)
+            [~(c/->OpeningTag metadata tag head-id head-class nil)
+             ~attrs-sym]))
+       (c/content-subvec elem 2)
+       (c/->ClosingTag metadata tag)])))
 
 (defn attrs-present?
   [elem]
