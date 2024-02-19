@@ -2,6 +2,7 @@
   (:require [dev.onionpancakes.chassis.core :as c]
             [dev.onionpancakes.chassis.compiler :as cc]
             [dev.onionpancakes.chassis.tests.test-core :as t]
+            [dev.onionpancakes.chassis.tests.test-compiler :as tc]
             [criterium.core :refer [bench quick-bench]]
             [hiccup2.core :as hiccup]
             [hiccup.page :as hiccup.page]
