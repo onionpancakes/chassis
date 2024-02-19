@@ -68,7 +68,11 @@
 ;; CompilableForm
 
 (def attrs-invocable-vars
-  #{#'clojure.core/assoc
+  #{#'clojure.core/array-map
+    #'clojure.core/hash-map
+    #'clojure.core/sorted-map
+    #'clojure.core/sorted-map-by
+    #'clojure.core/assoc
     #'clojure.core/assoc-in
     #'clojure.core/merge
     #'clojure.core/select-keys

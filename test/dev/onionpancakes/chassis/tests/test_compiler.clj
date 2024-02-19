@@ -117,6 +117,10 @@
   ;; Type hinted invocation
   (cc/compile [:div ^java.util.Map (:foo {:foo {}}) "foobar"])
   ;; Vetted attrs fns
+  (cc/compile [:div (array-map :foo "bar") "foobar"])
+  (cc/compile [:div (hash-map :foo "bar") "foobar"])
+  (cc/compile [:div (sorted-map :foo "bar") "foobar"])
+  (cc/compile [:div (sorted-map-by compare :foo "bar") "foobar"])
   (cc/compile [:div (assoc {} :foo "bar") "foobar"])
   (cc/compile [:div (assoc-in {} [:foo :bar] "bar") "foobar"])
   (cc/compile [:div (merge {} {:foo "bar"}) "foobar"])
