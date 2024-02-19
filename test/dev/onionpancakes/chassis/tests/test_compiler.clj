@@ -23,6 +23,10 @@
   [arg]
   [:p arg])
 
+(defmacro example-elem-macro-nested
+  [arg]
+  `(example-elem-macro ~arg))
+
 (defmethod c/resolve-alias ::Foo
   [_ _ attrs content]
   [:p.alias attrs content])
@@ -55,6 +59,7 @@
     [:div example-attrs]
     [:div (example-elem-fn "foo")]
     [:div (example-elem-macro "foo")]
+    [:div (example-elem-macro-nested "foo")]
     [:div (for [i (range 4)]
             [:p i])]
     (map inc (range 5))
@@ -80,7 +85,10 @@
     [:div {:foo "bar"} "123"]
     [:div {:foo example-constant}]
     [:div [:p "foo"] [:p "bar"]]
+    (example-elem-macro "123")
+    (example-elem-macro-nested "123")
     [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
+    [:div [:p "foo"] (example-elem-macro-nested "123") [:p "bar"]]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
 ;; Attributes reflection tests

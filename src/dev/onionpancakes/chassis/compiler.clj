@@ -39,22 +39,27 @@
 (defmacro compile*
   [node]
   (binding [*env* &env]
-    (-> (c/tree-serializer branch? children node)
-        (compact)
-        (vec)
-        (vary-meta assoc ::c/content true))))
+    (let [rch (fn [node]
+                (mapv resolved (children node)))
+          ret (->> (resolved node)
+                   (c/tree-serializer branch? rch)
+                   (compact)
+                   (vec))]
+      (vary-meta ret assoc ::c/content true))))
 
 (defmacro compile
   [node]
   (binding [*env* &env]
-    (let [ret (-> (c/tree-serializer branch? children node)
-                  (compact)
-                  (vec)
-                  (vary-meta assoc ::c/content true))]
+    (let [rch (fn [node]
+                (mapv resolved (children node)))
+          ret (->> (resolved node)
+                   (c/tree-serializer branch? rch)
+                   (compact)
+                   (vec))]
       (case (count ret)
         0 nil
         1 (nth ret 0)
-        ret))))
+        (vary-meta ret assoc ::c/content true)))))
 
 ;; CompilableForm
 
@@ -135,7 +140,7 @@
   (evaluated? [_] false)
   ;; But not macro barriers.
   (resolved [this]
-    (macroexpand-1 this))
+    (macroexpand this))
   clojure.lang.Symbol
   (attrs? [this]
     (or (attrs-symbol? this)
@@ -350,12 +355,11 @@
   clojure.lang.IPersistentVector
   (branch? [_] true)
   (children [this]
-    (let [resv (resolved this)]
-      (if (c/element-vector? resv)
-        (if (c/alias-element? resv)
-          (compilable-alias-element-children resv)
-          (compilable-element-children resv))
-        resv)))
+    (if (c/element-vector? this)
+      (if (c/alias-element? this)
+        (compilable-alias-element-children this)
+        (compilable-element-children this))
+      this))
   Object
   (branch? [_] false)
   (children [_] nil)
