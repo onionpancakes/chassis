@@ -138,10 +138,11 @@
   (constant? [_] false)
   (evaluated? [_] false)
   (resolved [this]
-    (if-some [resolved (resolve *env* this)]
-      (if (var? resolved)
-        (deref resolved)
-        resolved)
+    (if-some [res (resolve *env* this)]
+      (let [val (if (var? res) @res res)]
+        ;; Use constant? as guard against un-embedable code.
+        ;; Works for now...
+        (if (constant? val) val this))
       this))
   ;; This catches Strings, constant Numbers, and a bit more.
   java.lang.constant.Constable
@@ -344,10 +345,9 @@
             (mapv compilable-node (compilable-alias-element-children (resolved this)))
             (mapv compilable-node (compilable-element-children (resolved this))))
           (mapv compilable-node (resolved this))))))
-  clojure.lang.ISeq
+  Object
   (compilable-node [this]
     (c/leaf (resolved this)))
-  Object
-  (compilable-node [this] (resolved this))
   nil
-  (compilable-node [_] (resolved nil)))
+  (compilable-node [_]
+    (c/leaf (resolved nil))))
