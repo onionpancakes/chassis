@@ -10,8 +10,8 @@
   (resolved [this] "Returns the form in which symbols and coll of symbols are resolved."))
 
 (defprotocol CompilableNode
-  (^Boolean branch? [this] "Returns true if branch node.")
-  (^Iterable children [this] "Returns children as Iterable."))
+  (branch? [this] "Returns true if branch node.")
+  (children [this] "Returns children as Iterable."))
 
 ;; Binding of macro &env, for resolving symbols.
 (def ^:dynamic *env* nil)
