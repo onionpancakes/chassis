@@ -50,8 +50,9 @@
                   (compact)
                   (vec)
                   (vary-meta assoc ::c/content true))]
-      (if (== (count ret) 1)
-        (nth ret 0)
+      (case (count ret)
+        0 nil
+        1 (nth ret 0)
         ret))))
 
 ;; CompilableForm
