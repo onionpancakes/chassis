@@ -97,11 +97,12 @@
   (evaluated? [_] true)
   (resolved [this] this)
   ;; Lists are compilation barriers.
-  ;; Not constants, not evaluated, not resolved.
-  clojure.lang.ISeq
+  ;; Not constants, not evaluated.
   (constant? [_] false)
   (evaluated? [_] false)
-  (resolved [this] this)
+  ;; But not macro barriers.
+  (resolved [this]
+    (macroexpand-1 this))
   clojure.lang.Symbol
   (constant? [_] false)
   (evaluated? [_] false)
@@ -309,7 +310,7 @@
           (mapv compilable-node (resolved this))))))
   clojure.lang.ISeq
   (compilable-node [this]
-    (-> (resolved this) ; Default no-op in CompilableForm for lists.
+    (-> (resolved this)
         (vary-meta assoc ::c/leaf true)))
   Object
   (compilable-node [this] (resolved this))
