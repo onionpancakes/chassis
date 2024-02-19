@@ -63,7 +63,7 @@
 
 ;; CompilableForm
 
-(def invokable-attrs-vars
+(def invocable-attrs-vars
   #{#'clojure.core/assoc
     #'clojure.core/assoc-in
     #'clojure.core/merge
@@ -71,10 +71,10 @@
     #'clojure.core/update-keys
     #'clojure.core/update-vals})
 
-(defn attrs-invokation?
+(defn attrs-invocation?
   [[sym & _]]
   (and (symbol? sym)
-       (contains? invokable-attrs-vars (resolve sym))))
+       (contains? invocable-attrs-vars (resolve sym))))
 
 (defn attrs-type?
   [clazz]
@@ -146,7 +146,7 @@
   (resolved [this] this)
   clojure.lang.ISeq
   (attrs? [this]
-    (attrs-invokation? this))
+    (attrs-invocation? this))
   (not-attrs? [this] false)
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.
