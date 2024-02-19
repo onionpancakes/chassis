@@ -3,6 +3,9 @@
             [dev.onionpancakes.chassis.compiler :as cc]
             [clojure.test :refer [deftest are is]]))
 
+(def example-constant
+  "foobar")
+
 (def example-deref
   (delay "foobar"))
 
@@ -41,6 +44,7 @@
     [:div.123 "foo"]
     [:div#foo.123 "foo"]
     [:div [:p 123] [:p 456]]
+    [:div example-constant]
     [:div example-deref]
     [:div example-fn]
     [:div nil]
@@ -58,6 +62,9 @@
     [::Foo nil]
     [::Foo nil "foobar"]
     [::Foo nil "foo" [::Foo "bar"]]
+    [::Foo {:foo "bar"}]
+    [::Foo example-fn]
+    [::Foo#foo.bar]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
 (deftest test-compile-full-compaction
@@ -68,6 +75,8 @@
     ""
     [:div]
     [:div#foo.bar "123"]
+    [:div {:foo "bar"} "123"]
+    [:div {:foo example-constant}]
     [:div [:p "foo"] [:p "bar"]]
     [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
