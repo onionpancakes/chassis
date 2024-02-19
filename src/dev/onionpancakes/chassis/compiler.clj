@@ -67,7 +67,7 @@
 
 ;; CompilableForm
 
-(def invocable-attrs-vars
+(def attrs-invocable-vars
   #{#'clojure.core/assoc
     #'clojure.core/assoc-in
     #'clojure.core/merge
@@ -78,7 +78,7 @@
 (defn attrs-invocation?
   [[sym & _]]
   (and (symbol? sym)
-       (contains? invocable-attrs-vars (resolve sym))))
+       (contains? attrs-invocable-vars (resolve sym))))
 
 (defn attrs-type?
   [clazz]
