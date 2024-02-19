@@ -58,6 +58,19 @@
 
 ;; CompilableForm
 
+(defn attrs-type?
+  [clazz]
+  (or (isa? clazz java.util.Map)
+      (isa? clazz clojure.lang.IPersistentMap)))
+
+(defn attrs-symbol?
+  [sym]
+  (if-some [tag-sym (:tag (meta sym))]
+    (do
+      (assert (symbol? tag-sym))
+      (attrs-type? (resolve tag-sym)))
+    false))
+
 (extend-protocol CompilableForm
   dev.onionpancakes.chassis.core.OpeningTag
   (attrs? [this] false)
@@ -114,7 +127,7 @@
   (evaluated? [_] true)
   (resolved [this] this)
   clojure.lang.ISeq
-  (attrs? [this] false)  ; todo detect by examining invoked var
+  (attrs? [this] false)         ; todo detect by examining invoked var
   (not-attrs? [this] false)
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.
@@ -125,16 +138,10 @@
     (macroexpand-1 this))
   clojure.lang.Symbol
   (attrs? [this]
-    ;; todo detect by examining *env*, global var, and type hints
-    #_
-    (when-some [b (get *env* this)]
-      (println :tag (.-tag b))
-      (println :init (.-init b))
-      (println :type (type (.-init b)))
-      #_#_
-      (println :fexpr (.eval (.-fexpr (.-init b))))
-      (println :init-tag (.-tag (.-init b))))
-    false)
+    (or (attrs-symbol? this)
+        (if-some [entry (find *env* this)]
+          (attrs-symbol? (key entry))
+          false)))
   (not-attrs? [this] false)
   (constant? [_] false)
   (evaluated? [_] false)

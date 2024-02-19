@@ -71,8 +71,8 @@
 
 (deftest test-compile-full-compaction
   (are [node] (let [ret (cc/compile node)]
-                 (and (instance? dev.onionpancakes.chassis.core.RawString ret)
-                      (= (c/fragment ret) (c/html node))))
+                (and (instance? dev.onionpancakes.chassis.core.RawString ret)
+                     (= (c/fragment ret) (c/html node))))
     nil
     ""
     [:div]
@@ -82,3 +82,15 @@
     [:div [:p "foo"] [:p "bar"]]
     [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
+
+(deftest test-compile-attrs-reflection
+  (let [attrs nil
+        ret   (cc/compile [:div ^java.util.Map attrs "foobar"])]
+    ;; how to write test???"
+    ;; macroexpand doesn't capture &env
+    )
+  (let [^java.util.Map attrs nil
+        ret                  (cc/compile [:div attrs "foobar"])]
+    ;; how to write test???"
+    ;; macroexpand doesn't capture &env
+    ))
