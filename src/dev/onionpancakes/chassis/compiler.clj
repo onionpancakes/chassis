@@ -93,7 +93,7 @@
       (attrs-type? (resolve tag-sym)))
     false))
 
-(defn attrs-binding?
+(defn attrs-compiler-binding?
   [^clojure.lang.Compiler$LocalBinding b]
   (attrs-compiler-expr? (.-init b)))
 
@@ -185,7 +185,7 @@
     (or (attrs-type-hinted? this)
         (if-some [entry (find *env* this)]
           (or (attrs-type-hinted? (key entry))
-              (attrs-binding? (val entry)))
+              (attrs-compiler-binding? (val entry)))
           false)))
   (not-attrs? [this] false)
   (constant? [_] false)
