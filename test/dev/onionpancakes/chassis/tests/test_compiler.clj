@@ -95,15 +95,19 @@
     (when (identical? (::cc/warn m) :ambig-attrs)
       (swap! ambig-attrs-count inc))))
 
-(try
-  (add-tap count-ambig-attrs)
+(add-tap count-ambig-attrs)
+
+(do
   ;; Compile attrs reflection examples
   (let [attrs nil]
     (cc/compile [:div ^java.util.Map attrs "foobar"]))
   (let [^java.util.Map attrs nil]
     (cc/compile [:div attrs "foobar"]))
-  (finally
-    (remove-tap count-ambig-attrs)))
+  (defmethod c/resolve-alias ::ReflectiveAttrsAlias
+    [_ _ ^java.util.Map attrs content]
+    (cc/compile [:div.reflective-alias-attrs attrs content])))
+
+(remove-tap count-ambig-attrs)
 
 (deftest test-compile-attrs-reflection
   (is (zero? @ambig-attrs-count)))
