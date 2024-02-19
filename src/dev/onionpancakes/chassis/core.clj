@@ -74,6 +74,22 @@
 
 ;; Reduce / HTML
 
+(deftype Leaf [value]
+  Node
+  (branch? [this] false)
+  (children [this] nil))
+
+(defn leaf
+  "Wraps value such that reduce-node will not branch on the value."
+  [value]
+  (Leaf. value))
+
+(defn leaf?
+  "Returns true if value is Leaf."
+  {:tag Boolean}
+  [value]
+  (instance? Leaf value))
+
 (def stack-max-depth 1024)
 
 (defn reduce-node
@@ -94,7 +110,9 @@
                     (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                   (.addFirst stack cur)
                   (recur (.iterator (children node)) ret))
-                (recur cur (rf ret node))))
+                (if (leaf? node)
+                  (recur cur (rf ret (.-value ^Leaf node)))
+                  (recur cur (rf ret node)))))
             (recur (.pollFirst stack) ret))
           ret)))))
 
@@ -1326,8 +1344,7 @@
         (element-children this))
       this))
   clojure.lang.ISeq
-  (branch? [this]
-    (not (get (meta this) ::leaf)))
+  (branch? [this] true)
   (children [this] this)
   clojure.core.Eduction
   (branch? [this] true)

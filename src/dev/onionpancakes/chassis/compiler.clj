@@ -346,8 +346,7 @@
           (mapv compilable-node (resolved this))))))
   clojure.lang.ISeq
   (compilable-node [this]
-    (-> (resolved this)
-        (vary-meta assoc ::c/leaf true)))
+    (c/leaf (resolved this)))
   Object
   (compilable-node [this] (resolved this))
   nil
