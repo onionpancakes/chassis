@@ -11,11 +11,11 @@
   (not-attrs? [this] "Returns true if form is not attrs. Returns false if it might be attrs.")
   (constant? [this] "Returns true if form is constant, safe to make fragments with at compile time.")
   (evaluated? [this] "Returns true if form is evaluated, safe to make tokens with at compile time.")
-  (resolved [this] "Returns the form in which symbols and coll of symbols are resolved."))
+  (resolved [this] "Returns the form in which symbols are resolved and outer macros expanded."))
 
 (defprotocol CompilableNode
   (branch? [this] "Returns true if branch node.")
-  (children [this] "Returns children as Iterable."))
+  (children [this] "Returns children of node."))
 
 ;; Binding of macro &env, for resolving symbols.
 (def ^:dynamic *env* nil)
