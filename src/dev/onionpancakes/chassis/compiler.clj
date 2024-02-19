@@ -63,6 +63,19 @@
 
 ;; CompilableForm
 
+(def invokable-attrs-vars
+  #{#'clojure.core/assoc
+    #'clojure.core/assoc-in
+    #'clojure.core/merge
+    #'clojure.core/select-keys
+    #'clojure.core/update-keys
+    #'clojure.core/update-vals})
+
+(defn attrs-invokation?
+  [[sym & _]]
+  (and (symbol? sym)
+       (contains? invokable-attrs-vars (resolve sym))))
+
 (defn attrs-type?
   [clazz]
   (or (isa? clazz java.util.Map)
@@ -132,7 +145,8 @@
   (evaluated? [_] true)
   (resolved [this] this)
   clojure.lang.ISeq
-  (attrs? [this] false)         ; todo detect by examining invoked var
+  (attrs? [this]
+    (attrs-invokation? this))
   (not-attrs? [this] false)
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.

@@ -101,7 +101,7 @@
 (defonce count-ambig-attrs
   (fn [m]
     (when (identical? (::cc/warn m) :ambig-attrs)
-      (swap! ambig-attrs-count inc))))
+      (swap! (deref #'ambig-attrs-count) inc))))
 
 (add-tap count-ambig-attrs)
 
@@ -113,7 +113,14 @@
     (cc/compile [:div attrs "foobar"]))
   (defmethod c/resolve-alias ::ReflectiveAttrsAlias
     [_ _ ^java.util.Map attrs content]
-    (cc/compile [:div.reflective-alias-attrs attrs content])))
+    (cc/compile [:div.reflective-alias-attrs attrs content]))
+  ;; Vetted attrs fns
+  (cc/compile [:div (assoc {} :foo "bar") "foobar"])
+  (cc/compile [:div (assoc-in {} [:foo :bar] "bar") "foobar"])
+  (cc/compile [:div (merge {} {:foo "bar"}) "foobar"])
+  (cc/compile [:div (select-keys {} [:foo]) "foobar"])
+  (cc/compile [:div (update-keys {} identity) "foobar"])
+  (cc/compile [:div (update-vals {} identity) "foobar"]))
 
 (remove-tap count-ambig-attrs)
 
