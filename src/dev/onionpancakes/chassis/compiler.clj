@@ -224,10 +224,6 @@
   (and (>= (count elem) 2)
        (attrs? (nth elem 1))))
 
-(defn attrs-present-evaluated?
-  [elem]
-  (evaluated? (nth elem 1)))
-
 (defn attrs-absent?
   [[_ x :as elem]]
   (or (<= (count elem) 1)
@@ -302,7 +298,7 @@
 (defn compilable-alias-element-children
   [elem]
   (if (attrs-present? elem)
-    (if (attrs-present-evaluated? elem)
+    (if (evaluated? (nth elem 1))
       (compilable-alias-element-children-attrs-present-evaluated elem)
       (compilable-alias-element-children-attrs-present elem))
     (if (attrs-absent? elem)
@@ -381,7 +377,7 @@
 (defn compilable-element-children
   [elem]
   (if (attrs-present? elem)
-    (if (attrs-present-evaluated? elem)
+    (if (evaluated? (nth elem 1))
       (compilable-element-children-attrs-present-evaluated elem)
       (compilable-element-children-attrs-present elem))
     (if (attrs-absent? elem)
