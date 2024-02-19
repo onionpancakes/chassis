@@ -83,14 +83,27 @@
     [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
+;; Attributes reflection tests
+;; Warnings are emitted at compile time,
+;; so warning detection is a side effect?
+
+(def ambig-attrs-count
+  (atom 0))
+
+(defonce count-ambig-attrs
+  (fn [m]
+    (when (identical? (::cc/warn m) :ambig-attrs)
+      (swap! ambig-attrs-count inc))))
+
+(try
+  (add-tap count-ambig-attrs)
+  ;; Compile attrs reflection examples
+  (let [attrs nil]
+    (cc/compile [:div ^java.util.Map attrs "foobar"]))
+  (let [^java.util.Map attrs nil]
+    (cc/compile [:div attrs "foobar"]))
+  (finally
+    (remove-tap count-ambig-attrs)))
+
 (deftest test-compile-attrs-reflection
-  (let [attrs nil
-        ret   (cc/compile [:div ^java.util.Map attrs "foobar"])]
-    ;; how to write test???"
-    ;; macroexpand doesn't capture &env
-    )
-  (let [^java.util.Map attrs nil
-        ret                  (cc/compile [:div attrs "foobar"])]
-    ;; how to write test???"
-    ;; macroexpand doesn't capture &env
-    ))
+  (is (zero? @ambig-attrs-count)))

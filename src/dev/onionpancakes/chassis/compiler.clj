@@ -263,7 +263,9 @@
       (compilable-alias-element-children-attrs-present elem))
     (if (attrs-absent? elem)
       (compilable-alias-element-children-attrs-absent elem)
-      (compilable-alias-element-children-attrs-ambig elem))))
+      (do
+        (tap> {::warn :ambig-attrs ::elem elem})
+        (compilable-alias-element-children-attrs-ambig elem)))))
 
 (defn compilable-element-children-attrs-present-evaluated
   [elem]
@@ -340,7 +342,9 @@
       (compilable-element-children-attrs-present elem))
     (if (attrs-absent? elem)
       (compilable-element-children-attrs-absent elem)
-      (compilable-element-children-attrs-ambig elem))))
+      (do
+        (tap> {::warn :ambig-attrs ::elem elem})
+        (compilable-element-children-attrs-ambig elem)))))
 
 (extend-protocol CompilableNode
   clojure.lang.IPersistentVector
