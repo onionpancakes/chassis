@@ -120,7 +120,10 @@
   (cc/compile [:div (merge {} {:foo "bar"}) "foobar"])
   (cc/compile [:div (select-keys {} [:foo]) "foobar"])
   (cc/compile [:div (update-keys {} identity) "foobar"])
-  (cc/compile [:div (update-vals {} identity) "foobar"]))
+  (cc/compile [:div (update-vals {} identity) "foobar"])
+  ;; Type hinted invocation
+  (cc/compile [:div ^java.util.Map (:foo {:foo {}}) "foobar"])
+  )
 
 (remove-tap count-ambig-attrs)
 

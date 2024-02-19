@@ -81,9 +81,9 @@
   (or (isa? clazz java.util.Map)
       (isa? clazz clojure.lang.IPersistentMap)))
 
-(defn attrs-symbol?
-  [sym]
-  (if-some [tag-sym (:tag (meta sym))]
+(defn attrs-type-hinted?
+  [obj]
+  (if-some [tag-sym (:tag (meta obj))]
     (do
       (assert (symbol? tag-sym))
       (attrs-type? (resolve tag-sym)))
@@ -146,7 +146,8 @@
   (resolved [this] this)
   clojure.lang.ISeq
   (attrs? [this]
-    (attrs-invocation? this))
+    (or (attrs-type-hinted? this)
+        (attrs-invocation? this)))
   (not-attrs? [this] false)
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.
@@ -157,9 +158,9 @@
     (macroexpand this))
   clojure.lang.Symbol
   (attrs? [this]
-    (or (attrs-symbol? this)
+    (or (attrs-type-hinted? this)
         (if-some [entry (find *env* this)]
-          (attrs-symbol? (key entry))
+          (attrs-type-hinted? (key entry))
           false)))
   (not-attrs? [this] false)
   (constant? [_] false)
