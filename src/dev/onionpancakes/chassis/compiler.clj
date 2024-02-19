@@ -89,9 +89,11 @@
   (attrs? [this] false)
   (not-attrs? [this] true)
   (constant? [this]
-    (every? constant? this))
+    (and (constant? (key this))
+         (constant? (val this))))
   (evaluated? [this]
-    (every? evaluated? this))
+    (and (evaluated? (key this))
+         (evaluated? (val this))))
   (resolved [this]
     (clojure.lang.MapEntry. (resolved (key this))
                             (resolved (val this))))
