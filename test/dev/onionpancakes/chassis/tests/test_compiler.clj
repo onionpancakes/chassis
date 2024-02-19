@@ -57,4 +57,17 @@
     [::Foo]
     [::Foo nil]
     [::Foo nil "foobar"]
-    [::Foo nil "foo" [::Foo "bar"]]))
+    [::Foo nil "foo" [::Foo "bar"]]
+    [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
+
+(deftest test-compile-full-compaction
+  (are [value] (let [ret (cc/compile value)]
+                 (and (instance? dev.onionpancakes.chassis.core.RawString ret)
+                      (= (c/fragment ret) (c/html value))))
+    nil
+    ""
+    [:div]
+    [:div#foo.bar "123"]
+    [:div [:p "foo"] [:p "bar"]]
+    [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
+    [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
