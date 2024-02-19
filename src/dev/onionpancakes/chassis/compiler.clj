@@ -10,7 +10,8 @@
   (resolved [this] "Returns the form in which symbols and coll of symbols are resolved."))
 
 (defprotocol CompilableNode
-  (compilable-node [this] "Returns Node when traversed via reduce-node emits compiled token forms."))
+  (^Boolean branch? [this] "Returns true if branch node.")
+  (^Iterable children [this] "Returns children as Iterable."))
 
 ;; Binding of macro &env, for resolving symbols.
 (def ^:dynamic *env* nil)
@@ -38,8 +39,7 @@
 (defmacro compile*
   [node]
   (binding [*env* &env]
-    (-> (compilable-node node)
-        (c/token-serializer)
+    (-> (c/tree-serializer branch? children node)
         (compact)
         (vec)
         (vary-meta assoc ::c/content true))))
@@ -47,8 +47,7 @@
 (defmacro compile
   [node]
   (binding [*env* &env]
-    (let [ret (-> (compilable-node node)
-                  (c/token-serializer)
+    (let [ret (-> (c/tree-serializer branch? children node)
                   (compact)
                   (vec)
                   (vary-meta assoc ::c/content true))]
@@ -338,18 +337,16 @@
 
 (extend-protocol CompilableNode
   clojure.lang.IPersistentVector
-  (compilable-node [this]
-    (reify c/Node
-      (branch? [_] true)
-      (children [_]
-        (if (c/element-vector? this) ;; todo resolve before this
-          (if (c/alias-element? this)
-            (mapv compilable-node (compilable-alias-element-children (resolved this)))
-            (mapv compilable-node (compilable-element-children (resolved this))))
-          (mapv compilable-node (resolved this))))))
+  (branch? [_] true)
+  (children [this]
+    (if (c/element-vector? this) ;; todo resolve before this
+      (if (c/alias-element? this)
+        (compilable-alias-element-children (resolved this))
+        (compilable-element-children (resolved this)))
+      (resolved this)))
   Object
-  (compilable-node [this]
-    (c/leaf (resolved this)))
+  (branch? [_] false)
+  (children [_] nil)
   nil
-  (compilable-node [_]
-    (c/leaf (resolved nil))))
+  (branch? [_] false)
+  (children [_] nil))

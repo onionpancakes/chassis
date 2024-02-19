@@ -74,28 +74,12 @@
 
 ;; Reduce / HTML
 
-(deftype Leaf [value]
-  Node
-  (branch? [this] false)
-  (children [this] nil))
-
-(defn leaf
-  "Wraps value such that reduce-node will not branch on the value."
-  [value]
-  (Leaf. value))
-
-(defn leaf?
-  "Returns true if value is Leaf."
-  {:tag Boolean}
-  [value]
-  (instance? Leaf value))
-
 (def stack-max-depth 1024)
 
-(defn reduce-node
-  "Like reduce, but iterates over root Node in depth first search order.
+(defn reduce-tree
+  "Like reduce, but iterates over a tree depth first search order.
   Leaf nodes are accumulated with the reduction function in order they are encountered."
-  [rf init root]
+  [branch? children rf init root]
   (let [stack     (java.util.ArrayDeque. 32)
         max-depth (int stack-max-depth)]
     (loop [cur (.iterator ^Iterable (vector root)) ret init]
@@ -109,12 +93,16 @@
                   (if (>= (.size stack) max-depth)
                     (throw (IllegalArgumentException. "Stack max depth exceeded.")))
                   (.addFirst stack cur)
-                  (recur (.iterator (children node)) ret))
-                (if (leaf? node)
-                  (recur cur (rf ret (.-value ^Leaf node)))
-                  (recur cur (rf ret node)))))
+                  (recur (.iterator ^Iterable (children node)) ret))
+                (recur cur (rf ret node))))
             (recur (.pollFirst stack) ret))
           ret)))))
+
+(defn reduce-node
+  "Like reduce, but iterates over root Node in depth first search order.
+  Leaf nodes are accumulated with the reduction function in order they are encountered."
+  [rf init root]
+  (reduce-tree branch? children rf init root))
 
 (defn append-fragment
   "Appends HTML token fragment to an appendable target.
@@ -142,23 +130,27 @@
 
 ;; Serializer
 
-(deftype TokenSerializer [root]
+(deftype TreeSerializer [branch-fn children-fn root]
   clojure.lang.IReduceInit
   (reduce [_ rf init]
-    (reduce-node rf init root))
+    (reduce-tree branch-fn children-fn rf init root))
   clojure.lang.Seqable
   (seq [this]
     (seq (vec this))))
 
+(defn tree-serializer
+  [branch-fn children-fn root]
+  (TreeSerializer. branch-fn children-fn root))
+
 (defn token-serializer
   "Returns a reducible and seqable emitting Tokens."
   [root]
-  (TokenSerializer. root))
+  (tree-serializer branch? children root))
 
 (defn html-serializer
   "Returns a reducible and seqable emitting HTML fragments."
   [root]
-  (eduction (map fragment) (TokenSerializer. root)))
+  (eduction (map fragment) (token-serializer root)))
 
 ;; Append to
 
