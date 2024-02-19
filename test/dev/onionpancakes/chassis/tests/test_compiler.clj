@@ -114,6 +114,8 @@
   (defmethod c/resolve-alias ::ReflectiveAttrsAlias
     [_ _ ^java.util.Map attrs content]
     (cc/compile [:div.reflective-alias-attrs attrs content]))
+  ;; Type hinted invocation
+  (cc/compile [:div ^java.util.Map (:foo {:foo {}}) "foobar"])
   ;; Vetted attrs fns
   (cc/compile [:div (assoc {} :foo "bar") "foobar"])
   (cc/compile [:div (assoc-in {} [:foo :bar] "bar") "foobar"])
@@ -121,8 +123,17 @@
   (cc/compile [:div (select-keys {} [:foo]) "foobar"])
   (cc/compile [:div (update-keys {} identity) "foobar"])
   (cc/compile [:div (update-vals {} identity) "foobar"])
-  ;; Type hinted invocation
-  (cc/compile [:div ^java.util.Map (:foo {:foo {}}) "foobar"])
+  ;; LocalBinded attrs literals
+  (let [attrs nil]
+    (cc/compile [:div attrs "foobar"]))
+  (let [attrs {}]
+    (cc/compile [:div attrs "foobar"]))
+  ;; ConstantExpr not public, can't determine constant attrs case.
+  #_
+  (let [attrs {:foo "bar"}]
+    (cc/compile [:div attrs "foobar"]))
+  (let [attrs {:foo (identity "bar")}]
+    (cc/compile [:div attrs "foobar"]))
   )
 
 (remove-tap count-ambig-attrs)

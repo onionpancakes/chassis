@@ -2,6 +2,10 @@
   (:refer-clojure :exclude [compile])
   (:require [dev.onionpancakes.chassis.core :as c]))
 
+;; Examine compiler binding expressions for attrs maps.
+(defprotocol AttributesCompilerExpr
+  (attrs-compiler-expr? [this] "Returns true if clojure.lang.Compiler$Expr is attrs."))
+
 (defprotocol CompilableForm
   (attrs? [this] "Returns true if form is attrs. Returns false if it might be attrs.")
   (not-attrs? [this] "Returns true if form is not attrs. Returns false if it might be attrs.")
@@ -89,6 +93,26 @@
       (attrs-type? (resolve tag-sym)))
     false))
 
+(defn attrs-binding?
+  [^clojure.lang.Compiler$LocalBinding b]
+  (attrs-compiler-expr? (.-init b)))
+
+(extend-protocol AttributesCompilerExpr
+  clojure.lang.Compiler$NilExpr
+  (attrs-compiler-expr? [_] true)
+  clojure.lang.Compiler$EmptyExpr
+  (attrs-compiler-expr? [this]
+    (attrs-type? (.getJavaClass this)))
+  clojure.lang.Compiler$ConstantExpr
+  (attrs-compiler-expr? [this]
+    ;; Class not public for some reason, can't call method.
+    #_(attrs-type? (.getJavaClass this))
+    false)
+  clojure.lang.Compiler$MapExpr
+  (attrs-compiler-expr? [this] true)
+  Object
+  (attrs-compiler-expr? [_] false))
+
 (extend-protocol CompilableForm
   dev.onionpancakes.chassis.core.OpeningTag
   (attrs? [this] false)
@@ -160,7 +184,8 @@
   (attrs? [this]
     (or (attrs-type-hinted? this)
         (if-some [entry (find *env* this)]
-          (attrs-type-hinted? (key entry))
+          (or (attrs-type-hinted? (key entry))
+              (attrs-binding? (val entry)))
           false)))
   (not-attrs? [this] false)
   (constant? [_] false)
@@ -201,7 +226,6 @@
 
 (defn attrs-present-evaluated?
   [elem]
-  {:pre [(attrs-present? elem)]}
   (evaluated? (nth elem 1)))
 
 (defn attrs-absent?
