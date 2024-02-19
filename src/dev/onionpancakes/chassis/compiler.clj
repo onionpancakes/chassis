@@ -339,11 +339,12 @@
   clojure.lang.IPersistentVector
   (branch? [_] true)
   (children [this]
-    (if (c/element-vector? this) ;; todo resolve before this
-      (if (c/alias-element? this)
-        (compilable-alias-element-children (resolved this))
-        (compilable-element-children (resolved this)))
-      (resolved this)))
+    (let [resv (resolved this)]
+      (if (c/element-vector? resv)
+        (if (c/alias-element? resv)
+          (compilable-alias-element-children resv)
+          (compilable-element-children resv))
+        resv)))
   Object
   (branch? [_] false)
   (children [_] nil)
