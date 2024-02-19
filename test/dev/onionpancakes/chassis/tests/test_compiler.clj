@@ -68,9 +68,9 @@
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
 (deftest test-compile-full-compaction
-  (are [value] (let [ret (cc/compile value)]
+  (are [node] (let [ret (cc/compile node)]
                  (and (instance? dev.onionpancakes.chassis.core.RawString ret)
-                      (= (c/fragment ret) (c/html value))))
+                      (= (c/fragment ret) (c/html node))))
     nil
     ""
     [:div]
