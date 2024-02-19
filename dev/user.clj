@@ -10,8 +10,22 @@
             [clojure.walk :refer [macroexpand-all]]))
 
 (defmethod c/resolve-alias ::Foo
-  [_ _ {:as attrs} content]
-  [:div attrs content])
+  [_ _ attrs content]
+  [:div.foo attrs content])
+
+(defmethod c/resolve-alias ::Fooc
+  [_ _ ^java.util.Map attrs content]
+  (cc/compile
+   [:div.fooc attrs content]))
+
+(defmethod c/resolve-alias ::Layoutc
+  [_ _ attrs content]
+  (cc/compile
+   [:html
+    [:head
+     [:link {:href "/foobar" :rel "stylesheet"}]]
+    [:body
+     [:main.layout ^java.util.Map attrs content]]]))
 
 (def lorem
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")

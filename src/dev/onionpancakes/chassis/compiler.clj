@@ -3,6 +3,8 @@
   (:require [dev.onionpancakes.chassis.core :as c]))
 
 (defprotocol CompilableForm
+  (attrs? [this] "Returns true if form is attrs. Returns false if it might be attrs.")
+  (not-attrs? [this] "Returns true if form is not attrs. Returns false if it might be attrs.")
   (constant? [this] "Returns true if form is constant, safe to make fragments with at compile time.")
   (evaluated? [this] "Returns true if form is evaluated, safe to make tokens with at compile time.")
   (resolved [this] "Returns the form in which symbols and coll of symbols are resolved."))
@@ -11,7 +13,7 @@
   (compilable-node [this] "Returns Node when traversed via reduce-node emits compiled token forms."))
 
 ;; Binding of macro &env, for resolving symbols.
-(def ^:dynamic *env*)
+(def ^:dynamic *env* nil)
 
 ;; Compile
 
@@ -59,6 +61,8 @@
 
 (extend-protocol CompilableForm
   dev.onionpancakes.chassis.core.OpeningTag
+  (attrs? [this] false)
+  (not-attrs? [this] true)
   (constant? [this]
     ;; Attrs is evaluated, but may not constant.
     (constant? (.-attrs this)))
@@ -70,14 +74,20 @@
                     (.-head-class this)
                     (resolved (.-attrs this))))
   dev.onionpancakes.chassis.core.ClosingTag
+  (attrs? [this] false)
+  (not-attrs? [this] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
   dev.onionpancakes.chassis.core.RawString
+  (attrs? [this] false)
+  (not-attrs? [this] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
   clojure.lang.MapEntry
+  (attrs? [this] false)
+  (not-attrs? [this] true)
   (constant? [this]
     (every? constant? this))
   (evaluated? [this]
@@ -86,6 +96,10 @@
     (clojure.lang.MapEntry. (resolved (key this))
                             (resolved (val this))))
   clojure.lang.IPersistentCollection
+  (attrs? [this]
+    (map? this))
+  (not-attrs? [this]
+    (not (map? this)))
   (constant? [this]
     (every? constant? this))
   (evaluated? [this]
@@ -93,9 +107,14 @@
   (resolved [this]
     (into (empty this) (map resolved) this))
   clojure.lang.Keyword
+  (attrs? [this] false)
+  (not-attrs? [this] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
+  clojure.lang.ISeq
+  (attrs? [this] false)  ; todo detect by examining invoked var
+  (not-attrs? [this] false)
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.
   (constant? [_] false)
@@ -104,6 +123,18 @@
   (resolved [this]
     (macroexpand-1 this))
   clojure.lang.Symbol
+  (attrs? [this]
+    ;; todo detect by examining *env*, global var, and type hints
+    #_
+    (when-some [b (get *env* this)]
+      (println :tag (.-tag b))
+      (println :init (.-init b))
+      (println :type (type (.-init b)))
+      #_#_
+      (println :fexpr (.eval (.-fexpr (.-init b))))
+      (println :init-tag (.-tag (.-init b))))
+    false)
+  (not-attrs? [this] false)
   (constant? [_] false)
   (evaluated? [_] false)
   (resolved [this]
@@ -114,14 +145,20 @@
       this))
   ;; This catches Strings, constant Numbers, and a bit more.
   java.lang.constant.Constable
+  (attrs? [this] false)
+  (not-attrs? [this] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
   Object
+  (attrs? [this] false)
+  (not-attrs? [this] false)
   (constant? [_] false)
   (evaluated? [_] true)
   (resolved [this] this)
   nil
+  (attrs? [this] true)
+  (not-attrs? [this] false)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [_] nil))
@@ -130,19 +167,18 @@
 
 (defn attrs-present?
   [elem]
-  (c/has-attrs? elem))
+  (and (>= (count elem) 2)
+       (attrs? (nth elem 1))))
 
 (defn attrs-present-evaluated?
   [elem]
-  (let [attrs (nth elem 1)
-        _     (assert (c/attrs? attrs))]
-    (evaluated? attrs)))
+  {:pre [(attrs-present? elem)]}
+  (evaluated? (nth elem 1)))
 
 (defn attrs-absent?
   [[_ x :as elem]]
-  (or (== (count elem) 1)
-      (and (vector? x) (c/element-vector? x))
-      (and (not (c/attrs? x)) (evaluated? x))))
+  (or (<= (count elem) 1)
+      (not-attrs? (nth elem 1))))
 
 (defn compilable-alias-element-children-attrs-present-evaluated
   [elem]
@@ -303,7 +339,7 @@
     (reify c/Node
       (branch? [_] true)
       (children [_]
-        (if (c/element-vector? this)
+        (if (c/element-vector? this) ;; todo resolve before this
           (if (c/alias-element? this)
             (mapv compilable-node (compilable-alias-element-children (resolved this)))
             (mapv compilable-node (compilable-element-children (resolved this))))
