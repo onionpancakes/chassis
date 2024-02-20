@@ -271,7 +271,7 @@
     [`(c/resolve-alias ~metadata
                        ~tag
                        ~(c/make-head-attrs head-id head-class attrs)
-                       (compile ~(c/content-subvec elem 2)))]))
+                       (compile* ~(c/content-subvec elem 2)))]))
 
 (defn compilable-alias-element-children-attrs-present
   [elem]
@@ -287,7 +287,7 @@
                        ~(if (or head-id head-class)
                          `(c/make-head-attrs ~head-id ~head-class ~attrs)
                          attrs)
-                       (compile ~(c/content-subvec elem 2)))]))
+                       (compile* ~(c/content-subvec elem 2)))]))
 
 (defn compilable-alias-element-children-attrs-absent
   [elem]
@@ -300,7 +300,7 @@
     [`(c/resolve-alias ~metadata
                        ~tag
                        ~(c/make-head-attrs head-id head-class)
-                       (compile ~(c/content-subvec elem 1)))]))
+                       (compile* ~(c/content-subvec elem 1)))]))
 
 (defn compilable-alias-element-children-attrs-ambig
   [elem]
@@ -319,11 +319,11 @@
                            ~(if (or head-id head-class)
                               `(c/make-head-attrs ~head-id ~head-class ~attrs-sym)
                               attrs-sym)
-                           (compile ~(c/content-subvec elem 2)))
+                           (compile* ~(c/content-subvec elem 2)))
           (c/resolve-alias ~metadata
                            ~tag
                            ~(c/make-head-attrs head-id head-class)
-                           (compile ~[attrs-sym (c/content-subvec elem 2)]))))]))
+                           (compile* ~[attrs-sym (c/content-subvec elem 2)]))))]))
 
 (defn compilable-alias-element-children
   [elem]
