@@ -245,17 +245,17 @@
 
 (defn send-warn-on-ambig-attrs!
   [form elem]
-  (tap> {::type :warn-on-ambig-attrs
-         ::form form
-         ::elem elem}))
+  (tap> {::warning :warn-on-ambig-attrs
+         ::form    form
+         ::elem    elem}))
 
 (defonce warn-on-ambig-attrs
-  (fn [x]
-    (if (identical? (::type x) :warn-on-ambig-attrs)
+  (fn [{::keys [warning form elem]}]
+    (if (identical? warning :warn-on-ambig-attrs)
       (binding [*out* *err*]
-        (println "Compiling element with ambiguous attrs:" (::elem x))
-        (println "Found within form:" (meta (::form x)))
-        (println (::form x))
+        (println "Compiling element with ambiguous attrs:" elem)
+        (println "Found within form:" (meta form))
+        (println form)
         (println)))))
 
 (defn set-warn-on-ambig-attrs! []

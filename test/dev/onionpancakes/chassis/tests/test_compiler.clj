@@ -95,15 +95,15 @@
 ;; Warnings are emitted at compile time,
 ;; so warning detection is a side effect?
 
-(def ambig-attrs-count
-  (atom 0))
+(def ambig-attrs-warnings
+  (atom {}))
 
-(defonce count-ambig-attrs
-  (fn [m]
-    (when (identical? (::cc/type m) :warn-on-ambig-attrs)
-      (swap! (deref #'ambig-attrs-count) inc))))
+(defonce track-ambig-attrs-warnings
+  (fn [{::cc/keys [warning form elem] :as msg}]
+    (when (identical? warning :warn-on-ambig-attrs)
+      (swap! ambig-attrs-warnings assoc elem msg))))
 
-(add-tap count-ambig-attrs)
+(add-tap track-ambig-attrs-warnings)
 
 (do
   ;; Compile attrs reflection examples
@@ -142,7 +142,8 @@
     (cc/compile [:div attrs "foobar"]))
   )
 
-(remove-tap count-ambig-attrs)
+(remove-tap track-ambig-attrs-warnings)
 
 (deftest test-compile-attrs-reflection
-  (is (zero? @ambig-attrs-count)))
+  (doseq [[elem warning] @ambig-attrs-warnings]
+    (is false (str "Ambig attrs with elem: " elem))))
