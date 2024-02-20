@@ -532,7 +532,7 @@ Slap a `cc/compile` wherever speed is needed! Then call `c/html` like normal to 
 
 ## Compile Usage
 
-Chassis provides compiling macros `cc/compile` and `cc/compile*`. They return compiled versions of the HTML tree. Use them to compile elements before passing them to `c/html`.
+Chassis provides compiling macros `cc/compile` and `cc/compile*`. They take **one** argument, the root HTML tree, and they return compiled versions of the HTML tree. Use them to compile elements before passing them to `c/html`.
 
 ```clojure
 (defn my-element []
@@ -691,6 +691,100 @@ Certain functions in `clojure.core` which returns maps are consider as attribute
   (cc/compile
     [:div (merge {:foo "bar"} attrs)
       content]))
+```
+
+## Compilation Barriers
+
+### Function Calls
+
+Functions calls, and generally any list values, block compilation traversal. Call `cc/compile` again to compile forms within.
+
+```clojure
+(defn comp-blocked
+  []
+  [:p "blocked"])
+
+(cc/compile [:div "foo" (comp-blocked) "bar"])
+
+;; Results in:
+[#object[dev.onionpancakes.chassis.core.RawString 0x67574bda "<div>foo"] 
+ [:p "blocked"]
+ #object[dev.onionpancakes.chassis.core.RawString 0x565edf06 "bar</div>"]]
+```
+
+### Alias Elements
+
+Alias elements are implemented as `c/resolve-alias` function calls. As a result, they also block compilation. However, the arguments pass to `c/resolve-alias` will be compiled.
+
+```clojure
+(defmethod c/resolve-alias ::FooComp
+  [_ _ attrs content]
+  [:div attrs content])
+
+(pprint (clojure.walk/macroexpand-all
+  '(cc/compile
+    [::FooComp {:foo "bar"}
+     [:p "content 1"]
+     [:p "content 2"]])))
+
+;; Results in:
+(dev.onionpancakes.chassis.core/resolve-alias
+ nil
+ :user/FooComp
+ {:foo "bar"}
+ [#object[dev.onionpancakes.chassis.core.RawString 0x2da06c23 "<p>content 1</p><p>content 2</p>"]])
+```
+
+### Macro Calls
+
+Macros are expanded during compilation. Like function calls, those which expand into lists block compilation.
+
+```clojure
+(pprint
+  (cc/compile
+    [:ol
+     (for [i (range 4)]
+       [:li i])]))
+
+;; Results in:
+[[#object[dev.onionpancakes.chassis.core.OpeningTag 0xe119f5b "<ol>"]
+  ([:li 0] [:li 1] [:li 2] [:li 3])]
+ #object[dev.onionpancakes.chassis.core.RawString 0x7a434ee8 "</ol>"]]
+
+;; Manually call compile in the inner form to reach inside.
+(pprint
+  (cc/compile
+    [:ol
+     (for [i (range 4)]
+       (cc/compile [:li i]))]))
+```
+
+Macros which expand into non-lists can participate in compilation. Therefore, it is possible to use macros to abstract element components in a compile friendly way.
+
+Whether or not if this is a good idea is left to the user.
+
+```clojure
+(defmacro NonBlockingElement
+  [content]
+  [:p nil content])
+
+(cc/compile [:div (NonBlockingElement "not-blocked")])
+
+;; Results in:
+#object[dev.onionpancakes.chassis.core.RawString 0x31b2d0a8 "<div><p>not-blocked</p></div>"]
+```
+
+## Resolved Constants
+
+Symbols referring to **constant** values are **var resolved** during compilation traversal, thereby allowing those constant values to participate in compilation. These include constant types such as `String` and any collection of constants, as well as `c/doctype-html5`, `c/nbsp`, and any `c/raw` string values. See `cc/constant?`.
+
+```clojure
+;; Fully compacted!
+;; Even with a symbol splitting content in the middle.
+(cc/compile [:div "foo" c/nbsp "bar"])
+
+;; Results in:
+#object[dev.onionpancakes.chassis.core.RawString 0x7fb21735 "<div>foo&nbsp;bar</div>"]
 ```
 
 # License
