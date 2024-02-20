@@ -102,7 +102,8 @@
 
 (defn attrs-compiler-binding?
   [^clojure.lang.Compiler$LocalBinding b]
-  (attrs-compiler-expr? (.-init b)))
+  (and (some? b)
+       (attrs-compiler-expr? (.-init b))))
 
 (extend-protocol AttributesCompilerExpr
   clojure.lang.Compiler$NilExpr
@@ -118,6 +119,8 @@
   clojure.lang.Compiler$MapExpr
   (attrs-compiler-expr? [this] true)
   Object
+  (attrs-compiler-expr? [_] false)
+  nil
   (attrs-compiler-expr? [_] false))
 
 (extend-protocol CompilableForm
