@@ -394,7 +394,7 @@ They can even deference into other elements.
 
 ## Token and HTML Serializers
 
-Use `token-serializer` and `html-serializer` to access individual tokens and fragment instances. The underlying type, `TokenSerializer`, implements `clojure.lang.IReduceInit` and is intended to be used in a reduce.
+Use `token-serializer` and `html-serializer` to access individual tokens and fragment instances. The underlying type implements `clojure.lang.IReduceInit` and is intended to be used in a reduce.
 
 ```clojure
 (->> (c/token-serializer [:div "foo"])
