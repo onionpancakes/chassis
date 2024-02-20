@@ -25,6 +25,18 @@
     [:h3 "Description"]
     [:p (:text item)]]))
 
+(defmethod c/resolve-alias ::ItemCompiledUnambig
+  [_ _ {item ::item :as attrs} content]
+  (cc/compile
+   [:div.item (merge {:id    (:uuid item)
+                      :class (:type item)} attrs)
+    [:h2 nil (:name item)]
+    [:p nil (:date item)]
+    [:p [:a.baz.buz {:href (str "/item/" (:uuid item))}
+         "See more details."]]
+    [:h3 "Description"]
+    [:p nil (:text item)]]))
+
 (defmethod c/resolve-alias ::Layout
   [_ _ {title ::title :as attrs} content]
   [:html {:lang "en"}
@@ -54,6 +66,22 @@
      [:header
       [:h1 title]]
      [:main attrs content]
+     [:footer "Footer"]]]))
+
+(defmethod c/resolve-alias ::LayoutCompiledUnambig
+  [_ _ {title ::title :as attrs} content]
+  (cc/compile
+   [:html {:lang "en"}
+    [:head
+     [:link {:href "/foobar1" :rel "stylesheet"}]
+     [:link {:href "/foobar2" :rel "stylesheet"}]
+     [:link {:href "/foobar3" :rel "stylesheet"}]
+     [:link {:href "/foobar4" :rel "stylesheet"}]
+     [:title nil title]]
+    [:body
+     [:header
+      [:h1 nil title]]
+     [:main ^java.util.Map attrs content]
      [:footer "Footer"]]]))
 
 (defn item-element
@@ -143,6 +171,14 @@
          (map #(cc/compile [::ItemCompiled {::item %}]))
          (interpose (cc/compile [:hr])))]))
 
+(defn page-alias-compiled-unambig
+  [data]
+  (cc/compile
+   [::LayoutCompiledUnambig {::title (:title data)}
+    (->> (:items data)
+         (map #(cc/compile [::ItemCompiledUnambig {::item %}]))
+         (interpose (cc/compile [:hr])))]))
+
 (defn page-compiled
   [data]
   (cc/compile
@@ -192,6 +228,10 @@
 (defn chassis-page-alias-compiled
   [data]
   (c/html [c/doctype-html5 (page-alias-compiled data)]))
+
+(defn chassis-page-alias-compiled-unambig
+  [data]
+  (c/html [c/doctype-html5 (page-alias-compiled-unambig data)]))
 
 (defn chassis-page-compiled
   [data]

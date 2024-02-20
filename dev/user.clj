@@ -3,6 +3,7 @@
              :refer [page
                      chassis-page
                      chassis-page-alias chassis-page-alias-compiled
+                     chassis-page-alias-compiled-unambig
                      chassis-page-compiled chassis-page-compiled-unambig
                      chassis-page-print-writer chassis-page-print-stream
                      chassis-page-output-stream-writer]]
