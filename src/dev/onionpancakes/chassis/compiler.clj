@@ -92,12 +92,15 @@
   (or (isa? clazz java.util.Map)
       (isa? clazz clojure.lang.IPersistentMap)))
 
+(defn attrs-meta-tag?
+  [tag]
+  {:pre [(symbol? tag)]}
+  (attrs-type? (resolve tag)))
+
 (defn attrs-type-hinted?
   [obj]
-  (if-some [tag-sym (:tag (meta obj))]
-    (do
-      (assert (symbol? tag-sym))
-      (attrs-type? (resolve tag-sym)))
+  (if-some [tag (:tag (meta obj))]
+    (attrs-meta-tag? tag)
     false))
 
 (defn attrs-compiler-binding?
@@ -108,16 +111,27 @@
 (extend-protocol AttributesCompilerExpr
   clojure.lang.Compiler$NilExpr
   (attrs-compiler-expr? [_] true)
+  clojure.lang.Compiler$MapExpr
+  (attrs-compiler-expr? [this] true)
   clojure.lang.Compiler$EmptyExpr
   (attrs-compiler-expr? [this]
     (attrs-type? (.getJavaClass this)))
   clojure.lang.Compiler$ConstantExpr
   (attrs-compiler-expr? [this]
-    ;; Class not public for some reason, can't call method.
-    #_(attrs-type? (.getJavaClass this))
+    ;; ConstantExpr not public class, can't call getJavaClass() method.
+    ;; (attrs-type? (.getJavaClass this))
+    ;; ConstantExpr extends LiteralExpr.
+    ;; LiteralExpr is public class, and eval() is public method.
+    ;; Therefore use eval() instead.
+    ;; Should be safe. LiteralExpr.eval() just returns the literal object.
+    (attrs-type? (type (.eval this))))
+  #_#_
+  clojure.lang.Compiler$InvokeExpr
+  (attrs-compiler-expr? [this]
+    ;; InvokeExpr is not public class
+    ;; Type hints on invokes not accessible.
+    (println (.-tag this))
     false)
-  clojure.lang.Compiler$MapExpr
-  (attrs-compiler-expr? [this] true)
   Object
   (attrs-compiler-expr? [_] false)
   nil

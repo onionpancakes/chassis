@@ -136,8 +136,6 @@
     (cc/compile [:div attrs "foobar"]))
   (let [attrs {}]
     (cc/compile [:div attrs "foobar"]))
-  ;; ConstantExpr not public, can't determine constant attrs case.
-  #_
   (let [attrs {:foo "bar"}]
     (cc/compile [:div attrs "foobar"]))
   (let [attrs {:foo (identity "bar")}]
