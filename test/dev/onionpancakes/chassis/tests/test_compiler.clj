@@ -127,6 +127,10 @@
   (cc/compile [:div (select-keys {} [:foo]) "foobar"])
   (cc/compile [:div (update-keys {} identity) "foobar"])
   (cc/compile [:div (update-vals {} identity) "foobar"])
+  ;; In threaded macro
+  (cc/compile [:div (-> {}
+                        (assoc :foo "bar"))
+               "foobar"])
   ;; LocalBinded attrs literals
   (let [attrs nil]
     (cc/compile [:div attrs "foobar"]))
