@@ -156,29 +156,6 @@
           (doall))]
     [:footer "Footer"]]])
 
-(defn page-alias
-  [data]
-  [::Layout {::title (:title data)}
-   (->> (:items data)
-        (map #(vector ::Item {::item %}))
-        (interpose [:hr]))])
-
-(defn page-alias-compiled
-  [data]
-  (cc/compile
-   [::LayoutCompiled {::title (:title data)}
-    (->> (:items data)
-         (map #(cc/compile [::ItemCompiled {::item %}]))
-         (interpose (cc/compile [:hr])))]))
-
-(defn page-alias-compiled-unambig
-  [data]
-  (cc/compile
-   [::LayoutCompiledUnambig {::title (:title data)}
-    (->> (:items data)
-         (map #(cc/compile [::ItemCompiledUnambig {::item %}]))
-         (interpose (cc/compile [:hr])))]))
-
 (defn page-compiled
   [data]
   (cc/compile
@@ -217,9 +194,42 @@
            (interpose (cc/compile [:hr])))]
      [:footer "Footer"]]]))
 
+(defn page-alias
+  [data]
+  [::Layout {::title (:title data)}
+   (->> (:items data)
+        (map #(vector ::Item {::item %}))
+        (interpose [:hr]))])
+
+(defn page-alias-compiled
+  [data]
+  (cc/compile
+   [::LayoutCompiled {::title (:title data)}
+    (->> (:items data)
+         (map #(cc/compile [::ItemCompiled {::item %}]))
+         (interpose (cc/compile [:hr])))]))
+
+(defn page-alias-compiled-unambig
+  [data]
+  (cc/compile
+   [::LayoutCompiledUnambig {::title (:title data)}
+    (->> (:items data)
+         (map #(cc/compile [::ItemCompiledUnambig {::item %}]))
+         (interpose (cc/compile [:hr])))]))
+
+;;
+
 (defn chassis-page
   [data]
   (c/html [c/doctype-html5 (page data)]))
+
+(defn chassis-page-compiled
+  [data]
+  (c/html [c/doctype-html5 (page-compiled data)]))
+
+(defn chassis-page-compiled-unambig
+  [data]
+  (c/html [c/doctype-html5 (page-compiled-unambig data)]))
 
 (defn chassis-page-alias
   [data]
@@ -233,20 +243,20 @@
   [data]
   (c/html [c/doctype-html5 (page-alias-compiled-unambig data)]))
 
-(defn chassis-page-compiled
-  [data]
-  (c/html [c/doctype-html5 (page-compiled data)]))
-
-(defn chassis-page-compiled-unambig
-  [data]
-  (c/html [c/doctype-html5 (page-compiled-unambig data)]))
-
 (defn chassis-page-print-writer
   [data]
   (let [out     (java.io.ByteArrayOutputStream. 16384)
         charset (java.nio.charset.Charset/forName "UTF-8")]
     (with-open [wtr (java.io.PrintWriter. out false charset)]
       (c/write-html wtr [c/doctype-html5 (page data)]))
+    out))
+
+(defn chassis-page-print-writer-compiled-unambig
+  [data]
+  (let [out     (java.io.ByteArrayOutputStream. 16384)
+        charset (java.nio.charset.Charset/forName "UTF-8")]
+    (with-open [wtr (java.io.PrintWriter. out false charset)]
+      (c/write-html wtr [c/doctype-html5 (page-compiled-unambig data)]))
     out))
 
 (defn chassis-page-print-stream
@@ -256,9 +266,23 @@
       (c/write-html pout [c/doctype-html5 (page data)]))
     out))
 
+(defn chassis-page-print-stream-compiled-unambig
+  [data]
+  (let [out (java.io.ByteArrayOutputStream. 16384)]
+    (with-open [pout (java.io.PrintStream. out false "UTF-8")]
+      (c/write-html pout [c/doctype-html5 (page-compiled-unambig data)]))
+    out))
+
 (defn chassis-page-output-stream-writer
   [data]
   (let [out (java.io.ByteArrayOutputStream. 16384)]
     (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
       (c/write-html pout [c/doctype-html5 (page data)]))
+    out))
+
+(defn chassis-page-output-stream-writer-compiled-unambig
+  [data]
+  (let [out (java.io.ByteArrayOutputStream. 16384)]
+    (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
+      (c/write-html pout [c/doctype-html5 (page-compiled-unambig data)]))
     out))

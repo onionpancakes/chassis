@@ -1,18 +1,28 @@
 (ns user
   (:require [bench.chassis
              :refer [page
+                     page-doall
                      chassis-page
-                     chassis-page-alias chassis-page-alias-compiled
+                     chassis-page-compiled
+                     chassis-page-compiled-unambig
+                     chassis-page-alias
+                     chassis-page-alias-compiled
                      chassis-page-alias-compiled-unambig
-                     chassis-page-compiled chassis-page-compiled-unambig
-                     chassis-page-print-writer chassis-page-print-stream
-                     chassis-page-output-stream-writer]]
+                     chassis-page-print-writer
+                     chassis-page-print-writer-compiled-unambig
+                     chassis-page-print-stream
+                     chassis-page-print-stream-compiled-unambig
+                     chassis-page-output-stream-writer
+                     chassis-page-output-stream-writer-compiled-unambig]]
             [bench.hiccup
-             :refer [hiccup-page hiccup-page-compiled
+             :refer [hiccup-page
+                     hiccup-page-compiled
                      hiccup-page-compiled-unambig]]
-            [bench.selmer :refer [selmer-page]]
+            [bench.selmer
+             :refer [selmer-page]]
             [bench.enlive
-             :refer [enlive-page-item-html enlive-page-item-template]]
+             :refer [enlive-page-item-html
+                     enlive-page-item-template]]
             [dev.onionpancakes.chassis.core :as c]
             [dev.onionpancakes.chassis.compiler :as cc]
             [dev.onionpancakes.chassis.tests.test-core :as t]
@@ -62,75 +72,111 @@
 (def data-small
   (make-data 10))
 
-(defn quick-bench-all
+(defn gen-bench-chassis
   [data]
-  (println "Chassis")
-  (println "-------------------------------------")
-  (quick-bench (chassis-page data))
-  (println)
-  (println "Chassis alias")
-  (println "-------------------------------------")
-  (quick-bench (chassis-page-alias data))
-  (println)
-  (println "Hiccup")
-  (println "-------------------------------------")
-  (quick-bench (hiccup-page data))
-  (println)
-  (println "Hiccup runtime")
-  (println "-------------------------------------")
-  (quick-bench (hiccup-page-runtime data))
-  (println)
-  (println "Selmer")
-  (println "-------------------------------------")
-  (quick-bench (selmer-page data))
-  (println)
-  (println "Enlive item html")
-  (println "-------------------------------------")
-  (quick-bench (enlive-page-item-html data))
-  (println)
-  (println "Enlive item template")
-  (println "-------------------------------------")
-  (quick-bench (enlive-page-item-template data)))
+  (let [file-name (str "resources/bench/chassis_" (count (:items data)) ".txt")]
+    (with-open [wtr (clojure.java.io/writer file-name)]
+      (binding [*out* wtr]
+        (println "Chassis")
+        (println "-------------------------------------")
+        (bench (chassis-page data))
+        (println)
+        (println "Chassis Compiled")
+        (println "-------------------------------------")
+        (bench (chassis-page-compiled data))
+        (println)
+        (println "Chassis Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (chassis-page-compiled-unambig data))
+        (println)
+        (println "Chassis Alias")
+        (println "-------------------------------------")
+        (bench (chassis-page-alias data))
+        (println)
+        (println "Chassis Alias Compiled")
+        (println "-------------------------------------")
+        (bench (chassis-page-alias-compiled data))
+        (println)
+        (println "Chassis Alias Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (chassis-page-alias-compiled-unambig data))
+        (println)))))
 
-(defn bench-all
+(defn gen-bench-chassis-write-html
   [data]
-  (println "Chassis")
-  (println "-------------------------------------")
-  (bench (chassis-page data))
-  (println)
-  (println "Chassis alias")
-  (println "-------------------------------------")
-  (bench (chassis-page-alias data))
-  (println)
-  (println "Hiccup")
-  (println "-------------------------------------")
-  (bench (hiccup-page data))
-  (println)
-  (println "Hiccup runtime")
-  (println "-------------------------------------")
-  (bench (hiccup-page-runtime data))
-  (println)
-  (println "Selmer")
-  (println "-------------------------------------")
-  (bench (selmer-page data))
-  (println)
-  (println "Enlive item html")
-  (println "-------------------------------------")
-  (bench (enlive-page-item-html data))
-  (println)
-  (println "Enlive item template")
-  (println "-------------------------------------")
-  (bench (enlive-page-item-template data)))
+  (let [file-name (str "resources/bench/chassis_write_html_" (count (:items data)) ".txt")]
+    (with-open [wtr (clojure.java.io/writer file-name)]
+      (binding [*out* wtr]
+        (println "Chassis PrintWriter")
+        (println "-------------------------------------")
+        (bench (chassis-page-print-writer data))
+        (println)
+        (println "Chassis PrintWriter Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (chassis-page-print-writer-compiled-unambig data))
+        (println)
+        (println "Chassis PrintStream")
+        (println "-------------------------------------")
+        (bench (chassis-page-print-stream data))
+        (println)
+        (println "Chassis PrintStream Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (chassis-page-print-stream-compiled-unambig data))
+        (println)
+        (println "Chassis OutputStreamWriter")
+        (println "-------------------------------------")
+        (bench (chassis-page-output-stream-writer data))
+        (println)
+        (println "Chassis OutputStreamWriter Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (chassis-page-output-stream-writer-compiled-unambig data))
+        (println)))))
 
-(defn bench-gen-results
-  ([]
-   (with-open [wtr (clojure.java.io/writer "resources/bench/results_big.txt")]
-     (binding [*out* wtr]
-       (bench-all data-big)))
-   (with-open [wtr (clojure.java.io/writer "resources/bench/results_mid.txt")]
-     (binding [*out* wtr]
-       (bench-all data-mid)))
-   (with-open [wtr (clojure.java.io/writer "resources/bench/results_small.txt")]
-     (binding [*out* wtr]
-       (bench-all data-small))))
-  ([_] (bench-gen-results)))
+(defn gen-bench-hiccup
+  [data]
+  (let [file-name (str "resources/bench/hiccup_" (count (:items data)) ".txt")]
+    (with-open [wtr (clojure.java.io/writer file-name)]
+      (binding [*out* wtr]
+        (println "Hiccup")
+        (println "-------------------------------------")
+        (bench (hiccup-page data))
+        (println)
+        (println "Hiccup Compiled")
+        (println "-------------------------------------")
+        (bench (hiccup-page-compiled data))
+        (println)
+        (println "Hiccup Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (hiccup-page-compiled-unambig data))
+        (println)))))
+
+(defn gen-bench-selmer
+  [data]
+  (let [file-name (str "resources/bench/selmer_" (count (:items data)) ".txt")]
+    (with-open [wtr (clojure.java.io/writer file-name)]
+      (binding [*out* wtr]
+        (println "Selmer")
+        (println "-------------------------------------")
+        (bench (selmer-page data))
+        (println)))))
+
+(defn gen-bench-enlive
+  [data]
+  (let [file-name (str "resources/bench/enlive_" (count (:items data)) ".txt")]
+    (with-open [wtr (clojure.java.io/writer file-name)]
+      (binding [*out* wtr]
+        (println "Enlive Item HTML")
+        (println "-------------------------------------")
+        (bench (enlive-page-item-html data))
+        (println)
+        (println "Enlive Item Template")
+        (println "-------------------------------------")
+        (bench (enlive-page-item-template data))
+        (println)))))
+
+(defn gen-bench-all
+  [data]
+  (gen-bench-chassis data)
+  (gen-bench-hiccup data)
+  (gen-bench-selmer data)
+  (gen-bench-enlive data))
