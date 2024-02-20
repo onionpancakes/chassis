@@ -669,6 +669,30 @@ Type hinting the argument or bindings also works.
   (cc/compile [:div attrs "foobar"]))
 ```
 
+### Vetted Attributes Core Functions
+
+Certain functions in `clojure.core` which returns maps are consider as attributes when called in the second position. Type hinting these invocations is not necessary. They include:
+
+* `array-map`
+* `hash-map`
+* `sorted-map`
+* `sorted-map-by`
+* `assoc`
+* `assoc-in`
+* `merge`
+* `select-keys`
+* `update-keys`
+* `update-vals`
+
+```clojure
+;; Useful in aliases when merging attrs.
+(defmethod c/resolve-alias ::AliasWithAttrsMerge
+  [_ _ attrs content]
+  (cc/compile
+    [:div (merge {:foo "bar"} attrs)
+      content]))
+```
+
 # License
 
 Released under the MIT License.
