@@ -25,6 +25,8 @@ Currently for my personal use. Future breaking changes possible.
 
 # Example
 
+### Runtime HTML Serialization
+
 ```clojure
 (require '[dev.onionpancakes.chassis.core :as c])
 
@@ -48,6 +50,38 @@ Currently for my personal use. Future breaking changes possible.
 
 (let [data {:posts [{:id "1" :title "foo" :content "bar"}]}]
   (c/html (my-blog data)))
+
+;; "<!DOCTYPE html><html><head><link href=\"/css/styles.css\" rel=\"stylesheet\"><title>My Blog</title></head><body><h1>My Blog</h1><div id=\"1\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
+```
+
+### Compiled HTML Serialization
+
+```clojure
+(require '[dev.onionpancakes.chassis.core :as c])
+(require '[dev.onionpancakes.chassis.compiler :as cc])
+
+(defn compiled-my-post
+  [post]
+  (cc/compile
+    [:div {:id (:id post)}
+     [:h2.title (:title post)]
+     [:p.content (:content post)]]))
+
+(defn compiled-my-blog
+  [data]
+  (cc/compile
+    [c/doctype-html5 ; Raw string for <!DOCTYPE html>
+     [:html
+      [:head
+       [:link {:href "/css/styles.css" :rel "stylesheet"}]
+       [:title "My Blog"]]
+      [:body
+       [:h1 "My Blog"]
+        (for [p (:posts data)]
+          (compiled-my-post p))]]]))
+
+(let [data {:posts [{:id "1" :title "foo" :content "bar"}]}]
+  (c/html (compiled-my-blog data)))
 
 ;; "<!DOCTYPE html><html><head><link href=\"/css/styles.css\" rel=\"stylesheet\"><title>My Blog</title></head><body><h1>My Blog</h1><div id=\"1\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
 ```
@@ -593,8 +627,6 @@ Use `cc/compile*` to ensure the return value is a vector. Otherwise, it is the s
 ;; [#object[dev.onionpancakes.chassis.core.RawString 0x24f1caeb "<hr>"]]
 ```
 
-
-
 ## Ambiguous Attributes Produce Speed Bumps
 
 Ambiguous objects in the second position forces the compiler to emit checks which examine the potential attributes map at runtime.
@@ -602,6 +634,7 @@ Ambiguous objects in the second position forces the compiler to emit checks whic
 ```clojure
 (let [data {:body "foo"}]
   (pprint (macroexpand-1
+     ;; Compiler can't see what (:body data) returns.
     '(cc/compile [:div (:body data)]))))
 
 ;; Results in:
