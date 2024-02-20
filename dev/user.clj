@@ -179,7 +179,9 @@
 
 (defn run-gen-bench-all
   [_]
-  (gen-bench-all data-mid))
+  (gen-bench-all data-big)
+  (gen-bench-all data-mid)
+  (gen-bench-all data-small))
 
 ;; Make sure examples don't drift.
 
