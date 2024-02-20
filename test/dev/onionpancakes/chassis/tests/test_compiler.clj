@@ -100,7 +100,7 @@
 
 (defonce count-ambig-attrs
   (fn [m]
-    (when (identical? (::cc/warn m) :ambig-attrs)
+    (when (identical? (::cc/type m) :warn-on-ambig-attrs)
       (swap! (deref #'ambig-attrs-count) inc))))
 
 (add-tap count-ambig-attrs)

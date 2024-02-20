@@ -19,6 +19,7 @@
 
 ;; Binding of macro &env, for resolving symbols.
 (def ^:dynamic *env* nil)
+(def ^:dynamic *form* nil)
 
 ;; Compile
 
@@ -42,7 +43,8 @@
 
 (defmacro compile*
   [node]
-  (binding [*env* &env]
+  (binding [*env*  &env
+            *form* &form]
     (let [rch (fn [node]
                 (mapv resolved (children node)))
           ret (->> (resolved node)
@@ -53,7 +55,8 @@
 
 (defmacro compile
   [node]
-  (binding [*env* &env]
+  (binding [*env*  &env
+            *form* &form]
     (let [rch (fn [node]
                 (mapv resolved (children node)))
           ret (->> (resolved node)
@@ -221,6 +224,29 @@
   (evaluated? [_] true)
   (resolved [_] nil))
 
+;; Warn
+
+(defn send-warn-on-ambig-attrs!
+  [form elem]
+  (tap> {::type :warn-on-ambig-attrs
+         ::form form
+         ::elem elem}))
+
+(defonce warn-on-ambig-attrs
+  (fn [x]
+    (if (identical? (::type x) :warn-on-ambig-attrs)
+      (binding [*out* *err*]
+        (println "Compiling element with ambiguous attrs:" (::elem x))
+        (println "Found within form:")
+        (println (::form x))
+        (println)))))
+
+(defn set-warn-on-ambig-attrs! []
+  (add-tap warn-on-ambig-attrs))
+
+(defn unset-warn-on-ambig-attrs! []
+  (remove-tap warn-on-ambig-attrs))
+
 ;; CompilableNode
 
 (defn attrs-present?
@@ -308,7 +334,7 @@
     (if (attrs-absent? elem)
       (compilable-alias-element-children-attrs-absent elem)
       (do
-        (tap> {::warn :ambig-attrs ::elem elem})
+        (send-warn-on-ambig-attrs! *form* elem)
         (compilable-alias-element-children-attrs-ambig elem)))))
 
 (defn compilable-element-children-attrs-present-evaluated
@@ -387,7 +413,7 @@
     (if (attrs-absent? elem)
       (compilable-element-children-attrs-absent elem)
       (do
-        (tap> {::warn :ambig-attrs ::elem elem})
+        (send-warn-on-ambig-attrs! *form* elem)
         (compilable-element-children-attrs-ambig elem)))))
 
 (extend-protocol CompilableNode
