@@ -167,15 +167,12 @@
         (println "Enlive Item HTML")
         (println "-------------------------------------")
         (bench (enlive-page-item-html data))
-        (println)
-        (println "Enlive Item Template")
-        (println "-------------------------------------")
-        (bench (enlive-page-item-template data))
         (println)))))
 
 (defn gen-bench-all
   [data]
   (gen-bench-chassis data)
+  (gen-bench-chassis-write-html data)
   (gen-bench-hiccup data)
   (gen-bench-selmer data)
   (gen-bench-enlive data))
