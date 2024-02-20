@@ -4,7 +4,9 @@ HTML5 serialization for Clojure.
 
 Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
 
-Highly optimized runtime serialization without macros. See [Performance](#performance).
+Highly optimized runtime serialization without macros. See [Runtime Performance](#runtime-performance).
+
+Even faster serialization with compiling macros. See [Compiling Elements](#compiling-elements).
 
 # Status
 
@@ -399,7 +401,7 @@ Use the `nbsp` constant.
 ;; "<div>foo&nbsp;bar</div>"
 ```
 
-# Performance
+# Runtime Performance
 
 At this time, benchmarks shows Chassis to be ~50% to +100% faster when compared to other Clojure HTML templating libraries. See bench results in the resource folder.
 
@@ -489,6 +491,183 @@ nil
 ### It's All Interned
 
 Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
+
+# Compiling Elements
+
+Require the namespace.
+
+```clojure
+(require '[dev.onionpancakes.chassis.compiler :as cc])
+```
+
+## Compile Examples
+
+Slap a `cc/compile` wherever speed is needed! Then call `c/html` like normal to generate HTML.
+
+```clojure
+;; In defs
+(def global-element
+  (cc/compile [:div "foo"]))
+
+;; In defns
+(defn fn-element
+  [arg]
+  (cc/compile [:div "foo" arg "bar"]))
+
+;; In aliases
+(defmethod c/resolve-alias ::MyElement
+  [_ _ attrs content]
+  (cc/compile
+    [:div
+     [:p attrs content]]))
+
+;; In fn args
+(fn-element (cc/compile [:p "some content"]))
+
+;; Then call c/html like normal to generate HTML.
+(c/html (fn-element 123))
+
+;; "<div>foo123bar</div>"
+```
+
+## Compile Usage
+
+Chassis provides compiling macros `cc/compile` and `cc/compile*`. They return compiled versions of the HTML tree. Use them to compile elements before passing them to `c/html`.
+
+```clojure
+(defn my-element []
+  (cc/compile
+    [:div [:p "foobar"]]))
+
+(c/html (my-element))
+
+;; "<div><p>foobar</p></div>"
+```
+
+Compiling **flattens** and **compacts** the HTML tree, making subsequent calls to `c/html` much faster.
+
+```clojure
+(macroexpand-1 '(cc/compile [:div [:p "foobar"]]))
+
+;; Results in:
+#object[dev.onionpancakes.chassis.core.RawString 0x11c2d9a2 "<div><p>foobar</p></div>"]
+
+(let [body (identity "some-dynamic-content")]
+  (pprint
+    (macroexpand-1
+      '(cc/compile
+        [:div.deeply
+          [:div.nested
+            [:div.thing
+              [:p "before" body "after"]]]]))))
+
+;; Results in:
+[#object[dev.onionpancakes.chassis.core.RawString 0x66fd28ce "<div class=\"deeply\"><div class=\"nested\"><div class=\"thing\"><p>before"]
+ body
+ #object[dev.onionpancakes.chassis.core.RawString 0xe9c5af6 "after</p></div></div></div>"]]
+```
+
+Use `cc/compile` for most purposes. For performance, the returned value may or may not be a vector. This is so that compiling small fragments of fully compacted HTML (like `<hr>`) is as efficient as possible when iterated over by `c/html`.
+
+```clojure
+;; <hr> is not wrapped as a 1-sized vector
+(cc/compile [:hr])
+
+;; #object[dev.onionpancakes.chassis.core.RawString 0x6ba58490 "<hr>"]
+
+;; The end result is the same either way,
+;; but the runtime serialization is faster this way.
+(->> (range 10)
+     (interpose (cc/compile [:hr]))
+     (c/html))
+
+;; "0<hr>1<hr>2<hr>3<hr>4<hr>5<hr>6<hr>7<hr>8<hr>9"
+```
+
+Use `cc/compile*` to ensure the return value is a vector. Otherwise, it is the same as `cc/compile`.
+
+```clojure
+;; <hr> is wrapped as a 1-sized vector
+(cc/compile* [:hr])
+
+;; [#object[dev.onionpancakes.chassis.core.RawString 0x24f1caeb "<hr>"]]
+```
+
+
+
+## Ambiguous Attributes Produce Speed Bumps
+
+Ambiguous objects in the second position forces the compiler to emit checks which examine the potential attributes map at runtime.
+
+```clojure
+(let [data {:body "foo"}]
+  (pprint (macroexpand-1
+    '(cc/compile [:div (:body data)]))))
+
+;; Results in:
+[(let*
+  [attrs13475 (:body data)]
+  (if ;; Check if 2nd item is attrs map at runtime.
+   (dev.onionpancakes.chassis.core/attrs? attrs13475)
+   (dev.onionpancakes.chassis.core/->OpeningTag
+    nil
+    :div
+    nil
+    nil
+    attrs13475)
+   [#object[dev.onionpancakes.chassis.core.OpeningTag 0x34b8fe4b "<div>"]
+    attrs13475]))
+ #object[dev.onionpancakes.chassis.core.RawString 0x1b09ab08 "</div>"]]
+```
+
+### Resolving Ambiguity - Force Attributes Absence
+
+Use `nil` in second position to force compile the element without attributes.
+
+```clojure
+(let [data {:body "foo"}]
+  (pprint (macroexpand-1
+    '(cc/compile [:div nil (:body data)]))))
+
+;; Results in:
+[#object[dev.onionpancakes.chassis.core.RawString 0x6e42ae2e "<div>"]
+ (:body data)
+ #object[dev.onionpancakes.chassis.core.RawString 0x588c9f7d "</div>"]]
+```
+
+### Resolving Ambiguity - Force Attributes Presence
+
+Type hint the second position with either `java.util.Map` or `clojure.lang.IPersistentMap` to force compile elements with attributes.
+
+```clojure
+(let [data {:attrs {:foo "bar"}
+            :body  "foo"}]
+  (pprint (macroexpand-1
+    '(cc/compile [:div ^java.util.Map (:attrs data) (:body data)]))))
+
+;; Results in:
+[(dev.onionpancakes.chassis.core/->OpeningTag
+  nil
+  :div
+  nil
+  nil
+  (:attrs data))
+ (:body data)
+ #object[dev.onionpancakes.chassis.core.RawString 0x6314faa "</div>"]]
+```
+
+Type hinting the argument or bindings also works.
+* Note: It doesn't show up correctly in a `macroexpand`, but it does works normally. This is because `cc/compile` examines the type hints from macro implied arg `&env`, and `macroexpand` for some reason doesn't capture `&env`.
+
+```clojure
+;; Should work!
+(defmethod c/resolve-alias ::CompileWithAttrs
+  [_ _ ^java.util.Map attrs content]
+  (cc/compile [:div attrs content]))
+
+(let [^java.util.Map attrs {:foo "bar"}]
+  (cc/compile [:div attrs "foobar"]))
+```
 
 # License
 
