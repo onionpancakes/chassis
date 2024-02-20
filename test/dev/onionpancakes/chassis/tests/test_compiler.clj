@@ -62,6 +62,8 @@
     [:div (example-elem-macro-nested "foo")]
     [:div (for [i (range 4)]
             [:p i])]
+    [:div (for [i (range 4)]
+            (cc/compile [:p i]))]
     (map inc (range 5))
     [:div (map inc (range 5))]
     [:div nil (map inc (range 5))]
