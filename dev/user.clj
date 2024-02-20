@@ -180,6 +180,10 @@
   (gen-bench-selmer data)
   (gen-bench-enlive data))
 
+(defn run-gen-bench-all
+  [_]
+  (gen-bench-all data-mid))
+
 ;; Make sure examples don't drift.
 
 (assert (= (c/html [c/doctype-html5 (page data-small)])
