@@ -237,7 +237,7 @@
     (if (identical? (::type x) :warn-on-ambig-attrs)
       (binding [*out* *err*]
         (println "Compiling element with ambiguous attrs:" (::elem x))
-        (println "Found within form:")
+        (println "Found within form:" (meta (::form x)))
         (println (::form x))
         (println)))))
 
