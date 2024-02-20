@@ -249,7 +249,7 @@
         charset (java.nio.charset.Charset/forName "UTF-8")]
     (with-open [wtr (java.io.PrintWriter. out false charset)]
       (c/write-html wtr [c/doctype-html5 (page data)]))
-    out))
+    (.toByteArray out)))
 
 (defn chassis-page-print-writer-compiled-unambig
   [data]
@@ -257,32 +257,32 @@
         charset (java.nio.charset.Charset/forName "UTF-8")]
     (with-open [wtr (java.io.PrintWriter. out false charset)]
       (c/write-html wtr [c/doctype-html5 (page-compiled-unambig data)]))
-    out))
+    (.toByteArray out)))
 
 (defn chassis-page-print-stream
   [data]
   (let [out (java.io.ByteArrayOutputStream. 16384)]
     (with-open [pout (java.io.PrintStream. out false "UTF-8")]
       (c/write-html pout [c/doctype-html5 (page data)]))
-    out))
+    (.toByteArray out)))
 
 (defn chassis-page-print-stream-compiled-unambig
   [data]
   (let [out (java.io.ByteArrayOutputStream. 16384)]
     (with-open [pout (java.io.PrintStream. out false "UTF-8")]
       (c/write-html pout [c/doctype-html5 (page-compiled-unambig data)]))
-    out))
+    (.toByteArray out)))
 
 (defn chassis-page-output-stream-writer
   [data]
   (let [out (java.io.ByteArrayOutputStream. 16384)]
     (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
       (c/write-html pout [c/doctype-html5 (page data)]))
-    out))
+    (.toByteArray out)))
 
 (defn chassis-page-output-stream-writer-compiled-unambig
   [data]
   (let [out (java.io.ByteArrayOutputStream. 16384)]
     (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
       (c/write-html pout [c/doctype-html5 (page-compiled-unambig data)]))
-    out))
+    (.toByteArray out)))

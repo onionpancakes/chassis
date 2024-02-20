@@ -21,8 +21,7 @@
             [bench.selmer
              :refer [selmer-page]]
             [bench.enlive
-             :refer [enlive-page-item-html
-                     enlive-page-item-template]]
+             :refer [enlive-page-item-html]]
             [dev.onionpancakes.chassis.core :as c]
             [dev.onionpancakes.chassis.compiler :as cc]
             [dev.onionpancakes.chassis.tests.test-core :as t]
@@ -180,3 +179,24 @@
   (gen-bench-hiccup data)
   (gen-bench-selmer data)
   (gen-bench-enlive data))
+
+;; Make sure examples don't drift.
+
+(assert (= (c/html [c/doctype-html5 (page data-small)])
+           (c/html [c/doctype-html5 (page-doall data-small)])
+           (chassis-page data-small)
+           (chassis-page-compiled data-small)
+           (chassis-page-compiled-unambig data-small)
+           (chassis-page-alias data-small)
+           (chassis-page-alias-compiled data-small)
+           (chassis-page-alias-compiled-unambig data-small)
+           (slurp (chassis-page-print-writer data-small))
+           (slurp (chassis-page-print-writer-compiled-unambig data-small))
+           (slurp (chassis-page-print-stream data-small))
+           (slurp (chassis-page-print-stream-compiled-unambig data-small))
+           (slurp (chassis-page-output-stream-writer data-small))
+           (slurp (chassis-page-output-stream-writer-compiled-unambig data-small))))
+
+(assert (= (hiccup-page data-small)
+           (hiccup-page-compiled data-small)
+           (hiccup-page-compiled-unambig data-small)))
