@@ -1,12 +1,13 @@
 # Chassis
 
-HTML5 serialization for Clojure.
+Fast HTML5 serialization for Clojure.
 
 Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
 
-Highly optimized runtime serialization without macros. See [Runtime Performance](#runtime-performance).
+Highly optimized runtime serialization without macros. Even faster serialization when combined with compiling macros.
 
-Even faster serialization with compiling macros. See [Compiling Elements](#compiling-elements).
+* See [Compiling Elements](#compiling-elements).
+* See [Performance](#performance).
 
 # Status
 
@@ -435,97 +436,6 @@ Use the `nbsp` constant.
 ;; "<div>foo&nbsp;bar</div>"
 ```
 
-# Runtime Performance
-
-At this time, benchmarks shows Chassis to be ~50% to +100% faster when compared to other Clojure HTML templating libraries. See bench results in the resource folder.
-
-However, the dev benchmark example is contrived and benchmarking with real world data is recommended.
-
-```clojure
-$ clj -M:dev
-Clojure 1.11.1
-user=> (quick-bench (chassis-page data-mid))
-Evaluation count : 2040 in 6 samples of 340 calls.
-             Execution time mean : 296.440399 µs
-    Execution time std-deviation : 18.138611 µs
-   Execution time lower quantile : 280.674056 µs ( 2.5%)
-   Execution time upper quantile : 319.907138 µs (97.5%)
-                   Overhead used : 8.824566 ns
-nil
-user=> (quick-bench (hiccup-page data-mid))
-Evaluation count : 1104 in 6 samples of 184 calls.
-             Execution time mean : 594.344971 µs
-    Execution time std-deviation : 37.178706 µs
-   Execution time lower quantile : 562.081951 µs ( 2.5%)
-   Execution time upper quantile : 636.998749 µs (97.5%)
-                   Overhead used : 8.824566 ns
-nil
-```
-
-## Element Vector Allocation is Small
-
-Element vector allocation accounts for ~5% of the runtime cost.
-
-```clojure
-user=> (quick-bench (page-doall data-mid))
-Evaluation count : 36984 in 6 samples of 6164 calls.
-             Execution time mean : 17.095326 µs
-    Execution time std-deviation : 655.426436 ns
-   Execution time lower quantile : 16.600814 µs ( 2.5%)
-   Execution time upper quantile : 17.966604 µs (97.5%)
-                   Overhead used : 8.799089 ns
-```
-
-The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.
-
-```clojure
-(defn make-tokens [data]
-  (vec (c/token-serializer (page data))))
-
-(defn make-fragments [tokens]
-  (mapv c/fragment tokens))
-
-(defn append-fragments [fragments]
-  (let [sb (StringBuilder.)
-        _  (doseq [frag fragments]
-             (.append sb frag))]
-    (.toString sb)))
-```
-
-```clojure
-user=> (quick-bench (make-tokens data-mid))
-Evaluation count : 3396 in 6 samples of 566 calls.
-             Execution time mean : 187.299683 µs
-    Execution time std-deviation : 5.033401 µs
-   Execution time lower quantile : 180.625763 µs ( 2.5%)
-   Execution time upper quantile : 192.547499 µs (97.5%)
-                   Overhead used : 8.804641 ns
-nil
-user=> (let [tokens (make-tokens data-mid)]
-         (quick-bench (make-fragments tokens)))
-Evaluation count : 6012 in 6 samples of 1002 calls.
-             Execution time mean : 108.332455 µs
-    Execution time std-deviation : 4.746967 µs
-   Execution time lower quantile : 104.293707 µs ( 2.5%)
-   Execution time upper quantile : 115.190764 µs (97.5%)
-                   Overhead used : 8.804641 ns
-nil
-user=> (let [tokens    (make-tokens data-mid)
-             fragments (make-fragments tokens)]
-         (quick-bench (append-fragments fragments)))
-Evaluation count : 20880 in 6 samples of 3480 calls.
-             Execution time mean : 29.528853 µs
-    Execution time std-deviation : 643.002252 ns
-   Execution time lower quantile : 28.468082 µs ( 2.5%)
-   Execution time upper quantile : 30.049316 µs (97.5%)
-                   Overhead used : 8.804641 ns
-nil
-```
-
-### It's All Interned
-
-Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
-
 # Compiling Elements
 
 Require the namespace.
@@ -819,6 +729,114 @@ Symbols referring to **constant** values are **var resolved** during compilation
 ;; Results in:
 #object[dev.onionpancakes.chassis.core.RawString 0x7fb21735 "<div>foo&nbsp;bar</div>"]
 ```
+
+# Performance
+
+At this time, benchmarks shows Chassis to be 2x faster (and often more!) when compared to other Clojure HTML templating libraries on equivalent benchmark examples.
+
+See bench results in the resource folder.
+
+```clojure
+$ clj -M:dev
+Clojure 1.11.1
+
+;; Chassis
+
+user=> (quick-bench (chassis-page data-mid))
+Evaluation count : 2712 in 6 samples of 452 calls.
+             Execution time mean : 229.730870 µs
+    Execution time std-deviation : 7.583674 µs
+   Execution time lower quantile : 221.593639 µs ( 2.5%)
+   Execution time upper quantile : 237.951723 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+user=> (quick-bench (chassis-page-compiled data-mid))
+Evaluation count : 4722 in 6 samples of 787 calls.
+             Execution time mean : 131.554387 µs
+    Execution time std-deviation : 4.400562 µs
+   Execution time lower quantile : 127.024648 µs ( 2.5%)
+   Execution time upper quantile : 137.206151 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+user=> (quick-bench (chassis-page-compiled-unambig data-mid))
+Evaluation count : 6186 in 6 samples of 1031 calls.
+             Execution time mean : 100.309952 µs
+    Execution time std-deviation : 3.392984 µs
+   Execution time lower quantile : 98.074419 µs ( 2.5%)
+   Execution time upper quantile : 105.031335 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+
+;; Hiccup
+
+user=> (quick-bench (hiccup-page data-mid))
+Evaluation count : 990 in 6 samples of 165 calls.
+             Execution time mean : 615.536499 µs
+    Execution time std-deviation : 15.886454 µs
+   Execution time lower quantile : 599.567903 µs ( 2.5%)
+   Execution time upper quantile : 637.703394 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+user=> (quick-bench (hiccup-page-compiled data-mid))
+Evaluation count : 1044 in 6 samples of 174 calls.
+             Execution time mean : 594.160734 µs
+    Execution time std-deviation : 15.249740 µs
+   Execution time lower quantile : 576.246477 µs ( 2.5%)
+   Execution time upper quantile : 611.946104 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+user=> (quick-bench (hiccup-page-compiled-unambig data-mid))
+Evaluation count : 2544 in 6 samples of 424 calls.
+             Execution time mean : 246.390352 µs
+    Execution time std-deviation : 6.001164 µs
+   Execution time lower quantile : 240.872342 µs ( 2.5%)
+   Execution time upper quantile : 255.422063 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+
+;; Selmer
+
+user=> (quick-bench (selmer-page data-mid))
+Evaluation count : 1428 in 6 samples of 238 calls.
+             Execution time mean : 455.954085 µs
+    Execution time std-deviation : 14.867158 µs
+   Execution time lower quantile : 443.374807 µs ( 2.5%)
+   Execution time upper quantile : 478.302764 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+
+;; Enlive
+
+user=> (quick-bench (enlive-page-item-html data-mid))
+Evaluation count : 282 in 6 samples of 47 calls.
+             Execution time mean : 2.254892 ms
+    Execution time std-deviation : 83.779038 µs
+   Execution time lower quantile : 2.156587 ms ( 2.5%)
+   Execution time upper quantile : 2.341325 ms (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+```
+
+## Element Vector Allocation is Small
+
+Element vector allocation accounts for ~5% of the runtime cost.
+
+```clojure
+user=> (quick-bench (page-doall data-mid))
+Evaluation count : 34752 in 6 samples of 5792 calls.
+             Execution time mean : 18.073864 µs
+    Execution time std-deviation : 623.107379 ns
+   Execution time lower quantile : 17.421242 µs ( 2.5%)
+   Execution time upper quantile : 18.715025 µs (97.5%)
+                   Overhead used : 8.800684 ns
+nil
+```
+
+The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.
+
+### It's All Interned
+
+Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
 
 # License
 

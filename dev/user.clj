@@ -73,6 +73,17 @@
 (def data-small
   (make-data 10))
 
+(defn make-tokens [data]
+  (vec (c/token-serializer (page data))))
+
+(defn make-fragments [tokens]
+  (mapv c/fragment tokens))
+
+(defn append-fragments [fragments]
+  (let [sb (StringBuilder.)
+        _  (reduce c/append-to sb fragments)]
+    (.toString sb)))
+
 (defn gen-bench-chassis
   [data]
   (let [file-name (str "resources/bench/chassis_" (count (:items data)) ".txt")]
