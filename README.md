@@ -740,11 +740,11 @@ Symbols referring to **constant** values are **var resolved** during compilation
 
 Chassis provides two analogous compile functions, `compile-node` and `compile-node*`, for compiling HTML tree at runtime. They are useful for compiling static HTML pages or components.
 
-Because compiling happens at runtime, list and functions calls are no longer compilation barriers and ambiguous attributes are are not possible.
+Because compiling happens at runtime, lists, function calls, and alias elements are no longer compilation barriers and ambiguous attributes are are not possible.
 
 Runtime compilation is similar to calling `c/html` with a few key differences:
 
-* The return values are `raw` strings, allowing the result to be embedded in other HTML components without being escaped.
+* The return values are `raw` strings, allowing the result to be embedded in other HTML components without the HTML tags being escaped.
 * Stateful values, such as functions and derefs, are not realized.
 
 ```clojure
