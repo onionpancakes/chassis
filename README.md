@@ -636,6 +636,12 @@ Certain functions in `clojure.core` which returns maps are consider as attribute
       content]))
 ```
 
+### Warn on Ambiguous Attributes
+
+Call `(cc/set-warn-on-ambig-attrs!)` to turn on warnings when compiling elements with ambiguous attributes. It will add a tap which prints out warning messages to `*err*` whenever ambiguous attributes are compiled.
+
+Call `(cc/unset-warn-on-ambig-attrs!)` to disable.
+
 ## Compilation Barriers
 
 ### Function Calls
