@@ -32,7 +32,8 @@
   [:p.alias attrs content])
 
 (deftest test-compile
-  (are [node] (= (c/html (cc/compile node))
+  (are [node] (= (c/html (cc/compile-node node))
+                 (c/html (cc/compile node))
                  (c/html (cc/compile* node))
                  (c/html node))
     nil

@@ -17,8 +17,18 @@
   (branch? [this] "Returns true if branch node.")
   (children [this] "Returns children of node."))
 
-(def ^:dynamic *env* "Binding of macro &env." nil)
-(def ^:dynamic *form* "Binding of macro &form." nil)
+(def ^:dynamic *evaluated*
+  "Set true if current evaluation context is considered evaluated.
+  i.e. True when compiling at runtime. False when compiling at macro time."
+  true)
+
+(def ^:dynamic *env*
+  "Binding of macro &env."
+  nil)
+
+(def ^:dynamic *form*
+  "Binding of macro &form."
+  nil)
 
 ;; Compile
 
@@ -51,14 +61,16 @@
   [node]
   (->> (resolved node)
        (c/tree-serializer branch? resolved-children)
-       (compact)))
+       (compact)
+       (vec)))
 
 (defmacro compile*
   "Compiles the node form, returning a compacted equivalent form as a content vector."
   [node]
-  (binding [*env* &env *form* &form]
+  (binding [*evaluated* false
+            *env*       &env
+            *form*      &form]
     (-> (compile-node node)
-        (vec)
         (vary-meta assoc ::c/content true))))
 
 (defmacro compile
@@ -66,8 +78,10 @@
   The return value may be a content vector or an unwrapped value if
   fewer than two forms are returned."
   [node]
-  (binding [*env* &env *form* &form]
-    (let [ret (vec (compile-node node))]
+  (binding [*evaluated* false
+            *env*       &env
+            *form*      &form]
+    (let [ret (compile-node node)]
       (case (count ret)
         0 nil
         1 (nth ret 0)
@@ -199,26 +213,35 @@
   (resolved [this] this)
   clojure.lang.ISeq
   (attrs? [this]
-    (or (attrs-type-hinted? this)
-        (attrs-invocation? this)))
-  (not-attrs? [this] false)
+    (and (not *evaluated*)
+         (or (attrs-type-hinted? this)
+             (attrs-invocation? this))))
+  (not-attrs? [this]
+    (boolean *evaluated*))
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.
-  (constant? [_] false)
-  (evaluated? [_] false)
+  (constant? [this]
+    (and (boolean *evaluated*)
+         (every? constant? this)))
+  (evaluated? [_]
+    (boolean *evaluated*))
   ;; But not macro barriers.
   (resolved [this]
     (macroexpand this))
   clojure.lang.Symbol
   (attrs? [this]
-    (or (attrs-type-hinted? this)
-        (if-some [entry (find *env* this)]
-          (or (attrs-type-hinted? (key entry))
-              (attrs-compiler-binding? (val entry)))
-          false)))
-  (not-attrs? [this] false)
-  (constant? [_] false)
-  (evaluated? [_] false)
+    (and (not *evaluated*)
+         (or (attrs-type-hinted? this)
+             (if-some [entry (find *env* this)]
+               (or (attrs-type-hinted? (key entry))
+                   (attrs-compiler-binding? (val entry)))
+               false))))
+  (not-attrs? [this]
+    (boolean *evaluated*))
+  (constant? [_]
+    (boolean *evaluated*))
+  (evaluated? [_]
+    (boolean *evaluated*))
   (resolved [this]
     (if-some [res (resolve *env* this)]
       (let [val (if (var? res) @res res)]
@@ -234,8 +257,12 @@
   (evaluated? [_] true)
   (resolved [this] this)
   Object
-  (attrs? [this] false)
-  (not-attrs? [this] false)
+  (attrs? [this]
+    (and (boolean *evaluated*)
+         (c/attrs? this)))
+  (not-attrs? [this]
+    (and (boolean *evaluated*)
+         (not (c/attrs? this))))
   (constant? [_] false)
   (evaluated? [_] true)
   (resolved [this] this)
@@ -444,9 +471,17 @@
   (children [this]
     (if (c/element-vector? this)
       (if (c/alias-element? this)
-        (compilable-alias-element-children this)
-        (compilable-element-children this))
+        (if *evaluated*
+          (c/alias-element-children this)
+          (compilable-alias-element-children this))
+        (if *evaluated*
+          (c/element-children this)
+          (compilable-element-children this)))
       this))
+  clojure.lang.ISeq
+  (branch? [_]
+    (boolean *evaluated*))
+  (children [this] this)
   Object
   (branch? [_] false)
   (children [_] nil)
