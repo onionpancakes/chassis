@@ -17,19 +17,18 @@
   (branch? [this] "Returns true if branch node.")
   (children [this] "Returns children of node."))
 
-;; Binding of macro &env, for resolving symbols.
-(def ^:dynamic *env* nil)
-(def ^:dynamic *form* nil)
+(def ^:dynamic *env* "Binding of macro &env." nil)
+(def ^:dynamic *form* "Binding of macro &form." nil)
 
 ;; Compile
 
 (defn compacted-form
-  [forms]
+  [tokens]
   (let [sb (StringBuilder.)
         tf (fn [_ form]
              (throw (IllegalArgumentException. (str "Not constant form: " form))))
         xf (halt-when (complement constant?) tf)
-        _  (transduce xf c/append-fragment sb forms)]
+        _  (transduce xf c/append-fragment sb tokens)]
     (c/raw (.toString sb))))
 
 (defn compact
@@ -41,28 +40,34 @@
                         forms)))
             tokens))
 
-(defmacro compile*
+(defn resolved-children
   [node]
-  (binding [*env*  &env
-            *form* &form]
-    (let [rch (fn [node]
-                (mapv resolved (children node)))
-          ret (->> (resolved node)
-                   (c/tree-serializer branch? rch)
-                   (compact)
-                   (vec))]
-      (vary-meta ret assoc ::c/content true))))
+  (mapv resolved (children node)))
+
+(defn compile-node
+  "Compiles the node form.
+
+  This is a callable function for compiling forms. For normal use case, use the macros."
+  [node]
+  (->> (resolved node)
+       (c/tree-serializer branch? resolved-children)
+       (compact)))
+
+(defmacro compile*
+  "Compiles the node form, returning a compacted equivalent form as a content vector."
+  [node]
+  (binding [*env* &env *form* &form]
+    (-> (compile-node node)
+        (vec)
+        (vary-meta assoc ::c/content true))))
 
 (defmacro compile
+  "Compiles the node form, returning a compacted equivalent form.
+  The return value may be a content vector or an unwrapped value if
+  fewer than two forms are returned."
   [node]
-  (binding [*env*  &env
-            *form* &form]
-    (let [rch (fn [node]
-                (mapv resolved (children node)))
-          ret (->> (resolved node)
-                   (c/tree-serializer branch? rch)
-                   (compact)
-                   (vec))]
+  (binding [*env* &env *form* &form]
+    (let [ret (vec (compile-node node))]
       (case (count ret)
         0 nil
         1 (nth ret 0)
