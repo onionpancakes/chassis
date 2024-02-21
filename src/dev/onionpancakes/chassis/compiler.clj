@@ -22,13 +22,11 @@
   i.e. True when compiling at runtime. False when compiling at macro time."
   true)
 
-(def ^:dynamic *env*
-  "Binding of macro &env."
-  nil)
+;; Binding of macro &env.
+(def ^:dynamic *env*)
 
-(def ^:dynamic *form*
-  "Binding of macro &form."
-  nil)
+;; Binding of macro &form.
+(def ^:dynamic *form*)
 
 ;; Compile
 
@@ -227,12 +225,15 @@
     (boolean *evaluated*))
   ;; But not macro barriers.
   (resolved [this]
-    (macroexpand this))
+    (if *evaluated*
+      this
+      (macroexpand this)))
   clojure.lang.Symbol
   (attrs? [this]
     (and (not *evaluated*)
          (or (attrs-type-hinted? this)
-             (if-some [entry (find *env* this)]
+             (if-let [entry (and (bound? #'*env*)
+                                 (find *env* this))]
                (or (attrs-type-hinted? (key entry))
                    (attrs-compiler-binding? (val entry)))
                false))))
@@ -243,7 +244,9 @@
   (evaluated? [_]
     (boolean *evaluated*))
   (resolved [this]
-    (if-some [res (resolve *env* this)]
+    (if-let [res (and (not *evaluated*)
+                      (bound? #'*env*)
+                      (resolve *env* this))]
       (let [val (if (var? res) @res res)]
         ;; Use constant? as guard against un-embedable code.
         ;; Works for now...
@@ -383,7 +386,8 @@
     (if (attrs-absent? elem)
       (compilable-alias-element-children-attrs-absent elem)
       (do
-        (send-warn-on-ambig-attrs! *form* elem)
+        (if (bound? #'*form*)
+          (send-warn-on-ambig-attrs! *form* elem))
         (compilable-alias-element-children-attrs-ambig elem)))))
 
 (defn compilable-element-children-attrs-present-evaluated
@@ -462,7 +466,8 @@
     (if (attrs-absent? elem)
       (compilable-element-children-attrs-absent elem)
       (do
-        (send-warn-on-ambig-attrs! *form* elem)
+        (if (bound? #'*form*)
+          (send-warn-on-ambig-attrs! *form* elem))
         (compilable-element-children-attrs-ambig elem)))))
 
 (extend-protocol CompilableNode

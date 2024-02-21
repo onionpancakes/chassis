@@ -33,8 +33,8 @@
 
 (deftest test-compile
   (are [node] (= (c/html (cc/compile-node node))
-                 (c/html (cc/compile node))
                  (c/html (cc/compile* node))
+                 (c/html (cc/compile node))
                  (c/html node))
     nil
     0
@@ -50,6 +50,8 @@
     [:div#foo "foo"]
     [:div.123 "foo"]
     [:div#foo.123 "foo"]
+    [:div 'foo]
+    [:div 'example-constant]
     [:div [:p 123] [:p 456]]
     [:div example-constant]
     [:div example-deref]
