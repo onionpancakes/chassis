@@ -153,3 +153,16 @@
 (deftest test-compile-attrs-reflection
   (doseq [[elem warning] @ambig-attrs-warnings]
     (is false (str "Ambig attrs with elem: " elem))))
+
+;; Alias content
+
+(defmethod c/resolve-alias ::ContentIsVector
+  [_ _ _ content]
+  (is (vector? content))
+  [:p content])
+
+(deftest test-alias-content-is-vector
+  (are [node] (c/html (cc/compile node))
+    [::ContentIsVector]
+    [::ContentIsVector 0]
+    [::ContentIsVector [:span "foobar"]]))

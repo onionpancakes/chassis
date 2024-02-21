@@ -449,6 +449,17 @@
     ;; Meta
     ^{::content "foo"} [::Meta] "<div>foo</div>"))
 
+(defmethod c/resolve-alias ::ContentIsVector
+  [_ _ _ content]
+  (is (vector? content))
+  [:p content])
+
+(deftest test-alias-content-is-vector
+  (are [node] (c/html node)
+    [::ContentIsVector]
+    [::ContentIsVector 0]
+    [::ContentIsVector [:span "foobar"]]))
+
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
     [:br]     "<br>"

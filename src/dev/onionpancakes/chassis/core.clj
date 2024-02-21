@@ -941,9 +941,7 @@
                        (make-head-attrs head-id head-class attrs)
                        ;; Copy java map into clj map.
                        (make-head-attrs head-id head-class (into {} attrs)))
-        elem-count   (.count elem)
-        content      (if (> elem-count 2)
-                       (content-subvec* elem 2 elem-count))]
+        content      (content-subvec elem 2)]
     (resolve-alias metadata tag merged-attrs content)))
 
 (defn resolve-alias-element
@@ -961,9 +959,7 @@
                      (if (some? head-class)
                        {:class head-class}
                        nil))
-        elem-count (.count elem)
-        content    (if (> elem-count 1)
-                     (content-subvec* elem 1 elem-count))]
+        content    (content-subvec elem 1)]
     (resolve-alias metadata tag attrs content)))
 
 (defn alias-element-children
