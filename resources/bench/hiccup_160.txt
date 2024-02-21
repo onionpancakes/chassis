@@ -1,0 +1,41 @@
+Hiccup
+-------------------------------------
+Evaluation count : 24840 in 60 samples of 414 calls.
+             Execution time mean : 2.419364 ms
+    Execution time std-deviation : 11.788148 µs
+   Execution time lower quantile : 2.402003 ms ( 2.5%)
+   Execution time upper quantile : 2.443560 ms (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 2 (3.3333 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Hiccup Compiled
+-------------------------------------
+Evaluation count : 26340 in 60 samples of 439 calls.
+             Execution time mean : 2.288968 ms
+    Execution time std-deviation : 10.916239 µs
+   Execution time lower quantile : 2.278777 ms ( 2.5%)
+   Execution time upper quantile : 2.308072 ms (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 4 outliers in 60 samples (6.6667 %)
+	low-severe	 3 (5.0000 %)
+	low-mild	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Hiccup Compiled Unambig
+-------------------------------------
+Evaluation count : 59820 in 60 samples of 997 calls.
+             Execution time mean : 1.010059 ms
+    Execution time std-deviation : 5.055643 µs
+   Execution time lower quantile : 1.003877 ms ( 2.5%)
+   Execution time upper quantile : 1.022590 ms (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 3 outliers in 60 samples (5.0000 %)
+	low-severe	 1 (1.6667 %)
+	low-mild	 2 (3.3333 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+

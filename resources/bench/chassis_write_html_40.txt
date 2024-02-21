@@ -1,0 +1,81 @@
+Chassis PrintWriter
+-------------------------------------
+Evaluation count : 183840 in 60 samples of 3064 calls.
+             Execution time mean : 327.581410 µs
+    Execution time std-deviation : 1.138963 µs
+   Execution time lower quantile : 325.775493 µs ( 2.5%)
+   Execution time upper quantile : 329.318494 µs (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 1 outliers in 60 samples (1.6667 %)
+	low-severe	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Chassis PrintWriter Compiled Unambig
+-------------------------------------
+Evaluation count : 402960 in 60 samples of 6716 calls.
+             Execution time mean : 148.982085 µs
+    Execution time std-deviation : 434.507890 ns
+   Execution time lower quantile : 148.066242 µs ( 2.5%)
+   Execution time upper quantile : 149.668984 µs (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 1 (1.6667 %)
+	low-mild	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Chassis PrintStream
+-------------------------------------
+Evaluation count : 99240 in 60 samples of 1654 calls.
+             Execution time mean : 607.709706 µs
+    Execution time std-deviation : 2.928487 µs
+   Execution time lower quantile : 603.229128 µs ( 2.5%)
+   Execution time upper quantile : 611.833661 µs (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 1 outliers in 60 samples (1.6667 %)
+	low-severe	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Chassis PrintStream Compiled Unambig
+-------------------------------------
+Evaluation count : 223800 in 60 samples of 3730 calls.
+             Execution time mean : 268.251082 µs
+    Execution time std-deviation : 1.142505 µs
+   Execution time lower quantile : 266.263307 µs ( 2.5%)
+   Execution time upper quantile : 269.589066 µs (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 1 outliers in 60 samples (1.6667 %)
+	low-severe	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Chassis OutputStreamWriter
+-------------------------------------
+Evaluation count : 173940 in 60 samples of 2899 calls.
+             Execution time mean : 346.118978 µs
+    Execution time std-deviation : 1.414022 µs
+   Execution time lower quantile : 344.714423 µs ( 2.5%)
+   Execution time upper quantile : 348.920922 µs (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 4 outliers in 60 samples (6.6667 %)
+	low-severe	 3 (5.0000 %)
+	low-mild	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Chassis OutputStreamWriter Compiled Unambig
+-------------------------------------
+Evaluation count : 385200 in 60 samples of 6420 calls.
+             Execution time mean : 156.351674 µs
+    Execution time std-deviation : 896.257634 ns
+   Execution time lower quantile : 155.706026 µs ( 2.5%)
+   Execution time upper quantile : 157.116772 µs (97.5%)
+                   Overhead used : 8.800216 ns
+
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 1 (1.6667 %)
+	low-mild	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
