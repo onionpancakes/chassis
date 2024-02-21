@@ -736,6 +736,41 @@ Symbols referring to **constant** values are **var resolved** during compilation
 #object[dev.onionpancakes.chassis.core.RawString 0x7fb21735 "<div>foo&nbsp;bar</div>"]
 ```
 
+## Runtime Compilation
+
+Chassis provides two analogous compile functions, `compile-node` and `compile-node*`, for compiling HTML tree at runtime. They are useful for compiling static HTML pages or components.
+
+Because compiling happens at runtime, list and functions calls are no longer compilation barriers and ambiguous attributes are are not possible.
+
+Runtime compilation is similar to calling `c/html` with a few key differences:
+
+* The return values are `raw` strings, allowing the result to be embedded in other HTML components without being escaped.
+* Stateful values, such as functions and derefs, are not realized.
+
+```clojure
+(defn current-time []
+  (java.time.LocalTime/now))
+
+(defmethod c/resolve-alias ::CurrentTime
+  [_ _ _ _]
+  [:p "Current time is: " current-time])
+
+(def static-page
+  (cc/compile-node
+    [::CurrentTime]))
+
+;; Results in:
+[#object[dev.onionpancakes.chassis.core.RawString 0x7a702aaf "<p>Current time is: "]
+ ;; Notice current-time function is not yet called.
+ #object[user$current_time 0x584d9dc4 "user$current_time@584d9dc4"]
+ #object[dev.onionpancakes.chassis.core.RawString 0x1c59c510 "</p>"]]
+
+;; Stateful values realized on call to c/html
+(c/html static-page)
+
+;; "<p>Current time is: 13:48:14.228299269</p>"
+```
+
 # Performance
 
 At this time, benchmarks shows Chassis to be 2x faster (and often more!) when compared to other Clojure HTML templating libraries on equivalent benchmark examples.
