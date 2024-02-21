@@ -134,11 +134,11 @@
         (println)
         (println "Chassis OutputStreamWriter HTML String")
         (println "-------------------------------------")
-        (bench (chassis-page-output-stream-writer data))
+        (bench (chassis-page-output-stream-writer-html-string data))
         (println)
         (println "Chassis OutputStreamWriter HTML String Compiled Unambig")
         (println "-------------------------------------")
-        (bench (chassis-page-output-stream-writer-compiled-unambig data))
+        (bench (chassis-page-output-stream-writer-html-string-compiled-unambig data))
         (println)))))
 
 (defn gen-bench-hiccup
