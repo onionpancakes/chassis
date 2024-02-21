@@ -952,13 +952,7 @@
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)
-        attrs      (if (some? head-id)
-                     (if (some? head-class)
-                       {:id head-id :class head-class}
-                       {:id head-id})
-                     (if (some? head-class)
-                       {:class head-class}
-                       nil))
+        attrs      (make-head-attrs head-id head-class)
         content    (content-subvec elem 1)]
     (resolve-alias metadata tag attrs content)))
 
