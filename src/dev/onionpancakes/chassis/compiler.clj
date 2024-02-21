@@ -52,15 +52,31 @@
   [node]
   (mapv resolved (children node)))
 
-(defn compile-node
-  "Compiles the node form.
+(defn compile-node*
+  "Compiles the node, returning a compacted equivalent as a content vector.
 
-  This is a callable function for compiling forms. For normal use case, use the macros."
+  This is a callable function for compiling forms at runtime.
+  For normal use case, use the macros."
   [node]
-  (->> (resolved node)
-       (c/tree-serializer branch? resolved-children)
-       (compact)
-       (vec)))
+  (let [ret (->> (resolved node)
+                 (c/tree-serializer branch? resolved-children)
+                 (compact)
+                 (vec))]
+    (vary-meta ret assoc ::c/content true)))
+
+(defn compile-node
+  "Compiles the node, returning a compacted equivalent node.
+  The return value may be a content vector or an unwrapped value
+  if fewer than two forms are returned.
+
+  This is a callable function for compiling forms at runtime.
+  For normal use case, use the macros."
+  [node]
+  (let [ret (compile-node* node)]
+    (case (count ret)
+      0 nil
+      1 (nth ret 0)
+      ret)))
 
 (defmacro compile*
   "Compiles the node form, returning a compacted equivalent form as a content vector."
@@ -68,22 +84,17 @@
   (binding [*evaluated* false
             *env*       &env
             *form*      &form]
-    (-> (compile-node node)
-        (vary-meta assoc ::c/content true))))
+    (compile-node* node)))
 
 (defmacro compile
   "Compiles the node form, returning a compacted equivalent form.
-  The return value may be a content vector or an unwrapped value if
-  fewer than two forms are returned."
+  The return value may be a content vector or an unwrapped value
+  if fewer than two forms are returned."
   [node]
   (binding [*evaluated* false
             *env*       &env
             *form*      &form]
-    (let [ret (compile-node node)]
-      (case (count ret)
-        0 nil
-        1 (nth ret 0)
-        (vary-meta ret assoc ::c/content true)))))
+    (compile-node node)))
 
 ;; CompilableForm
 
