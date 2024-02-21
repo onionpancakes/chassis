@@ -449,17 +449,6 @@
     ;; Meta
     ^{::content "foo"} [::Meta] "<div>foo</div>"))
 
-(defmethod c/resolve-alias ::ContentIsVector
-  [_ _ _ content]
-  (is (vector? content))
-  [:p content])
-
-(deftest test-alias-content-is-vector
-  (are [node] (c/html node)
-    [::ContentIsVector]
-    [::ContentIsVector 0]
-    [::ContentIsVector [:span "foobar"]]))
-
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
     [:br]     "<br>"
@@ -534,3 +523,17 @@
 
     (into [] (take 2) (c/html-serializer [:div "foo"]))             ["<div>" "foo"]
     (into [] (halt-when #{"foo"}) (c/html-serializer [:div "foo"])) "foo"))
+
+;; Alias
+
+(defmethod c/resolve-alias ::TestAliasContent
+  [_ _ _ content]
+  (is (vector? content))
+  (is (::c/content (meta content)))
+  [:p content])
+
+(deftest test-alias-content
+  (are [node] (c/html node)
+    [::TestAliasContent]
+    [::TestAliasContent 0]
+    [::TestAliasContent [:span "foobar"]]))

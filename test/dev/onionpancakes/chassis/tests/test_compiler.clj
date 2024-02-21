@@ -154,15 +154,16 @@
   (doseq [[elem warning] @ambig-attrs-warnings]
     (is false (str "Ambig attrs with elem: " elem))))
 
-;; Alias content
+;; Alias
 
-(defmethod c/resolve-alias ::ContentIsVector
+(defmethod c/resolve-alias ::TestAliasContent
   [_ _ _ content]
   (is (vector? content))
+  (is (::c/content (meta content)))
   [:p content])
 
-(deftest test-alias-content-is-vector
+(deftest test-alias-content
   (are [node] (c/html (cc/compile node))
-    [::ContentIsVector]
-    [::ContentIsVector 0]
-    [::ContentIsVector [:span "foobar"]]))
+    [::TestAliasContent]
+    [::TestAliasContent 0]
+    [::TestAliasContent [:span "foobar"]]))
