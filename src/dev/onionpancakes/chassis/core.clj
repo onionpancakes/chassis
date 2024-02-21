@@ -123,6 +123,7 @@
 
 (defn html
   "Returns HTML string given a HTML Node tree."
+  {:tag String}
   [root]
   (let [sb (StringBuilder. 16384)
         _  (write-html sb root)]

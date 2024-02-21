@@ -286,3 +286,17 @@
     (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
       (c/write-html pout [c/doctype-html5 (page-compiled-unambig data)]))
     (.toByteArray out)))
+
+(defn chassis-page-output-stream-writer-html-string
+  [data]
+  (let [out (java.io.ByteArrayOutputStream. 16384)]
+    (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
+      (.write pout (c/html [c/doctype-html5 (page data)])))
+    (.toByteArray out)))
+
+(defn chassis-page-output-stream-writer-html-string-compiled-unambig
+  [data]
+  (let [out (java.io.ByteArrayOutputStream. 16384)]
+    (with-open [pout (java.io.OutputStreamWriter. out "UTF-8")]
+      (.write pout (c/html [c/doctype-html5 (page-compiled-unambig data)])))
+    (.toByteArray out)))

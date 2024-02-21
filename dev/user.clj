@@ -13,7 +13,9 @@
                      chassis-page-print-stream
                      chassis-page-print-stream-compiled-unambig
                      chassis-page-output-stream-writer
-                     chassis-page-output-stream-writer-compiled-unambig]]
+                     chassis-page-output-stream-writer-compiled-unambig
+                     chassis-page-output-stream-writer-html-string
+                     chassis-page-output-stream-writer-html-string-compiled-unambig]]
             [bench.hiccup
              :refer [hiccup-page
                      hiccup-page-compiled
@@ -129,6 +131,14 @@
         (println "Chassis OutputStreamWriter Compiled Unambig")
         (println "-------------------------------------")
         (bench (chassis-page-output-stream-writer-compiled-unambig data))
+        (println)
+        (println "Chassis OutputStreamWriter HTML String")
+        (println "-------------------------------------")
+        (bench (chassis-page-output-stream-writer data))
+        (println)
+        (println "Chassis OutputStreamWriter HTML String Compiled Unambig")
+        (println "-------------------------------------")
+        (bench (chassis-page-output-stream-writer-compiled-unambig data))
         (println)))))
 
 (defn gen-bench-hiccup
@@ -198,7 +208,9 @@
            (slurp (chassis-page-print-stream data-small))
            (slurp (chassis-page-print-stream-compiled-unambig data-small))
            (slurp (chassis-page-output-stream-writer data-small))
-           (slurp (chassis-page-output-stream-writer-compiled-unambig data-small))))
+           (slurp (chassis-page-output-stream-writer-compiled-unambig data-small))
+           (slurp (chassis-page-output-stream-writer-html-string data-small))
+           (slurp (chassis-page-output-stream-writer-html-string-compiled-unambig data-small))))
 
 (assert (= (hiccup-page data-small)
            (hiccup-page-compiled data-small)
