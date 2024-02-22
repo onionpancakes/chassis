@@ -1,4 +1,5 @@
 (ns build
+  (:refer-clojure :exclude [test])
   (:require [cognitect.test-runner.api :as tr]
             [clojure.tools.build.api :as b]
             [deps-deploy.deps-deploy :as dd]))
@@ -17,6 +18,10 @@
 
 (def jar-file
   (format "target/%s-%s.jar" (name lib) version))
+
+(defn test [_]
+  (tr/test {:dirs     ["test"]
+            :patterns ["dev\\.onionpancakes\\.chassis\\.tests\\..*"]}))
 
 (defn clean [_]
   (b/delete {:path "target"}))
@@ -42,6 +47,7 @@
               :jar-file   jar-file}))
 
 (defn deploy [_]
+  (test nil)
   (jar nil)
   (dd/deploy {:installer :remote
               :artifact  jar-file
