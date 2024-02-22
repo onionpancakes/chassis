@@ -550,3 +550,21 @@
            {:inner-meta  "foo"
             :outer-meta  "bar"
             :common-meta "new"}))))
+
+;; Normalize
+
+(deftest test-apply-normalized
+  (are [elem] (let [norm (c/apply-normalized vector elem)]
+                (and (== (count norm) 3)
+                     (keyword? (nth norm 0))
+                     (or (map? (nth norm 1)) (nil? (nth norm 1)))
+                     (vector? (nth norm 2))
+                     (= (c/html norm) (c/html elem))
+                     (= (meta elem) (meta norm))))
+    [:div]
+    [:div#foo]
+    [:div#foo.bar]
+    [:div {:foo "bar"}]
+    [:div#foo.bar {:foo "bar"}]
+    [:div#foo.bar {:class "123" :foo "bar"}]
+    [:div#foo.bar {:class "123" :foo "bar"} "foobar"]))
