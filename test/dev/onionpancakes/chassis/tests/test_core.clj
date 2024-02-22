@@ -535,6 +535,18 @@
   [_ _ _]
   [:div])
 
+(defmethod c/resolve-alias ::TestMetaMerge
+  [_ _ _]
+  (with-meta [:div] {:inner-meta  "foo"
+                     :common-meta "old"}))
+
 (deftest test-alias-meta
-  (let [elem ^::test-meta [::TestMeta]]
-    (is (= (meta elem) (meta (c/resolve-alias-element elem))))))
+  (let [elem (with-meta [::TestMeta] {:foo "bar"})]
+    (is (= (meta (c/resolve-alias-element elem))
+           {:foo "bar"})))
+  (let [elem (with-meta [::TestMetaMerge] {:outer-meta  "bar"
+                                           :common-meta "new"})]
+    (is (= (meta (c/resolve-alias-element elem))
+           {:inner-meta  "foo"
+            :outer-meta  "bar"
+            :common-meta "new"}))))
