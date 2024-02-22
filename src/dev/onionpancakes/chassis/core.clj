@@ -880,6 +880,7 @@
 ;; Element utils
 
 (defn attrs?
+  {:tag Boolean}
   [attrs]
   (or (instance? java.util.Map attrs) (nil? attrs)))
 
@@ -958,6 +959,8 @@
     (f metadata tag attrs content)))
 
 (defn apply-normalized-with-meta
+  "Calls function f with 4 arguments, the normalized element's
+  metadata map, tag keyword, merged attrs map, and content vector."
   [f elem]
   (if (has-attrs? elem)
     (apply-normalized-with-meta-attrs* f elem)
@@ -976,10 +979,16 @@
         (merge-meta metadata))))
 
 (defn apply-normalized
+  "Calls function f with 3 arguments, the normalized element's
+  tag keyword, merged attrs map, and content vector."
   [f elem]
   (apply-normalized-with-meta (resolve-with-meta-fn f) elem))
 
 (defn resolve-alias-with-meta
+  "Resolves alias given metadata, tag, attrs map, and content vector,
+  returning the resolved Node.
+
+  Override this function's var to resolve alias elements with metadata."
   [metadata tag attrs content]
   (-> (resolve-alias tag attrs content)
       (merge-meta metadata)))
