@@ -409,23 +409,19 @@
     (is (= @counter 1))))
 
 (defmethod c/resolve-alias ::Foo
-  [_ _ attrs content]
+  [_ attrs content]
   [:div.foo attrs content])
 
 (defmethod c/resolve-alias ::Bar
-  [_ _ attrs content]
+  [_ attrs content]
   [:span.bar attrs content])
 
 (defmethod c/resolve-alias ::Recursive
-  [_ _ {::keys [idx] :as attrs} content]
+  [_ {::keys [idx] :as attrs} content]
   (let [idx (long idx)]
     (if (and idx (>= idx 0))
       [:div {:id idx}
        [::Recursive {::idx (dec idx)}]])))
-
-(defmethod c/resolve-alias ::Meta
-  [metadata _ _ _]
-  [:div (::content metadata)])
 
 (deftest test-html-alias
   (are [node s] (= (c/html node) s)
@@ -444,10 +440,7 @@
       "xyz"]] "<div id=\"this\" class=\"foo bar baz\"><span id=\"that\" class=\"bar baz buz\">xyz</span></div>"
 
     ;; Recursive
-    [::Recursive {::idx 3}] "<div id=\"3\"><div id=\"2\"><div id=\"1\"><div id=\"0\"></div></div></div></div>"
-
-    ;; Meta
-    ^{::content "foo"} [::Meta] "<div>foo</div>"))
+    [::Recursive {::idx 3}] "<div id=\"3\"><div id=\"2\"><div id=\"1\"><div id=\"0\"></div></div></div></div>"))
 
 (deftest test-html-void
   (are [node s] (= (c/html node) s)
@@ -527,7 +520,7 @@
 ;; Alias
 
 (defmethod c/resolve-alias ::TestAliasContent
-  [_ _ _ content]
+  [_ _ content]
   (is (vector? content))
   (is (::c/content (meta content)))
   [:p content])
@@ -537,3 +530,11 @@
     [::TestAliasContent]
     [::TestAliasContent 0]
     [::TestAliasContent [:span "foobar"]]))
+
+(defmethod c/resolve-alias ::TestMeta
+  [_ _ _]
+  [:div])
+
+(deftest test-alias-meta
+  (let [elem ^::test-meta [::TestMeta]]
+    (is (= (meta elem) (meta (c/resolve-alias-element elem))))))

@@ -333,20 +333,18 @@ Only **global keywords** and **strings** are interpreted as attribute keys. Ever
 
 Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with **namespaced keywords**.
 
-Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation receiving 4 arguments: metadata map, tag keyword, attributes map, and content vector.
+Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation receiving 3 arguments: tag keyword, attributes map, and content vector.
 
 Since namespaced keywords are not interpreted as attributes, they can be used as arguments for alias elements.
 
-Attribute map received (3rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute map of a resolved element, the attributes transfers seamlessly between the two.
+Attribute map received (2rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute map of a resolved element, the attributes transfers seamlessly between the two.
 
-Content subvector received (4th arg) contains the content of the alias element. It has metadata `{::c/content true}` to avoid being interpreted as an element.
-
-The metadata and tag (1st and 2nd arg) are not needed for normal use case but is provided for advanced tinkering.
+Content subvector received (3rd arg) contains the content of the alias element. It has metadata `{::c/content true}` to avoid being interpreted as an element.
 
 ```clojure
 ;; Capitalized name optional, just to make it distinctive.
 (defmethod c/resolve-alias ::Layout
-  [_ _ {:layout/keys [title] :as attrs} content]
+  [_ {:layout/keys [title] :as attrs} content]
   [:div.layout attrs ; Merge attributes
    [:h1 title]
    [:main content]
@@ -460,7 +458,7 @@ Slap a `cc/compile` wherever speed is needed! Then call `c/html` like normal to 
 
 ;; In aliases
 (defmethod c/resolve-alias ::MyElement
-  [_ _ attrs content]
+  [_ attrs content]
   (cc/compile
     [:div
      [:p attrs content]]))
@@ -605,7 +603,7 @@ Type hinting the argument or bindings also works.
 ```clojure
 ;; Should work!
 (defmethod c/resolve-alias ::CompileWithAttrs
-  [_ _ ^java.util.Map attrs content]
+  [_ ^java.util.Map attrs content]
   (cc/compile [:div attrs content]))
 
 (let [^java.util.Map attrs {:foo "bar"}]
@@ -630,7 +628,7 @@ Certain functions in `clojure.core` which returns maps are consider as attribute
 ```clojure
 ;; Useful in aliases when merging attrs.
 (defmethod c/resolve-alias ::AliasWithAttrsMerge
-  [_ _ attrs content]
+  [_ attrs content]
   (cc/compile
     [:div (merge {:foo "bar"} attrs)
       content]))
@@ -667,7 +665,7 @@ Alias elements are implemented as `c/resolve-alias` function calls. As a result,
 
 ```clojure
 (defmethod c/resolve-alias ::FooComp
-  [_ _ attrs content]
+  [_ attrs content]
   [:div attrs content])
 
 (pprint (clojure.walk/macroexpand-all
@@ -752,7 +750,7 @@ Runtime compilation is similar to calling `c/html` with a few key differences:
   (java.time.LocalTime/now))
 
 (defmethod c/resolve-alias ::CurrentTime
-  [_ _ _ _]
+  [_ _ _]
   [:p "Current time is: " current-time])
 
 (def static-page

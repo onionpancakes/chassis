@@ -28,7 +28,7 @@
   `(example-elem-macro ~arg))
 
 (defmethod c/resolve-alias ::Foo
-  [_ _ attrs content]
+  [_ attrs content]
   [:p.alias attrs content])
 
 (deftest test-compile
@@ -118,7 +118,7 @@
   (let [^java.util.Map attrs nil]
     (cc/compile [:div attrs "foobar"]))
   (defmethod c/resolve-alias ::ReflectiveAttrsAlias
-    [_ _ ^java.util.Map attrs content]
+    [_ ^java.util.Map attrs content]
     (cc/compile [:div.reflective-alias-attrs attrs content]))
   ;; Type hinted invocation
   (cc/compile [:div ^java.util.Map (:foo {:foo {}}) "foobar"])
@@ -157,7 +157,7 @@
 ;; Alias
 
 (defmethod c/resolve-alias ::TestAliasContent
-  [_ _ _ content]
+  [_ _ content]
   (is (vector? content))
   (is (::c/content (meta content)))
   [:p content])

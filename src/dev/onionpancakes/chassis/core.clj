@@ -15,8 +15,9 @@
   (^Iterable children [this] "Returns children as Iterable."))
 
 (defmulti resolve-alias
-  "Resolves alias given metadata, tag, attrs map, and content vector, returning the resolved Node."
-  (fn [_ tag _ _] tag))
+  "Resolves alias given tag, attrs map, and content vector,
+  returning the resolved Node."
+  (fn [tag _ _] tag))
 
 ;; Implementation notes:
 ;; - HTML serialization is implemented as depth first search (DFS) traversal over Node.
@@ -928,8 +929,8 @@
          (assoc attrs :class head-class))
        attrs))))
 
-(defn resolve-alias-element-attrs
-  [^clojure.lang.IPersistentVector elem]
+(defn apply-normalized-with-meta-attrs*
+  [f ^clojure.lang.IPersistentVector elem]
   (let [metadata     (meta elem)
         head         (.nth elem 0)
         attrs        (.nth elem 1)
@@ -942,10 +943,10 @@
                        ;; Copy java map into clj map.
                        (make-head-attrs head-id head-class (into {} attrs)))
         content      (content-subvec elem 2)]
-    (resolve-alias metadata tag merged-attrs content)))
+    (f metadata tag merged-attrs content)))
 
-(defn resolve-alias-element
-  [^clojure.lang.IPersistentVector elem]
+(defn apply-normalized-with-meta*
+  [f ^clojure.lang.IPersistentVector elem]
   (let [metadata   (meta elem)
         head       (.nth elem 0)
         opening    (make-opening-tag metadata head nil)
@@ -954,14 +955,42 @@
         head-class (.-head-class opening)
         attrs      (make-head-attrs head-id head-class)
         content    (content-subvec elem 1)]
-    (resolve-alias metadata tag attrs content)))
+    (f metadata tag attrs content)))
+
+(defn apply-normalized-with-meta
+  [f elem]
+  (if (has-attrs? elem)
+    (apply-normalized-with-meta-attrs* f elem)
+    (apply-normalized-with-meta* f elem)))
+
+(defn merge-meta
+  [obj metadata]
+  (if (instance? clojure.lang.IObj obj)
+    (with-meta obj (merge (meta obj) metadata))
+    obj))
+
+(defn resolve-with-meta-fn
+  [f]
+  (fn [metadata tag attrs content]
+    (-> (f tag attrs content)
+        (merge-meta metadata))))
+
+(defn apply-normalized
+  [f elem]
+  (apply-normalized-with-meta (resolve-with-meta-fn f) elem))
+
+(defn resolve-alias-with-meta
+  [metadata tag attrs content]
+  (-> (resolve-alias tag attrs content)
+      (merge-meta metadata)))
+
+(defn resolve-alias-element
+  [elem]
+  (apply-normalized-with-meta resolve-alias-with-meta elem))
 
 (defn alias-element-children
   [elem]
-  ;; Note: alias elements adds an additional depth to the search stack.
-  (if (has-attrs? elem)
-    [(resolve-alias-element-attrs elem)]
-    [(resolve-alias-element elem)]))
+  [(resolve-alias-element elem)])
 
 ;; Normal element
 

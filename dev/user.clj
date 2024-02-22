@@ -33,16 +33,16 @@
             [clojure.walk :refer [macroexpand-all]]))
 
 (defmethod c/resolve-alias ::Foo
-  [_ _ attrs content]
+  [_ attrs content]
   [:div.foo attrs content])
 
 (defmethod c/resolve-alias ::Fooc
-  [_ _ ^java.util.Map attrs content]
+  [_ ^java.util.Map attrs content]
   (cc/compile
    [:div.fooc attrs content]))
 
 (defmethod c/resolve-alias ::Layoutc
-  [_ _ attrs content]
+  [_ attrs content]
   (cc/compile
    [:html
     [:head

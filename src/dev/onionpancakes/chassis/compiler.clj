@@ -331,10 +331,11 @@
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)]
-    [`(c/resolve-alias ~metadata
-                       ~tag
-                       ~(c/make-head-attrs head-id head-class attrs)
-                       (compile* ~(c/content-subvec elem 2)))]))
+    [`(c/resolve-alias-with-meta
+       ~metadata
+       ~tag
+       ~(c/make-head-attrs head-id head-class attrs)
+       (compile* ~(c/content-subvec elem 2)))]))
 
 (defn compilable-alias-element-children-attrs-present
   [elem]
@@ -345,12 +346,13 @@
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)]
-    [`(c/resolve-alias ~metadata
-                       ~tag
-                       ~(if (or head-id head-class)
-                         `(c/make-head-attrs ~head-id ~head-class ~attrs)
-                         attrs)
-                       (compile* ~(c/content-subvec elem 2)))]))
+    [`(c/resolve-alias-with-meta
+       ~metadata
+       ~tag
+       ~(if (or head-id head-class)
+          `(c/make-head-attrs ~head-id ~head-class ~attrs)
+          attrs)
+       (compile* ~(c/content-subvec elem 2)))]))
 
 (defn compilable-alias-element-children-attrs-absent
   [elem]
@@ -360,10 +362,11 @@
         tag        (.-tag opening)
         head-id    (.-head-id opening)
         head-class (.-head-class opening)]
-    [`(c/resolve-alias ~metadata
-                       ~tag
-                       ~(c/make-head-attrs head-id head-class)
-                       (compile* ~(c/content-subvec elem 1)))]))
+    [`(c/resolve-alias-with-meta
+       ~metadata
+       ~tag
+       ~(c/make-head-attrs head-id head-class)
+       (compile* ~(c/content-subvec elem 1)))]))
 
 (defn compilable-alias-element-children-attrs-ambig
   [elem]
@@ -377,16 +380,18 @@
         attrs-sym  (gensym "attrs")]
     [`(let [~attrs-sym ~attrs]
         (if (c/attrs? ~attrs-sym)
-          (c/resolve-alias ~metadata
-                           ~tag
-                           ~(if (or head-id head-class)
-                              `(c/make-head-attrs ~head-id ~head-class ~attrs-sym)
-                              attrs-sym)
-                           (compile* ~(c/content-subvec elem 2)))
-          (c/resolve-alias ~metadata
-                           ~tag
-                           ~(c/make-head-attrs head-id head-class)
-                           (compile* ~[attrs-sym (c/content-subvec elem 2)]))))]))
+          (c/resolve-alias-with-meta
+           ~metadata
+           ~tag
+           ~(if (or head-id head-class)
+              `(c/make-head-attrs ~head-id ~head-class ~attrs-sym)
+              attrs-sym)
+           (compile* ~(c/content-subvec elem 2)))
+          (c/resolve-alias-with-meta
+           ~metadata
+           ~tag
+           ~(c/make-head-attrs head-id head-class)
+           (compile* ~[attrs-sym (c/content-subvec elem 2)]))))]))
 
 (defn compilable-alias-element-children
   [elem]

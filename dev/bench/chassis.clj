@@ -3,7 +3,7 @@
             [dev.onionpancakes.chassis.compiler :as cc]))
 
 (defmethod c/resolve-alias ::Item
-  [_ _ {item ::item :as attrs} content]
+  [_ {item ::item :as attrs} content]
   [:div.item (merge {:id    (:uuid item)
                      :class (:type item)} attrs)
    [:h2 (:name item)]
@@ -14,7 +14,7 @@
    [:p (:text item)]])
 
 (defmethod c/resolve-alias ::ItemCompiled
-  [_ _ {item ::item :as attrs} content]
+  [_ {item ::item :as attrs} content]
   (cc/compile
    [:div.item (merge {:id    (:uuid item)
                       :class (:type item)} attrs)
@@ -26,7 +26,7 @@
     [:p (:text item)]]))
 
 (defmethod c/resolve-alias ::ItemCompiledUnambig
-  [_ _ {item ::item :as attrs} content]
+  [_ {item ::item :as attrs} content]
   (cc/compile
    [:div.item (merge {:id    (:uuid item)
                       :class (:type item)} attrs)
@@ -38,7 +38,7 @@
     [:p nil (:text item)]]))
 
 (defmethod c/resolve-alias ::Layout
-  [_ _ {title ::title :as attrs} content]
+  [_ {title ::title :as attrs} content]
   [:html {:lang "en"}
    [:head
     [:link {:href "/foobar1" :rel "stylesheet"}]
@@ -53,7 +53,7 @@
     [:footer "Footer"]]])
 
 (defmethod c/resolve-alias ::LayoutCompiled
-  [_ _ {title ::title :as attrs} content]
+  [_ {title ::title :as attrs} content]
   (cc/compile
    [:html {:lang "en"}
     [:head
@@ -69,7 +69,7 @@
      [:footer "Footer"]]]))
 
 (defmethod c/resolve-alias ::LayoutCompiledUnambig
-  [_ _ {title ::title :as attrs} content]
+  [_ {title ::title :as attrs} content]
   (cc/compile
    [:html {:lang "en"}
     [:head
