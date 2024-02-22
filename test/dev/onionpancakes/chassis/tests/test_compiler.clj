@@ -46,6 +46,7 @@
     #{}
     '()
     []
+    
     [:div]
     [:div "foo"]
     [:div#foo "foo"]
@@ -54,23 +55,38 @@
     [:div 'foo]
     [:div 'example-constant]
     [:div [:p 123] [:p 456]]
+
+    ;; Var syms
     [:div example-constant]
     [:div example-deref]
     [:div example-fn]
+    
     [:div nil]
     [:div {:foo "bar"}]
     [:div {:foo "bar"} "baz"]
     [:div example-attrs]
+    
+    ;; Function calls
+    (map inc (range 5))
+    [:div (map inc (range 5))]
+    [:div nil (map inc (range 5))]
+
+    ;; Element function calls
+    (example-elem-fn "foo")
     [:div (example-elem-fn "foo")]
     [:div (example-elem-macro "foo")]
     [:div (example-elem-macro-nested "foo")]
+
+    ;; Macros expanding into lists
     [:div (for [i (range 4)]
             [:p i])]
     [:div (for [i (range 4)]
             (cc/compile [:p i]))]
-    (map inc (range 5))
-    [:div (map inc (range 5))]
-    [:div nil (map inc (range 5))]
+    [:div (for [i (range 4)]
+            (for [j (range 4)]
+              [:p i j]))]
+    
+    ;; Alias
     [::Foo]
     [::Foo nil]
     [::Foo nil "foobar"]
@@ -78,6 +94,15 @@
     [::Foo {:foo "bar"}]
     [::Foo example-fn]
     [::Foo#foo.bar]
+    [:div [::Foo]]
+    [:div [::Foo [::Foo]]]
+    [:div
+     [::Foo
+      [:p "foobar"]
+      [::Foo
+       [:p 123]]]]
+
+    ;; Var consts
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
 (deftest test-compile-full-compaction
@@ -89,12 +114,18 @@
     [:div]
     [:div#foo.bar "123"]
     [:div {:foo "bar"} "123"]
-    [:div {:foo example-constant}]
     [:div [:p "foo"] [:p "bar"]]
+    [:div [1 2 3 4]]
+    [:div #{1 2 3 4}]
+
+    ;; Macros
     (example-elem-macro "123")
     (example-elem-macro-nested "123")
     [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
     [:div [:p "foo"] (example-elem-macro-nested "123") [:p "bar"]]
+
+    ;; Var consts
+    [:div {:foo example-constant}]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
 ;; Attributes reflection tests
@@ -113,15 +144,37 @@
 
 (do
   ;; Compile attrs reflection examples
+
+  ;; java.util.Map
   (let [attrs nil]
     (cc/compile [:div ^java.util.Map attrs "foobar"]))
   (let [^java.util.Map attrs nil]
     (cc/compile [:div attrs "foobar"]))
-  (defmethod c/resolve-alias ::ReflectiveAttrsAlias
-    [_ ^java.util.Map attrs content]
-    (cc/compile [:div.reflective-alias-attrs attrs content]))
-  ;; Type hinted invocation
   (cc/compile [:div ^java.util.Map (:foo {:foo {}}) "foobar"])
+  (defmethod c/resolve-alias ::ReflectiveAttrsAliasMap
+    [_ ^java.util.Map attrs content]
+    (cc/compile [:div attrs content]))
+
+  ;; IPersistentMap
+  (let [attrs nil]
+    (cc/compile [:div ^clojure.lang.IPersistentMap attrs "foobar"]))
+  (let [^clojure.lang.IPersistentMap attrs nil]
+    (cc/compile [:div attrs "foobar"]))
+  (cc/compile [:div ^clojure.lang.IPersistentMap (:foo {:foo {}}) "foobar"])
+  (defmethod c/resolve-alias ::ReflectiveAttrsAliasIPersistentMap
+    [_ ^clojure.lang.IPersistentMap attrs content]
+    (cc/compile [:div attrs content]))
+
+  ;; PersistentArrayMap
+  (let [attrs nil]
+    (cc/compile [:div ^clojure.lang.PersistentArrayMap attrs "foobar"]))
+  (let [^clojure.lang.PersistentArrayMap attrs nil]
+    (cc/compile [:div attrs "foobar"]))
+  (cc/compile [:div ^clojure.lang.PersistentArrayMap (:foo {:foo {}}) "foobar"])
+  (defmethod c/resolve-alias ::ReflectiveAttrsAliasPersistentArrayMap
+    [_ ^clojure.lang.PersistentArrayMap attrs content]
+    (cc/compile [:div attrs content]))
+  
   ;; Vetted attrs fns
   (cc/compile [:div (array-map :foo "bar") "foobar"])
   (cc/compile [:div (hash-map :foo "bar") "foobar"])
@@ -133,10 +186,15 @@
   (cc/compile [:div (select-keys {} [:foo]) "foobar"])
   (cc/compile [:div (update-keys {} identity) "foobar"])
   (cc/compile [:div (update-vals {} identity) "foobar"])
-  ;; In threaded macro
+  
+  ;; In thread macro
   (cc/compile [:div (-> {}
                         (assoc :foo "bar"))
                "foobar"])
+  (cc/compile [:div (-> {}
+                        ^java.util.Map (identity))
+               "foobar"])
+  
   ;; LocalBinded attrs literals
   (let [attrs nil]
     (cc/compile [:div attrs "foobar"]))
