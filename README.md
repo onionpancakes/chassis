@@ -61,14 +61,14 @@ Currently for my personal use. Future breaking changes possible.
 (require '[dev.onionpancakes.chassis.core :as c])
 (require '[dev.onionpancakes.chassis.compiler :as cc])
 
-(defn compiled-my-post
+(defn my-post-compiled
   [post]
   (cc/compile
     [:div {:id (:id post)}
      [:h2.title (:title post)]
      [:p.content (:content post)]]))
 
-(defn compiled-my-blog
+(defn my-blog-compiled
   [data]
   (cc/compile
     [c/doctype-html5 ; Raw string for <!DOCTYPE html>
@@ -79,10 +79,10 @@ Currently for my personal use. Future breaking changes possible.
       [:body
        [:h1 "My Blog"]
         (for [p (:posts data)]
-          (compiled-my-post p))]]]))
+          (my-post-compiled p))]]]))
 
 (let [data {:posts [{:id "1" :title "foo" :content "bar"}]}]
-  (c/html (compiled-my-blog data)))
+  (c/html (my-blog-compiled data)))
 
 ;; "<!DOCTYPE html><html><head><link href=\"/css/styles.css\" rel=\"stylesheet\"><title>My Blog</title></head><body><h1>My Blog</h1><div id=\"1\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
 ```
@@ -738,9 +738,9 @@ Symbols referring to **constant** values are **var resolved** during compilation
 
 Chassis provides two analogous compile functions, `compile-node` and `compile-node*`, for compiling HTML tree at runtime. They are useful for compiling static HTML pages or components.
 
-Because compiling happens at runtime, lists, function calls, and alias elements are no longer compilation barriers and ambiguous attributes are are not possible.
+Because compiling happens at runtime, lists, function calls, and alias elements are no longer compilation barriers and ambiguous attributes are not possible.
 
-Runtime compilation is similar to calling `c/html` with a few key differences:
+Runtime compilation is similar to generating HTML with `c/html` but with key differences:
 
 * The return values are `raw` strings, allowing the result to be embedded in other HTML components without the HTML tags being escaped.
 * Stateful values, such as functions and derefs, are not realized.
