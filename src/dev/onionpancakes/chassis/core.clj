@@ -244,9 +244,11 @@
 (defn escape-attribute-value
   "Escapes an attribute value string. Escapes &, <, >, \", and '."
   {:tag String}
-  [^String s]
-  (if (some? s)
-    (escape-attribute-value* s)))
+  ([] "")
+  ([x]
+   (escape-attribute-value* (str x)))
+  ([x & more]
+   (escape-attribute-value* (apply str x more))))
 
 (def escape-attribute-value-fragment
   "Fascade to the function used for escaping attribute value fragments.
@@ -830,9 +832,11 @@
 (defn escape-text
   "Escapes a text string. Escapes &, <, and >."
   {:tag String}
-  [^String s]
-  (if (some? s)
-    (escape-text* s)))
+  ([] "")
+  ([x]
+   (escape-text* (str x)))
+  ([x & more]
+   (escape-text* (apply str x more))))
 
 (def escape-text-fragment
   "Fascade to the function used for escaping text fragments.

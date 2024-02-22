@@ -551,7 +551,29 @@
             :outer-meta  "bar"
             :common-meta "new"}))))
 
-;; Normalize
+;; User util fns
+
+(deftest test-escape-text
+  (is (c/escape-text) "")
+  (is (c/escape-text "foo " "< > & \" ' " 123)
+      "foo &lt; &gt; &amp; \" ' 123")
+  (are [s expected] (= (c/escape-text s) expected)
+    nil          ""
+    ""           ""
+    0            "0"
+    \<           "&lt;"
+    "< > & \" '" "&lt; &gt; &amp; \" '"))
+
+(deftest test-escape-attribute-value
+  (is (c/escape-attribute-value) "")
+  (is (c/escape-attribute-value "foo " "< > & \" ' " 123)
+      "foo &lt; &gt; &amp; &quot; &apos; 123")
+  (are [s expected] (= (c/escape-attribute-value s) expected)
+    nil          ""
+    ""           ""
+    0            "0"
+    \<           "&lt;"
+    "< > & \" '" "&lt; &gt; &amp; &quot; &apos;"))
 
 (deftest test-apply-normalized
   (are [elem] (let [norm (c/apply-normalized vector elem)]
