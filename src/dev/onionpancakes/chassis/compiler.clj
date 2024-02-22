@@ -486,19 +486,26 @@
           (send-warn-on-ambig-attrs! *form* elem))
         (compilable-element-children-attrs-ambig elem)))))
 
+(defn compilable-vector-children
+  [this]
+  (if (c/element-vector? this)
+    (if (c/alias-element? this)
+      (compilable-alias-element-children this)
+      (compilable-element-children this))
+    this))
+
+(defn vector-children
+  [this]
+  (if *evaluated*
+    (c/vector-children this)
+    (compilable-vector-children this)))
+
+(extend clojure.lang.IPersistentVector
+  CompilableNode
+  {:branch?  (fn [_] true)
+   :children vector-children})
+
 (extend-protocol CompilableNode
-  clojure.lang.IPersistentVector
-  (branch? [_] true)
-  (children [this]
-    (if (c/element-vector? this)
-      (if (c/alias-element? this)
-        (if *evaluated*
-          (c/alias-element-children this)
-          (compilable-alias-element-children this))
-        (if *evaluated*
-          (c/element-children this)
-          (compilable-element-children this)))
-      this))
   clojure.lang.ISeq
   (branch? [_]
     (boolean *evaluated*))

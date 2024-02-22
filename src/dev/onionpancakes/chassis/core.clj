@@ -1346,15 +1346,20 @@
   (let [head (.nth elem 0 nil)]
     (some? (namespace head))))
 
+(defn vector-children
+  [this]
+  (if (element-vector? this)
+    (if (alias-element? this)
+      (alias-element-children this)
+      (element-children this))
+    this))
+
+(extend clojure.lang.IPersistentVector
+  Node
+  {:branch?  (fn [_] true)
+   :children vector-children})
+
 (extend-protocol Node
-  clojure.lang.IPersistentVector
-  (branch? [this] true)
-  (children [this]
-    (if (element-vector? this)
-      (if (alias-element? this)
-        (alias-element-children this)
-        (element-children this))
-      this))
   clojure.lang.ISeq
   (branch? [this] true)
   (children [this] this)
