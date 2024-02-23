@@ -13,7 +13,7 @@ Highly optimized runtime serialization without macros. Even faster serialization
 
 [![Run tests](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml/badge.svg)](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml)
 
-Currently for my personal use. Future breaking changes possible.
+Production released.
 
 # Deps
 
