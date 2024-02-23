@@ -535,6 +535,24 @@ Use `cc/compile*` to ensure the return value is a vector. Otherwise, it is the s
 ;; [#object[dev.onionpancakes.chassis.core.RawString 0x24f1caeb "<hr>"]]
 ```
 
+### Compiled Elements Must Have Literal Tags
+
+A small but subtle difference between `cc/compile` and `c/html` is that `cc/compile` assumes elements are **literal** vectors with **literal** keyword tags. Vectors without literal tags, after [var resolution](#var-resolved-constants), are assumed to be content.
+
+```clojure
+;; Basically don't do this.
+(let [footag :div]
+  (c/html (cc/compile [footag "It's foobarred."])))
+
+;; "divIt's foobarred."
+
+;; Works at runtime.
+(let [footag :div]
+  (c/html [footag "It's foobarred."]))
+
+;; "<div>It's foobarred.</div>"
+```
+
 ## Ambiguous Attributes Produce Speed Bumps
 
 Ambiguous objects in the second position forces the compiler to emit checks which examine the potential attributes map at runtime.
@@ -721,7 +739,7 @@ Whether or not if this is a good idea is left to the user.
 #object[dev.onionpancakes.chassis.core.RawString 0x31b2d0a8 "<div><p>not-blocked</p></div>"]
 ```
 
-## Resolved Constants
+## Var Resolved Constants
 
 Symbols referring to **constant** values are **var resolved** during compilation traversal, thereby allowing those constant values to participate in compilation. These include constant types such as `String` and any collection of constants, as well as `c/doctype-html5`, `c/nbsp`, and any `c/raw` string values. See `cc/constant?`.
 
