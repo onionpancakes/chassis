@@ -17,11 +17,18 @@ Currently for my personal use. Future breaking changes possible.
 
 # Deps
 
+Add one of these deployments to `deps.edn`.
+
+### GitHub
+
 ```clojure
-{:deps
-  {dev.onionpancakes/chassis
-    {:git/url "https://github.com/onionpancakes/chassis"
-     :git/sha "<GIT SHA>"}}}
+io.github.onionpancakes/chassis {:git/tag "v1.0.340" :git/sha "6babb84"}
+```
+
+### Clojars
+
+```clojure
+dev.onionpancakes/chassis {:mvn/version "1.0.340"}
 ```
 
 # Example

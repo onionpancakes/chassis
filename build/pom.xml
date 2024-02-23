@@ -13,6 +13,11 @@
       <url>https://opensource.org/license/mit</url>
     </license>
   </licenses>
+  <scm>
+    <url>https://github.com/onionpancakes/chassis</url>
+    <connection>scm:git:git@github.com:onionpancakes/chassis.git</connection>
+    <developerConnection>scm:git:git@github.com:onionpancakes/chassis.git</developerConnection>
+  </scm>
   <repositories>
     <repository>
       <id>clojars</id>
