@@ -28,10 +28,4 @@
                  selmer/selmer       {:mvn/version "1.12.59"}
                  enlive/enlive       {:mvn/version "1.1.6"}}
    :extra-paths ["dev" "test" "resources"]
-   :exec-fn     user/run-gen-bench-all}
-
-  :deploy
-  {:extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
-                 io.github.clojure/tools.build        {:mvn/version "0.9.6"}
-                 slipset/deps-deploy                  {:mvn/version "0.2.2"}}
-   :extra-paths ["build" "test"]}}}
+   :exec-fn     user/run-gen-bench-all}}}
