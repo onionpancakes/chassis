@@ -22,7 +22,8 @@ Add one of these deployments to `deps.edn`.
 ### GitHub
 
 ```clojure
-io.github.onionpancakes/chassis {:git/tag "v1.0.340" :git/sha "6babb84"}
+dev.onionpancakes/chassis {:git/url "https://github.com/onionpancakes/chassis"
+                           :git/tag "v1.0.340" :git/sha "6babb84"}
 ```
 
 ### Clojars
