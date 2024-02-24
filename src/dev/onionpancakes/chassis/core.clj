@@ -1,13 +1,13 @@
 (ns dev.onionpancakes.chassis.core)
 
 (defprotocol AttributeValue
-  (append-attribute-fragment-to [this sb attr-name] "Appends attribute key and value html fragment."))
+  (append-attribute-fragment-to [this sb attr-name] "Appends attribute key and value HTML fragment."))
 
 (defprotocol AttributeValueFragment
-  (^String attribute-value-fragment [this] "Returns attribute value fragment string or nil if none."))
+  (^String attribute-value-fragment [this] "Returns attribute value HTML fragment or nil if none."))
 
 (defprotocol Token
-  (append-fragment-to [this sb] "Appends html fragment.")
+  (append-fragment-to [this sb] "Appends HTML fragment.")
   (^String fragment [this] "Returns HTML fragment."))
 
 (defprotocol Node
@@ -27,15 +27,16 @@
 ;; - DFS is implemented using a stack of Iterators. (java.util.Deque<Iterator>)
 ;;   Note that head of stack is held by loop binding rather than the actual head of stack.
 ;; - Node children returns a value that is as flat as possible
-;;   to minimized the depth of search (size of Deque).
-;;   See the count varying node-children-n implementations
+;;   to minimize the depth of search (size of Deque).
+;;   See the varying element-children-n implementations.
 ;; - Iterables returned by Node children should prefer implementations
 ;;   that are internally indexes to arrays.
 ;;   Iterators over Vectors are fast, Iterators over Seqs are not as fast.
-;; - DFS emits a minimum number of Tokens. Therefore Node children emits
+;; - DFS emits minimum number of Tokens. Therefore Node children return
 ;;   OpeningTag and ClosingTag types as "fat" tokens capturing the bracket,
 ;;   tag name, and tag attributes data into one Token instance.
-;; - Coalesce appends in large chunks showed 20% performance boost compared to
+;; - Coalescing appends in large chunks showed 25% performance boost
+;;   (the dev example dropped from 500us to 400us) when compared to
 ;;   to fragmented appends. Interleaving appends with branches and computation
 ;;   is detrimental. Therefore, the code is structured like a decision
 ;;   tree so the branches and computation happens early and the appends are

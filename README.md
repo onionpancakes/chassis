@@ -318,7 +318,7 @@ Only vectors beginning with keywords are interpreted as elements. A vector can s
 
 ```clojure
 ;; Not elements
-(c/html [0 1 2])                  ; => "123"
+(c/html [0 1 2])                  ; => "012"
 (c/html ["foo" "bar"])            ; => "foobar"
 (c/html ^::c/content [:foo :bar]) ; => "foobar"
 
@@ -424,7 +424,7 @@ Use `token-serializer` and `html-serializer` to access individual tokens and fra
 
 ### DOCTYPE
 
-Use `doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because it's a RawString, it is safe to wrap in a vector to concatenate with the rest of the HTML document.
+Use `c/doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because it's a RawString, it is safe to wrap in a vector to concatenate with the rest of the HTML document.
 
 ```clojure
 (c/html [c/doctype-html5 [:html "..."]])
@@ -434,7 +434,7 @@ Use `doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because i
 
 ### &amp;nbsp;
 
-Use the `nbsp` constant.
+Use the `c/nbsp` constant.
 
 ```clojure
 (c/html [:div "foo" c/nbsp "bar"])
@@ -687,25 +687,26 @@ Functions calls, and generally any list values, block compilation traversal. Cal
 
 ### Alias Elements
 
-Alias elements are implemented as `c/resolve-alias` function calls. As a result, they also block compilation. However, the arguments pass to `c/resolve-alias` will be compiled.
+Alias elements are implemented as `c/resolve-alias` (via `c/resolve-alias-with-meta`) function calls. As a result, they also block compilation. However, the arguments pass to `c/resolve-alias` will be compiled.
 
 ```clojure
-(defmethod c/resolve-alias ::FooComp
+(defmethod c/resolve-alias ::CompileMyAlias
   [_ attrs content]
   [:div attrs content])
 
-(pprint (clojure.walk/macroexpand-all
+(pprint
+ (clojure.walk/macroexpand-all
   '(cc/compile
-    [::FooComp {:foo "bar"}
+    [::CompileMyAlias {:foo "bar"}
      [:p "content 1"]
      [:p "content 2"]])))
 
 ;; Results in:
-(dev.onionpancakes.chassis.core/resolve-alias
+(dev.onionpancakes.chassis.core/resolve-alias-with-meta
  nil
- :user/FooComp
+ :user/CompileMyAlias
  {:foo "bar"}
- [#object[dev.onionpancakes.chassis.core.RawString 0x2da06c23 "<p>content 1</p><p>content 2</p>"]])
+ [#object[dev.onionpancakes.chassis.core.RawString 0x34e3a7d6 "<p>content 1</p><p>content 2</p>"]])
 ```
 
 ### Macro Calls
@@ -714,22 +715,22 @@ Macros are expanded during compilation. Like function calls, those which expand 
 
 ```clojure
 (pprint
-  (cc/compile
-    [:ol
-     (for [i (range 4)]
-       [:li i])]))
+ (cc/compile
+  [:ol
+   (for [i (range 4)]
+     [:li i])]))
 
 ;; Results in:
-[[#object[dev.onionpancakes.chassis.core.OpeningTag 0xe119f5b "<ol>"]
+[[#object[dev.onionpancakes.chassis.core.OpeningTag 0x6e462cc4 "<ol>"]
   ([:li 0] [:li 1] [:li 2] [:li 3])]
- #object[dev.onionpancakes.chassis.core.RawString 0x7a434ee8 "</ol>"]]
+ #object[dev.onionpancakes.chassis.core.RawString 0x27b55932 "</ol>"]]
 
 ;; Manually call compile in the inner form to reach inside.
 (pprint
-  (cc/compile
-    [:ol
-     (for [i (range 4)]
-       (cc/compile [:li i]))]))
+ (cc/compile
+  [:ol
+   (for [i (range 4)]
+     (cc/compile [:li i]))]))
 ```
 
 Macros which expand into non-lists can participate in compilation. Therefore, it is possible to use macros to abstract element components in a compile friendly way.
