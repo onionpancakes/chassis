@@ -86,10 +86,10 @@
 
 (defn item-element
   [item]
-  [:div.item {:id    (:uuid item)
+  [:div.item {:id    (str (:uuid item))
               :class (:type item)}
    [:h2 (:name item)]
-   [:p (:date item)]
+   [:p (str (:date item))]
    [:p [:a.baz.buz {:href (str "/item/" (:uuid item))}
         "See more details."]]
    [:h3 "Description"]

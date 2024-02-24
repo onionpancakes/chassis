@@ -3,10 +3,11 @@
  
  :aliases
  {:dev
-  {:extra-deps  {criterium/criterium {:mvn/version "0.4.6"}
-                 hiccup/hiccup       {:mvn/version "2.0.0-RC3"}
-                 selmer/selmer       {:mvn/version "1.12.59"}
-                 enlive/enlive       {:mvn/version "1.1.6"}}
+  {:extra-deps  {criterium/criterium      {:mvn/version "0.4.6"}
+                 hiccup/hiccup            {:mvn/version "2.0.0-RC3"}
+                 selmer/selmer            {:mvn/version "1.12.59"}
+                 enlive/enlive            {:mvn/version "1.1.6"}
+                 io.github.escherize/huff {:mvn/version "0.1.8"}}
    :extra-paths ["dev" "test" "resources"]}
 
   :build

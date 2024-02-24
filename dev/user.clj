@@ -30,7 +30,75 @@
             [dev.onionpancakes.chassis.tests.test-compiler :as tc]
             [criterium.core :refer [bench quick-bench]]
             [hiccup2.core :as hiccup]
-            [clojure.walk :refer [macroexpand-all]]))
+            [clojure.walk :refer [macroexpand-all]]
+            [clojure.edn]
+            [clojure.java.io]
+            [huff2.core :as huff]))
+
+(defn read-from-file
+  [init f]
+  (with-open [rdr (-> (clojure.java.io/file f)
+                      (clojure.java.io/reader)
+                      (java.io.PushbackReader.))]
+    (->> (repeatedly #(clojure.edn/read {:eof :eof} rdr))
+         (eduction (take-while (complement #{:eof})))
+         (into init))))
+
+(def chass-page-mid
+  (read-from-file [] "resources/medium_page.edn"))
+(def chass-page-big
+  (read-from-file [] "resources/big_page.edn"))
+(def huff-page-mid
+  (read-from-file [:<>] "resources/medium_page.edn"))
+(def huff-page-big
+  (read-from-file [:<>] "resources/big_page.edn"))
+(def hic-page-mid
+  (->> (read-from-file [] "resources/medium_page.edn")
+       (apply list)))
+(def hic-page-big
+  (->> (read-from-file [] "resources/big_page.edn")
+       (apply list)))
+
+(declare data-mid)
+
+(defn huff-bench [_]
+  (println "Dev example")
+  (println "----------------")
+  (println "Chassis - dev mid")
+  (quick-bench (c/html (page data-mid)))
+  (println)
+  (println "Hiccup - dev mid")
+  (quick-bench (str (hiccup/html {:mode :html5} (page data-mid))))
+  (println)
+  (println "Huff - dev mid")
+  (quick-bench (huff/html (page data-mid)))
+  (println)
+  
+  (println "Huff mid example")
+  (println "----------------")
+  (println "Chassis - huff mid")
+  (quick-bench (c/html chass-page-mid))
+  (println)
+  (println "Hiccup - huff mid")
+  (quick-bench (str (hiccup/html {:mode :html5} hic-page-mid)))
+  (println)
+  (println "Huff - huff mid")
+  (quick-bench (huff/html huff-page-mid))
+  (println)
+
+  (println "Huff big example")
+  (println "----------------")
+  (println "Chassis - huff big")
+  (quick-bench (c/html chass-page-big))
+  (println)
+  (println "Hiccup - huff big")
+  (quick-bench (str (hiccup/html {:mode :html5} hic-page-big)))
+  (println)
+  (println "Huff - huff big")
+  (quick-bench (huff/html huff-page-big))
+  (println))
+
+;;
 
 (defmethod c/resolve-alias ::Foo
   [_ attrs content]

@@ -1,0 +1,91 @@
+Dev example
+----------------
+Chassis - dev mid
+Evaluation count : 2604 in 6 samples of 434 calls.
+             Execution time mean : 258.290858 µs
+    Execution time std-deviation : 2.378918 µs
+   Execution time lower quantile : 254.422065 µs ( 2.5%)
+   Execution time upper quantile : 260.587703 µs (97.5%)
+                   Overhead used : 8.825918 ns
+
+Hiccup - dev mid
+Evaluation count : 846 in 6 samples of 141 calls.
+             Execution time mean : 919.993314 µs
+    Execution time std-deviation : 257.205529 µs
+   Execution time lower quantile : 727.145262 µs ( 2.5%)
+   Execution time upper quantile : 1.224977 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Huff - dev mid
+Evaluation count : 108 in 6 samples of 18 calls.
+             Execution time mean : 6.241999 ms
+    Execution time std-deviation : 349.543790 µs
+   Execution time lower quantile : 5.880985 ms ( 2.5%)
+   Execution time upper quantile : 6.603692 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Huff mid example
+----------------
+Chassis - huff mid
+Evaluation count : 228 in 6 samples of 38 calls.
+             Execution time mean : 2.796840 ms
+    Execution time std-deviation : 196.489792 µs
+   Execution time lower quantile : 2.663282 ms ( 2.5%)
+   Execution time upper quantile : 3.135417 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Found 1 outliers in 6 samples (16.6667 %)
+	low-severe	 1 (16.6667 %)
+ Variance from outliers : 15.2010 % Variance is moderately inflated by outliers
+
+Hiccup - huff mid
+Evaluation count : 36 in 6 samples of 6 calls.
+             Execution time mean : 19.136768 ms
+    Execution time std-deviation : 2.835780 ms
+   Execution time lower quantile : 16.565717 ms ( 2.5%)
+   Execution time upper quantile : 22.594281 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Huff - huff mid
+Evaluation count : 12 in 6 samples of 2 calls.
+             Execution time mean : 56.601502 ms
+    Execution time std-deviation : 1.594460 ms
+   Execution time lower quantile : 54.561698 ms ( 2.5%)
+   Execution time upper quantile : 58.517214 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Found 2 outliers in 6 samples (33.3333 %)
+	low-severe	 1 (16.6667 %)
+	low-mild	 1 (16.6667 %)
+ Variance from outliers : 13.8889 % Variance is moderately inflated by outliers
+
+Huff big example
+----------------
+Chassis - huff big
+Evaluation count : 30 in 6 samples of 5 calls.
+             Execution time mean : 23.597529 ms
+    Execution time std-deviation : 1.809435 ms
+   Execution time lower quantile : 21.774294 ms ( 2.5%)
+   Execution time upper quantile : 25.625120 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Hiccup - huff big
+Evaluation count : 6 in 6 samples of 1 calls.
+             Execution time mean : 157.592734 ms
+    Execution time std-deviation : 15.799676 ms
+   Execution time lower quantile : 142.649261 ms ( 2.5%)
+   Execution time upper quantile : 182.584782 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
+Found 1 outliers in 6 samples (16.6667 %)
+	low-severe	 1 (16.6667 %)
+ Variance from outliers : 30.4546 % Variance is moderately inflated by outliers
+
+Huff - huff big
+Evaluation count : 6 in 6 samples of 1 calls.
+             Execution time mean : 513.370441 ms
+    Execution time std-deviation : 15.483784 ms
+   Execution time lower quantile : 494.535365 ms ( 2.5%)
+   Execution time upper quantile : 529.783005 ms (97.5%)
+                   Overhead used : 8.825918 ns
+
