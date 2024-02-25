@@ -450,12 +450,10 @@
   (let [metadata   (meta elem)
         head       (nth elem 0)
         opening    (c/make-opening-tag metadata head nil)
-        tag        (.-tag opening)
-        head-id    (.-head-id opening)
-        head-class (.-head-class opening)]
+        tag        (.-tag opening)]
     (if (and (c/void-tag? tag) (<= (count elem) 1))
-      [(c/->OpeningTag metadata tag head-id head-class nil)]
-      [(c/->OpeningTag metadata tag head-id head-class nil)
+      [opening]
+      [opening
        (c/content-subvec elem 1)
        (c/->ClosingTag metadata tag)])))
 
