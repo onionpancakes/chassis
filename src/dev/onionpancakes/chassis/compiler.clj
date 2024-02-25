@@ -149,7 +149,7 @@
   clojure.lang.Compiler$NilExpr
   (attrs-compiler-expr? [_] true)
   clojure.lang.Compiler$MapExpr
-  (attrs-compiler-expr? [this] true)
+  (attrs-compiler-expr? [_] true)
   clojure.lang.Compiler$EmptyExpr
   (attrs-compiler-expr? [this]
     (attrs-type? (.getJavaClass this)))
@@ -176,12 +176,12 @@
 
 (extend-protocol CompilableForm
   dev.onionpancakes.chassis.core.OpeningTag
-  (attrs? [this] false)
-  (not-attrs? [this] true)
+  (attrs? [_] false)
+  (not-attrs? [_] true)
   (constant? [this]
     ;; Attrs is evaluated, but may not constant.
     (constant? (.-attrs this)))
-  (evaluated? [this] true)
+  (evaluated? [_] true)
   (resolved [this]
     (c/->OpeningTag (.-metadata this)
                     (.-tag this)
@@ -189,20 +189,20 @@
                     (.-head-class this)
                     (resolved (.-attrs this))))
   dev.onionpancakes.chassis.core.ClosingTag
-  (attrs? [this] false)
-  (not-attrs? [this] true)
+  (attrs? [_] false)
+  (not-attrs? [_] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
   dev.onionpancakes.chassis.core.RawString
-  (attrs? [this] false)
-  (not-attrs? [this] true)
+  (attrs? [_] false)
+  (not-attrs? [_] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
   clojure.lang.MapEntry
-  (attrs? [this] false)
-  (not-attrs? [this] true)
+  (attrs? [_] false)
+  (not-attrs? [_] true)
   (constant? [this]
     (and (constant? (key this))
          (constant? (val this))))
@@ -224,8 +224,8 @@
   (resolved [this]
     (into (empty this) (map resolved) this))
   clojure.lang.Keyword
-  (attrs? [this] false)
-  (not-attrs? [this] true)
+  (attrs? [_] false)
+  (not-attrs? [_] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
@@ -235,7 +235,7 @@
     (and (not *evaluated*)
          (or (attrs-type-hinted? this)
              (attrs-invocation? this))))
-  (not-attrs? [this]
+  (not-attrs? [_]
     (boolean *evaluated*))
   ;; Lists are compilation barriers.
   ;; Not constants, not evaluated.
@@ -258,7 +258,7 @@
                (or (attrs-type-hinted? (key entry))
                    (attrs-compiler-binding? (val entry)))
                false))))
-  (not-attrs? [this]
+  (not-attrs? [_]
     (boolean *evaluated*))
   (constant? [_]
     (boolean *evaluated*))
@@ -276,8 +276,8 @@
   ;; Constable catches Strings, constant Numbers
   ;; (not mutable accumulator Numbers), and a bit more.
   java.lang.constant.Constable
-  (attrs? [this] false)
-  (not-attrs? [this] true)
+  (attrs? [_] false)
+  (not-attrs? [_] true)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
@@ -292,8 +292,8 @@
   (evaluated? [_] true)
   (resolved [this] this)
   nil
-  (attrs? [this] true)
-  (not-attrs? [this] false)
+  (attrs? [_] true)
+  (not-attrs? [_] false)
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [_] nil))

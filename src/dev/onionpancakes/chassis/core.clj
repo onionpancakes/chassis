@@ -243,7 +243,7 @@
       (replace "'" "&apos;")))
 
 (defn escape-attribute-value
-  "Escapes an attribute value string. Escapes &, <, >, \", and '."
+  "Escape as an attribute value string. Escapes &, <, >, \", and '."
   {:tag String}
   ([] "")
   ([x]
@@ -300,8 +300,8 @@
 (extend-protocol AttributeValueFragment
   clojure.lang.Keyword
   (attribute-value-fragment [this]
-    (if-let [ns (namespace this)]
-      (let [ns-frag   (escape-attribute-value-fragment ns)
+    (if-let [ns-str (namespace this)]
+      (let [ns-frag   (escape-attribute-value-fragment ns-str)
             name-frag (escape-attribute-value-fragment (.getName this))
             sb        (doto (StringBuilder.)
                         (.append ns-frag)
@@ -353,7 +353,7 @@
     ;; and false has a fragment value of nil.
     (if this "" nil))
   nil
-  (attribute-value-fragment [this] nil))
+  (attribute-value-fragment [_] nil))
 
 ;; Opening Tag
 
@@ -727,6 +727,9 @@
 (defn make-opening-tag
   {:tag OpeningTag}
   [metadata ^clojure.lang.Keyword head attrs]
+  ;; The index of the first '#' is the anchor.
+  ;; The index of the first '.' is tested whether it's before or after the anchor.
+  ;; If before, check for another '.' after the anchor.
   (let [head-ns   (namespace head)
         head-name (.getName head)
         pound-idx (.indexOf head-name 35 #_(int \#))
@@ -815,8 +818,11 @@
   ([value & more]
    (RawString. (apply str value more))))
 
-(def raw
-  "Alias for raw-string."
+(def ^{:arglists (:arglists (meta #'raw-string))}
+  raw
+  "Wraps value as an unescaped string.
+
+  Alias for raw-string."
   raw-string)
 
 ;; Token impl
@@ -831,7 +837,7 @@
       (replace ">" "&gt;")))
 
 (defn escape-text
-  "Escapes a text string. Escapes &, <, and >."
+  "Escape as a text string. Escapes &, <, and >."
   {:tag String}
   ([] "")
   ([x]
@@ -1377,26 +1383,26 @@
 
 (extend-protocol Node
   clojure.lang.ISeq
-  (branch? [this] true)
+  (branch? [_] true)
   (children [this] this)
   clojure.core.Eduction
-  (branch? [this] true)
+  (branch? [_] true)
   (children [this] this)
   clojure.lang.IDeref
-  (branch? [this] true)
+  (branch? [_] true)
   (children [this]
     ;; Note: adds an additional depth to the search stack.
     [(.deref this)])
   clojure.lang.Fn
-  (branch? [this] true)
+  (branch? [_] true)
   (children [this]
     ;; Note: adds an additional depth to the search stack.
     [(this)])
   Object
-  (branch? [this] false)
+  (branch? [_] false)
   (children [_] nil)
   nil
-  (branch? [this] false)
+  (branch? [_] false)
   (children [_] nil))
 
 ;; Raw consts
