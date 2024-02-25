@@ -62,7 +62,7 @@
                  (c/tree-serializer branch? resolved-children)
                  (compact)
                  (vec))]
-    (vary-meta ret assoc ::c/content true)))
+    (with-meta ret {::c/content true})))
 
 (defn compile-node
   "Compiles the node, returning a compacted equivalent node.
@@ -112,6 +112,7 @@
 
 (defn attrs-invocation?
   [[sym & _ :as this]]
+  ;; Check seq? because it catches both Cons and List types.
   (and (seq? this)
        (symbol? sym)
        (bound? #'*env*)
@@ -124,18 +125,24 @@
 
 (defn attrs-meta-tag?
   [tag]
-  {:pre [(symbol? tag)]}
-  (attrs-type? (resolve tag)))
+  ;; Tags are symbols at compile time.
+  ;; Tags auto resolve to class by runtime.
+  ;; Impl class case just for completeness.
+  (or (and (symbol? tag)
+           ;; Do not resolve with *env*.
+           ;; It's not possible to shadow a
+           ;; class symbol in a binding anyways.
+           (attrs-type? (resolve tag)))
+      (and (class? tag)
+           (attrs-type? tag))))
 
 (defn attrs-type-hinted?
   [obj]
-  (if-some [tag (:tag (meta obj))]
-    (attrs-meta-tag? tag)
-    false))
+  (attrs-meta-tag? (:tag (meta obj))))
 
 (defn attrs-compiler-binding?
   [^clojure.lang.Compiler$LocalBinding b]
-  (and (some? b)
+  (and (instance? clojure.lang.Compiler$LocalBinding b)
        (attrs-compiler-expr? (.-init b))))
 
 (extend-protocol AttributesCompilerExpr
@@ -222,6 +229,7 @@
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
+  ;; ISeq catches both Cons and List types.
   clojure.lang.ISeq
   (attrs? [this]
     (and (not *evaluated*)
@@ -265,7 +273,8 @@
         ;; Works for now...
         (if (constant? val) val this))
       this))
-  ;; This catches Strings, constant Numbers, and a bit more.
+  ;; Constable catches Strings, constant Numbers
+  ;; (not mutable accumulator Numbers), and a bit more.
   java.lang.constant.Constable
   (attrs? [this] false)
   (not-attrs? [this] true)
