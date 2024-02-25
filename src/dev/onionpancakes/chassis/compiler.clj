@@ -111,9 +111,11 @@
     #'clojure.core/update-vals})
 
 (defn attrs-invocation?
-  [[sym & _]]
-  (and (symbol? sym)
-       (contains? attrs-invocable-vars (resolve sym))))
+  [[sym & _ :as this]]
+  (and (seq? this)
+       (symbol? sym)
+       (bound? #'*env*)
+       (contains? attrs-invocable-vars (resolve *env* sym))))
 
 (defn attrs-type?
   [clazz]

@@ -212,6 +212,14 @@
   (doseq [[elem warning] @ambig-attrs-warnings]
     (is false (str "Ambig attrs with elem: " elem))))
 
+(deftest test-compile-shadow-attrs-core-fns
+  (let [assoc (fn [& _] "assoc-shadowed")
+        merge (fn [& _] "merge-shadowed")]
+    (is (= (c/html (cc/compile [:div (assoc {} :foo :bar)]))
+           "<div>assoc-shadowed</div>"))
+    (is (= (c/html (cc/compile [:div (merge {} {:foo :bar})]))
+           "<div>merge-shadowed</div>"))))
+
 ;; Alias
 
 (defmethod c/resolve-alias ::TestAliasContent
