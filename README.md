@@ -105,7 +105,7 @@ Require the namespace.
 
 ## Elements
 
-Use `html` function to generate HTML strings from vectors.
+Use `c/html` function to generate HTML strings from vectors.
 
 Vectors with **global keywords** in the head position are treated as normal HTML elements. The keyword's name is used as the element's tag name.
 
@@ -131,7 +131,7 @@ Maps in the second position are treated as attributes. Use **global keywords** t
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
-The rest of the vector is treated as the element's content. They may be of any type, including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
+The rest of the vector is treated as the element's content. They may be of any type including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
 
 ```clojure
 (c/html [:div {:id "my-id"}
@@ -168,6 +168,7 @@ Like Hiccup, id and class attributes can be specified along with the tag name us
 
 
 ```clojure
+;; First '#' determines the id.
 ;; Extra '#' are uninterpreted.
 (c/html [:div## "foo"])
 
@@ -178,7 +179,7 @@ Like Hiccup, id and class attributes can be specified along with the tag name us
 ;; "<div id=\"my-id\" class=\"my-class-1#not-id\">foo</div>"
 ```
 
-However, there are differences from Hiccup.
+However there are differences from Hiccup.
 
 ```clojure
 ;; '#' id takes precedence over :id keyword
@@ -218,7 +219,7 @@ Use `true`/`false` to toggle boolean attributes.
 
 ## Composite Attribute Values
 
-A collection of attribute values are concatenated as a spaced string.
+Collections of attribute values are concatenated as spaced strings.
 
 ```clojure
 (c/html [:div {:class ["foo" "bar"]}])
@@ -230,7 +231,7 @@ A collection of attribute values are concatenated as a spaced string.
 ;; "<div class=\"bar foo\"></div>"
 ```
 
-A map of attribute values are concatenated as a style string.
+Maps of attribute values are concatenated as style strings.
 
 ```clojure
 (c/html [:div {:style {:color  :red
@@ -250,7 +251,7 @@ Attribute collections and maps arbitrarily nest.
 
 ## Write to Appendable
 
-Avoid intermediate allocation by writing directly to [`java.lang.Appendable`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Appendable.html) by using the `write-html` function.
+Avoid intermediate allocation by writing directly to [`java.lang.Appendable`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Appendable.html) using the `c/write-html` function.
 
 However, [`java.lang.StringBuilder`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/StringBuilder.html) is highly optimized and it may be faster to write to it (and then write the string out) than to write to the Appendable directly. Performance testing is advised.
 
@@ -261,7 +262,7 @@ However, [`java.lang.StringBuilder`](https://docs.oracle.com/en/java/javase/21/d
 
 ## Escapes
 
-By default, text and attribute values are escaped.
+Text and attribute values are escaped by default.
 
 ```clojure
 (c/html [:div "& < >"])
@@ -273,7 +274,7 @@ By default, text and attribute values are escaped.
 ;; "<div foo=\"&amp; &lt; &gt; &quot; &apos;\"></div>"
 ```
 
-Escapes can be disabled locally by wrapping string values with `raw`.
+Escaping can be disabled locally by wrapping string values with `c/raw`.
 
 ```clojure
 (c/html [:div (c/raw "<p>foo</p>")])
@@ -281,8 +282,10 @@ Escapes can be disabled locally by wrapping string values with `raw`.
 ;; "<div><p>foo</p></div>"
 ```
 
-Escapes can be disabled globally by altering vars. Change `escape-text-fragment` and `escape-attribute-value-fragment` to
+Escaping can be disabled globally by altering vars. Change `c/escape-text-fragment` and `c/escape-attribute-value-fragment` to
 `identity` function to allow fragment values to pass through unescaped.
+
+Then use `c/escape-text` and `c/escape-attribute-value` to escape locally.
 
 ```clojure
 (alter-var-root #'c/escape-text-fragment (constantly identity))
@@ -291,13 +294,17 @@ Escapes can be disabled globally by altering vars. Change `escape-text-fragment`
 (c/html [:div "<p>foo</p>"])
 
 ;; "<div><p>foo</p></div>"
+
+(c/html [:div (c/escape-text "foo & bar")])
+
+;; "<div>foo &amp; bar</div>"
 ```
 
 ### Vetted Unescaped Types
 
-For performance, `java.lang.Number` and `java.util.UUID` bypass the default escapement.
+For performance, `java.lang.Number` and `java.util.UUID` are not escaped by default.
 
-### Tags and Attribute Keys are not escaped!
+### Tags and Attribute Keys Are Not Escaped!
 
 Element tags and attribute keys are not escaped. Be careful when placing dangerous text in these positions.
 
@@ -312,9 +319,9 @@ Element tags and attribute keys are not escaped. Be careful when placing dangero
 ;; "<div <>=\"This is bad!\"></div>"
 ```
 
-## Non-element Vectors
+## Non-Element Vectors
 
-Only vectors beginning with keywords are interpreted as elements. A vector can set its metadata `::c/content` key to true to avoid being interpreted as an element, even if it begins with a keyword.
+Only vectors beginning with keywords are interpreted as elements. Vectors can set their metadata `{::c/content true}` to avoid being interpreted as elements, even if they begin with keywords.
 
 ```clojure
 ;; Not elements
@@ -327,7 +334,7 @@ Only vectors beginning with keywords are interpreted as elements. A vector can s
          [:div "bar"]]) ; "<div>foo</div><div>bar</div>"
 ```
 
-## Non-attribute Keys
+## Non-Attribute Keys
 
 Only **global keywords** and **strings** are interpreted as attribute keys. Everything else is ignored.
 
@@ -339,15 +346,20 @@ Only **global keywords** and **strings** are interpreted as attribute keys. Ever
 
 ## Alias Elements
 
-Alias elements are user defined elements. They resolve to other elements through the `resolve-alias` multimethod. They must begin with **namespaced keywords**.
+Alias elements are user defined elements. They resolve to other elements through the `c/resolve-alias` multimethod. They must begin with **namespaced keywords**.
 
-Define an alias element by extending the `resolve-alias` multimethod with a namespaced keyword and a function implementation receiving 3 arguments: tag keyword, attributes map, and content vector.
+Define alias elements by extending `c/resolve-alias` multimethod on a namespaced keyword. It accepts the following 3 arguments of types:
 
-Since namespaced keywords are not interpreted as attributes, they can be used as arguments for alias elements.
+1. Tag keyword. Used for the dispatch.
+2. Attributes map or nil if attrs is absent.
+3. Content vector, possibly empty if no content.
 
-Attribute map received (2rd arg) contains the merged attributes from the alias element, including `id` and `class` from the element tag. By placing the alias element's attribute map as the attribute map of a resolved element, the attributes transfers seamlessly between the two.
+When implementing aliases, consider the following points:
 
-Content subvector received (3rd arg) contains the content of the alias element. It has metadata `{::c/content true}` to avoid being interpreted as an element.
+* Because namespaced keywords are ignored as attributes, they can be used as arguments for alias elements.
+
+* The attributes map will contain `#id` and `.class` merged from the element tag. By placing the alias element's attribute map as the attribute map of a resolved element, the attributes transfers seamlessly between the two.
+* The content vector has metadata `{::c/content true}` to avoid being interpreted as an element.
 
 ```clojure
 ;; Capitalized name optional, just to make it distinctive.
@@ -401,7 +413,7 @@ They can even deference into other elements.
 
 ## Token and HTML Serializers
 
-Use `token-serializer` and `html-serializer` to access individual tokens and fragment instances. The underlying type implements `clojure.lang.IReduceInit` and is intended to be used in a reduce.
+Use `c/token-serializer` and `c/html-serializer` to access individual tokens and fragment instances. The underlying type implements `clojure.lang.IReduceInit` and is intended to be used in a reduce.
 
 ```clojure
 (->> (c/token-serializer [:div "foo"])
@@ -482,7 +494,7 @@ Slap a `cc/compile` wherever speed is needed! Then call `c/html` like normal to 
 
 ## Compile Usage
 
-Chassis provides compiling macros `cc/compile` and `cc/compile*`. They take **one** argument, the root HTML tree, and they return compiled versions of the HTML tree. Use them to compile elements before passing them to `c/html`.
+Chassis provides compiling macros `cc/compile` and `cc/compile*`. They take **one** argument, the root HTML tree, and they return compiled versions of the HTML tree. Use them to compile elements and pass their results to `c/html`.
 
 ```clojure
 (defn my-element []
@@ -763,13 +775,13 @@ Symbols referring to **constant** values are **var resolved** during compilation
 
 ## Runtime Compilation
 
-Chassis provides two analogous compile functions, `compile-node` and `compile-node*`, for compiling HTML tree at runtime. They are useful for compiling static HTML pages or components.
+Chassis provides two analogous compile functions, `cc/compile-node` and `cc/compile-node*`, for compiling HTML tree at runtime. They are useful for compiling static HTML pages or components.
 
 Because compiling happens at runtime, lists, function calls, and alias elements are no longer compilation barriers and ambiguous attributes are not possible.
 
 Runtime compilation is similar to generating HTML with `c/html` but with key differences:
 
-* The return values are `raw` strings, allowing the result to be embedded in other HTML components without the HTML tags being escaped.
+* The return values are `c/raw` strings, allowing the result to be embedded in other HTML components without the HTML tags being escaped.
 * Stateful values, such as functions and derefs, are not realized.
 
 ```clojure
@@ -885,7 +897,7 @@ nil
 
 ## Element Vector Allocation is Small
 
-Element vector allocation accounts for ~5% of the runtime cost.
+Element vector allocation accounts for a small % of the runtime cost.
 
 ```clojure
 user=> (quick-bench (page-doall data-mid))
