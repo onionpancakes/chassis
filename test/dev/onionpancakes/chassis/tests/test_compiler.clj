@@ -48,6 +48,8 @@
     []
     
     [:div]
+    [:div nil]
+    [:div nil "foo"]
     [:div "foo"]
     [:div#foo "foo"]
     [:div.123 "foo"]
@@ -60,11 +62,18 @@
     [:div example-constant]
     [:div example-deref]
     [:div example-fn]
-    
+
     [:div nil]
+    [:div nil "foo"]
+    [:div nil example-constant]
+    [:div nil example-deref]
+    [:div nil example-fn]
     [:div {:foo "bar"}]
     [:div {:foo "bar"} "baz"]
-    [:div example-attrs]
+    [:div {:foo example-constant}]
+    [:div {:foo example-deref}]
+    [:div {:foo example-fn}]
+    [:div example-attrs]    
     
     ;; Function calls
     (map inc (range 5))
@@ -85,6 +94,21 @@
     [:div (for [i (range 4)]
             (for [j (range 4)]
               [:p i j]))]
+
+    ;; Voids
+    [:hr]
+    [:hr nil]
+    [:hr {}]
+    [:hr {:foo "bar"}]
+    [:hr {:foo example-fn}]
+    [:hr "foo"]
+    [:hr nil "foo"]
+    (let [foo nil]
+      [:hr foo])
+    (let [foo {:foo "bar"}]
+      [:hr foo])
+    (let [foo "foo"]
+      [:hr foo "bar"])
     
     ;; Alias
     [::Foo]
