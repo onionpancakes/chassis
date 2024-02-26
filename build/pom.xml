@@ -4,8 +4,8 @@
   <packaging>jar</packaging>
   <groupId>dev.onionpancakes</groupId>
   <artifactId>chassis</artifactId>
-  <name>chassis</name>
-  <description>Fast HTML5 serialization for Clojure</description>
+  <name>Chassis</name>
+  <description>Fast HTML5 Serialization for Clojure</description>
   <url>https://github.com/onionpancakes/chassis</url>
   <licenses>
     <license>

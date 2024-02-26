@@ -43,7 +43,7 @@
 ;;   executed together at the leaves.
 
 (comment
-  ;; Bad - Branching inbetween appends
+  ;; Bad - Branching in-between appends
   (do
     (if (is-a? data)
       (append sb "foo")
@@ -61,7 +61,7 @@
       (do (append sb "bar") (append sb "123"))
       (do (append sb "bar") (append sb "456"))))
 
-  ;; Bad - Computing inbetween appends
+  ;; Bad - Computing in-between appends
   (do
     (append sb "foo")
     (append sb (do-thing data))
@@ -260,8 +260,7 @@
 (defn attribute-key?
   {:tag Boolean}
   [k]
-  (or (and (keyword? k) (not (namespace k)))
-      (string? k)))
+  (or (simple-keyword? k) (string? k)))
 
 (extend-protocol AttributeValue
   Boolean
@@ -903,15 +902,15 @@
 (defn element-vector?
   {:tag Boolean}
   [^clojure.lang.IPersistentVector v]
-  (let [head (.nth v 0 nil)]
-    (and (keyword? head) (let [m (meta v)]
-                           (or (nil? m) (not (get m ::content)))))))
+  (and (keyword? (.nth v 0 nil))
+       (let [m (meta v)]
+         (or (nil? m) (not (get m ::content))))))
 
 (defn alias-element?
   {:tag Boolean}
   [^clojure.lang.IPersistentVector elem]
-  (let [head (.nth elem 0 nil)]
-    (some? (namespace head))))
+  ;; Assumes arg is element vector with a keyword head.
+  (some? (namespace (.nth elem 0))))
 
 ;; Content
 
