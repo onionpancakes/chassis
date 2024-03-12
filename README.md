@@ -650,7 +650,7 @@ Type hinting the argument or bindings also works.
 
 ### Vetted Attributes Core Functions
 
-Certain functions in `clojure.core` which returns maps are consider as attributes when called in the second position. Type hinting these invocations is not necessary. They include:
+Certain functions in `clojure.core` which returns maps are considered as attributes when called in the second position. Type hinting these invocations is not necessary. They include:
 
 * `array-map`
 * `hash-map`
@@ -699,7 +699,7 @@ Functions calls, and generally any list values, block compilation traversal. Cal
 
 ### Alias Elements
 
-Alias elements are implemented as `c/resolve-alias` (via `c/resolve-alias-with-meta`) function calls. As a result, they also block compilation. However, the arguments pass to `c/resolve-alias` will be compiled.
+Alias elements are implemented as `c/resolve-alias` (via `c/resolve-alias-with-meta`) function calls. As a result, they also block compilation. However, the arguments passed to `c/resolve-alias` will be compiled.
 
 ```clojure
 (defmethod c/resolve-alias ::CompileMyAlias
