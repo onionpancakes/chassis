@@ -668,7 +668,7 @@
 
 (deftype OpeningTag [metadata ^clojure.lang.Keyword tag head-id head-class ^java.util.Map attrs]
   Token
-  (append-fragment-to [this sb]
+  (append-fragment-to [_ sb]
     (let [tag-name (.getName tag)]
       (if (some? head-id)
         (if (some? head-class)
@@ -718,7 +718,7 @@
           _  (.append-fragment-to this sb)]
       (.toString sb)))
   clojure.lang.IMeta
-  (meta [this] metadata)
+  (meta [_] metadata)
   Object
   (toString [this]
     (fragment this)))
@@ -783,7 +783,7 @@
 
 (deftype ClosingTag [metadata ^clojure.lang.Keyword tag]
   Token
-  (append-fragment-to [this sb]
+  (append-fragment-to [_ sb]
     (let [tag-name (.getName tag)]
       (append-to sb "</" tag-name ">")))
   (fragment [this]
@@ -791,7 +791,7 @@
           _  (.append-fragment-to this sb)]
       (.toString sb)))
   clojure.lang.IMeta
-  (meta [this] metadata)
+  (meta [_] metadata)
   Object
   (toString [this]
     (fragment this)))
@@ -800,11 +800,11 @@
 
 (deftype RawString [value]
   AttributeValueFragment
-  (attribute-value-fragment [this] value)
+  (attribute-value-fragment [_] value)
   Token
-  (append-fragment-to [this sb]
+  (append-fragment-to [_ sb]
     (append-to sb value))
-  (fragment [this] value)
+  (fragment [_] value)
   Object
   (toString [this]
     (fragment this)))
