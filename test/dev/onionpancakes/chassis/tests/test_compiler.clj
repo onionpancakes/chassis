@@ -134,6 +134,11 @@
                 (and (instance? dev.onionpancakes.chassis.core.RawString ret)
                      (= (c/fragment ret) (c/html node))))
     nil
+    0
+    0N
+    0.0
+    0.0M
+    3/2
     ""
     [:div]
     [:div#foo.bar "123"]
@@ -142,6 +147,51 @@
     [:div [1 2 3 4]]
     [:div #{1 2 3 4}]
 
+    ;; Macros
+    (example-elem-macro "123")
+    (example-elem-macro-nested "123")
+    [:div [:p "foo"] (example-elem-macro "123") [:p "bar"]]
+    [:div [:p "foo"] (example-elem-macro-nested "123") [:p "bar"]]
+
+    ;; Var consts
+    [:div {:foo example-constant}]
+    [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
+
+(deftest test-compile-node-full-compaction
+  (are [node] (let [ret (cc/compile-node node)]
+                (and (instance? dev.onionpancakes.chassis.core.RawString ret)
+                     (= (c/fragment ret) (c/html node))))
+    nil
+    0
+    0N
+    0.0
+    0.0M
+    3/2
+    ""
+    (short 0)
+    (int 0)
+    (long 0)
+    (bigint 0)
+    (biginteger 0)
+    (float 0)
+    (double 0)
+    (bigdec 0)
+    
+    [:div]
+    [:div#foo.bar "123"]
+    [:div {:foo "bar"} "123"]
+    [:div [:p "foo"] [:p "bar"]]
+    [:div [1 2 3 4]]
+    [:div #{1 2 3 4}]
+
+    ;; Alias
+    [::Foo]
+    [::Foo nil "foo"]
+
+    ;; Fns
+    (example-elem-fn "123")
+    [:div (example-elem-fn "123")]
+    
     ;; Macros
     (example-elem-macro "123")
     (example-elem-macro-nested "123")

@@ -273,9 +273,61 @@
         ;; Works for now...
         (if (constant? val) val this))
       this))
-  ;; Constable catches Strings, constant Numbers
-  ;; (not mutable accumulator Numbers), and a bit more.
-  java.lang.constant.Constable
+  String
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Short
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Integer
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Long
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  BigInteger
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Float
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Double
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  BigDecimal
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  clojure.lang.BigInt
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  clojure.lang.Ratio
   (attrs? [_] false)
   (not-attrs? [_] true)
   (constant? [_] true)
