@@ -523,14 +523,16 @@
       [`(let [~attrs-sym ~attrs]
           (if (c/attrs? ~attrs-sym)
             (c/->OpeningTag ~metadata ~tag ~head-id ~head-class ~attrs-sym)
-            [~(c/->OpeningTag metadata tag head-id head-class nil)
-             ~attrs-sym
-             ~(c/->ClosingTag metadata tag)]))]
+            (compile
+             [~(c/->OpeningTag metadata tag head-id head-class nil)
+              ~attrs-sym
+              ~(c/->ClosingTag metadata tag)])))]
       [`(let [~attrs-sym ~attrs]
           (if (c/attrs? ~attrs-sym)
             (c/->OpeningTag ~metadata ~tag ~head-id ~head-class ~attrs-sym)
-            [~(c/->OpeningTag metadata tag head-id head-class nil)
-             ~attrs-sym]))
+            (compile
+             [~(c/->OpeningTag metadata tag head-id head-class nil)
+              ~attrs-sym])))
        (c/content-subvec elem 2)
        (c/->ClosingTag metadata tag)])))
 
