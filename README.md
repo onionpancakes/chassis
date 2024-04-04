@@ -579,24 +579,24 @@ Ambiguous objects in the second position forces the compiler to emit checks whic
 
 ```clojure
 (let [data {:body "foo"}]
-  (pprint (macroexpand-1
+  (pprint (clojure.walk/macroexpand-all
      ;; Compiler can't see what (:body data) returns.
     '(cc/compile [:div (:body data)]))))
 
 ;; Results in:
 [(let*
-  [attrs13475 (:body data)]
+  [attrs13712 (:body data)]
   (if ;; Check if 2nd item is attrs map at runtime.
-   (dev.onionpancakes.chassis.core/attrs? attrs13475)
+   (dev.onionpancakes.chassis.core/attrs? attrs13712)
    (dev.onionpancakes.chassis.core/->OpeningTag
     nil
     :div
     nil
     nil
-    attrs13475)
-   [#object[dev.onionpancakes.chassis.core.OpeningTag 0x34b8fe4b "<div>"]
-    attrs13475]))
- #object[dev.onionpancakes.chassis.core.RawString 0x1b09ab08 "</div>"]]
+    attrs13712)
+   [#object[dev.onionpancakes.chassis.core.RawString 0x1cc8f6fb "<div>"]
+    attrs13712]))
+ #object[dev.onionpancakes.chassis.core.RawString 0x6753cbe6 "</div>"]]
 ```
 
 ### Resolving Ambiguity - Force Attributes Absence
