@@ -1,11 +1,11 @@
 Chassis
 -------------------------------------
-Evaluation count : 246660 in 60 samples of 4111 calls.
-             Execution time mean : 244.144826 µs
-    Execution time std-deviation : 868.185579 ns
-   Execution time lower quantile : 242.917445 µs ( 2.5%)
-   Execution time upper quantile : 245.247961 µs (97.5%)
-                   Overhead used : 11.736096 ns
+Evaluation count : 249120 in 60 samples of 4152 calls.
+             Execution time mean : 238.953313 µs
+    Execution time std-deviation : 975.023799 ns
+   Execution time lower quantile : 237.729612 µs ( 2.5%)
+   Execution time upper quantile : 240.205833 µs (97.5%)
+                   Overhead used : 8.800242 ns
 
 Found 1 outliers in 60 samples (1.6667 %)
 	low-severe	 1 (1.6667 %)
@@ -13,12 +13,12 @@ Found 1 outliers in 60 samples (1.6667 %)
 
 Chassis Compiled
 -------------------------------------
-Evaluation count : 424080 in 60 samples of 7068 calls.
-             Execution time mean : 142.064800 µs
-    Execution time std-deviation : 436.422493 ns
-   Execution time lower quantile : 141.351988 µs ( 2.5%)
-   Execution time upper quantile : 142.674186 µs (97.5%)
-                   Overhead used : 11.736096 ns
+Evaluation count : 447960 in 60 samples of 7466 calls.
+             Execution time mean : 133.956603 µs
+    Execution time std-deviation : 333.902528 ns
+   Execution time lower quantile : 133.582903 µs ( 2.5%)
+   Execution time upper quantile : 134.348392 µs (97.5%)
+                   Overhead used : 8.800242 ns
 
 Found 1 outliers in 60 samples (1.6667 %)
 	low-severe	 1 (1.6667 %)
@@ -26,54 +26,52 @@ Found 1 outliers in 60 samples (1.6667 %)
 
 Chassis Compiled Unambig
 -------------------------------------
-Evaluation count : 549420 in 60 samples of 9157 calls.
-             Execution time mean : 109.710883 µs
-    Execution time std-deviation : 325.206891 ns
-   Execution time lower quantile : 109.072121 µs ( 2.5%)
-   Execution time upper quantile : 110.329193 µs (97.5%)
-                   Overhead used : 11.736096 ns
+Evaluation count : 556980 in 60 samples of 9283 calls.
+             Execution time mean : 108.381749 µs
+    Execution time std-deviation : 356.382994 ns
+   Execution time lower quantile : 107.750507 µs ( 2.5%)
+   Execution time upper quantile : 109.208585 µs (97.5%)
+                   Overhead used : 8.800242 ns
 
-Found 5 outliers in 60 samples (8.3333 %)
-	low-severe	 3 (5.0000 %)
-	low-mild	 1 (1.6667 %)
-	high-mild	 1 (1.6667 %)
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 2 (3.3333 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 
 Chassis Alias
 -------------------------------------
-Evaluation count : 185760 in 60 samples of 3096 calls.
-             Execution time mean : 322.833008 µs
-    Execution time std-deviation : 937.786234 ns
-   Execution time lower quantile : 321.664457 µs ( 2.5%)
-   Execution time upper quantile : 324.181803 µs (97.5%)
-                   Overhead used : 11.736096 ns
-
-Found 1 outliers in 60 samples (1.6667 %)
-	low-severe	 1 (1.6667 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-
-Chassis Alias Compiled
--------------------------------------
-Evaluation count : 341760 in 60 samples of 5696 calls.
-             Execution time mean : 176.149648 µs
-    Execution time std-deviation : 647.220818 ns
-   Execution time lower quantile : 175.411987 µs ( 2.5%)
-   Execution time upper quantile : 177.402579 µs (97.5%)
-                   Overhead used : 11.736096 ns
+Evaluation count : 195780 in 60 samples of 3263 calls.
+             Execution time mean : 306.958545 µs
+    Execution time std-deviation : 1.037858 µs
+   Execution time lower quantile : 305.749474 µs ( 2.5%)
+   Execution time upper quantile : 308.610577 µs (97.5%)
+                   Overhead used : 8.800242 ns
 
 Found 2 outliers in 60 samples (3.3333 %)
 	low-severe	 1 (1.6667 %)
 	low-mild	 1 (1.6667 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 
+Chassis Alias Compiled
+-------------------------------------
+Evaluation count : 380160 in 60 samples of 6336 calls.
+             Execution time mean : 158.560825 µs
+    Execution time std-deviation : 556.041891 ns
+   Execution time lower quantile : 157.844474 µs ( 2.5%)
+   Execution time upper quantile : 159.833762 µs (97.5%)
+                   Overhead used : 8.800242 ns
+
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 2 (3.3333 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
 Chassis Alias Compiled Unambig
 -------------------------------------
-Evaluation count : 426780 in 60 samples of 7113 calls.
-             Execution time mean : 140.494776 µs
-    Execution time std-deviation : 523.248012 ns
-   Execution time lower quantile : 139.947837 µs ( 2.5%)
-   Execution time upper quantile : 141.090895 µs (97.5%)
-                   Overhead used : 11.736096 ns
+Evaluation count : 454680 in 60 samples of 7578 calls.
+             Execution time mean : 132.207600 µs
+    Execution time std-deviation : 663.761825 ns
+   Execution time lower quantile : 131.387478 µs ( 2.5%)
+   Execution time upper quantile : 133.238702 µs (97.5%)
+                   Overhead used : 8.800242 ns
 
 Found 2 outliers in 60 samples (3.3333 %)
 	low-severe	 1 (1.6667 %)
