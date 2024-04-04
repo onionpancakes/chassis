@@ -52,7 +52,7 @@
     [:main
      (->> (:items data)
           (map item-element)
-          (interpose (hiccup/html [:hr])))]
+          (interpose [:hr]))]
     [:footer "Footer"]]])
 
 (defn page-compiled
