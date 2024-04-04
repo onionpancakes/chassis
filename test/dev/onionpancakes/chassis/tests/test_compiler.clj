@@ -46,6 +46,8 @@
     #{}
     '()
     []
+    #inst "2007-01-04"
+    #uuid "00000000-0000-0000-0000-000000000000"
     
     [:div]
     [:div nil]
@@ -140,12 +142,15 @@
     0.0M
     3/2
     ""
+    #uuid "00000000-0000-0000-0000-000000000000"
+   
     [:div]
     [:div#foo.bar "123"]
     [:div {:foo "bar"} "123"]
     [:div [:p "foo"] [:p "bar"]]
     [:div [1 2 3 4]]
     [:div #{1 2 3 4}]
+    [:div #uuid "00000000-0000-0000-0000-000000000000"]
 
     ;; Macros
     (example-elem-macro "123")
@@ -168,6 +173,8 @@
     0.0M
     3/2
     ""
+    #uuid "00000000-0000-0000-0000-000000000000"
+
     (short 0)
     (int 0)
     (long 0)
@@ -183,6 +190,7 @@
     [:div [:p "foo"] [:p "bar"]]
     [:div [1 2 3 4]]
     [:div #{1 2 3 4}]
+    [:div #uuid "00000000-0000-0000-0000-000000000000"]
 
     ;; Alias
     [::Foo]
@@ -218,6 +226,10 @@
 
 (do
   ;; Compile attrs reflection examples
+
+  ;; Tagged literals
+  (cc/compile [:div #inst "2007-01-04"])
+  (cc/compile [:div #uuid "00000000-0000-0000-0000-000000000000"])
 
   ;; java.util.Map
   (let [attrs nil]

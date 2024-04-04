@@ -273,6 +273,18 @@
         ;; Works for now...
         (if (constant? val) val this))
       this))
+  java.util.Date
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] false) ; Not constant because not immutable.
+  (evaluated? [_] true)
+  (resolved [this] this)
+  java.util.UUID
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
   String
   (attrs? [_] false)
   (not-attrs? [_] true)
