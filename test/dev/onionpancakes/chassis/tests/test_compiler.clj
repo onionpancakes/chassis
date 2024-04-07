@@ -40,14 +40,18 @@
     nil
     0
     0.0
+    \a
     ""
     "foobar"
+    :foo
+    true
     {}
     #{}
     '()
     []
     #inst "2007-01-04"
     #uuid "00000000-0000-0000-0000-000000000000"
+    java.lang.String
     
     [:div]
     [:div nil]
@@ -141,8 +145,12 @@
     0.0
     0.0M
     3/2
+    \a
     ""
+    :foo
+    true
     #uuid "00000000-0000-0000-0000-000000000000"
+    java.lang.String
    
     [:div]
     [:div#foo.bar "123"]
@@ -150,7 +158,11 @@
     [:div [:p "foo"] [:p "bar"]]
     [:div [1 2 3 4]]
     [:div #{1 2 3 4}]
+    [:div \a]
+    [:div :foo]
+    [:div true]
     [:div #uuid "00000000-0000-0000-0000-000000000000"]
+    [:div java.lang.String]
 
     ;; Macros
     (example-elem-macro "123")
@@ -172,8 +184,12 @@
     0.0
     0.0M
     3/2
+    \a
     ""
+    :foo
+    true
     #uuid "00000000-0000-0000-0000-000000000000"
+    java.lang.String
 
     (short 0)
     (int 0)
@@ -190,7 +206,11 @@
     [:div [:p "foo"] [:p "bar"]]
     [:div [1 2 3 4]]
     [:div #{1 2 3 4}]
+    [:div \a]
+    [:div :foo]
+    [:div true]
     [:div #uuid "00000000-0000-0000-0000-000000000000"]
+    [:div java.lang.String]
 
     ;; Alias
     [::Foo]

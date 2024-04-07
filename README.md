@@ -436,7 +436,7 @@ Use `c/token-serializer` and `c/html-serializer` to access individual tokens and
 
 ### DOCTYPE
 
-Use `c/doctype-html5`. It's just a RawString wrapping `<!DOCTYPE html>`. Because it's a RawString, it is safe to wrap in a vector to concatenate with the rest of the HTML document.
+Use `c/doctype-html5`, a `RawString` wrapping `<!DOCTYPE html>`. Because it is a `RawString`, it is safe to wrap in a vector to concatenate with the rest of the HTML document.
 
 ```clojure
 (c/html [c/doctype-html5 [:html "..."]])
@@ -762,7 +762,7 @@ Whether or not if this is a good idea is left to the user.
 
 ## Var Resolved Constants
 
-Symbols referring to **constant** values are **var resolved** during compilation traversal, thereby allowing those constant values to participate in compilation. These include constant types such as `String` and any collection of constants, as well as `c/doctype-html5`, `c/nbsp`, and any `c/raw` string values. See `cc/constant?`.
+Symbols referring to **vars** containing **constant values** are **resolved** to those values during compilation traversal, thereby allowing those constant values to participate in compilation. Constant types include `String`, `Long`, `IPersistentCollection` of constants, and `RawString` such as `c/doctype-html5` and `c/nbsp`. Use `cc/constant?` to check if values are constants.
 
 ```clojure
 ;; Fully compacted!

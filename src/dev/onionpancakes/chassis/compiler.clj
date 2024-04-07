@@ -285,6 +285,24 @@
   (constant? [_] true)
   (evaluated? [_] true)
   (resolved [this] this)
+  Class
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Boolean
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
+  Character
+  (attrs? [_] false)
+  (not-attrs? [_] true)
+  (constant? [_] true)
+  (evaluated? [_] true)
+  (resolved [this] this)
   String
   (attrs? [_] false)
   (not-attrs? [_] true)
