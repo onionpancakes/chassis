@@ -24,6 +24,8 @@
              :refer [selmer-page]]
             [bench.enlive
              :refer [enlive-page-item-html]]
+            [bench.rum
+             :refer [rum-page]]
             [dev.onionpancakes.chassis.core :as c]
             [dev.onionpancakes.chassis.compiler :as cc]
             [dev.onionpancakes.chassis.tests.test-core :as t]
@@ -190,13 +192,24 @@
         (bench (enlive-page-item-html data))
         (println)))))
 
+(defn gen-bench-rum
+  [data]
+  (let [file-name (str "resources/bench/rum_" (count (:items data)) ".txt")]
+    (with-open [wtr (clojure.java.io/writer file-name)]
+      (binding [*out* wtr]
+        (println "Rum render-static-markup")
+        (println "-------------------------------------")
+        (bench (rum-page data))
+        (println)))))
+
 (defn gen-bench-all
   [data]
   (gen-bench-chassis data)
   (gen-bench-chassis-write-html data)
   (gen-bench-hiccup data)
   (gen-bench-selmer data)
-  (gen-bench-enlive data))
+  (gen-bench-enlive data)
+  (gen-bench-rum data))
 
 (defn run-gen-bench-all
   [_]

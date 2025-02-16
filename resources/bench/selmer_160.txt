@@ -1,14 +1,14 @@
 Selmer
 -------------------------------------
-Evaluation count : 36480 in 60 samples of 608 calls.
-             Execution time mean : 1.645178 ms
-    Execution time std-deviation : 5.737923 µs
-   Execution time lower quantile : 1.637734 ms ( 2.5%)
-   Execution time upper quantile : 1.653490 ms (97.5%)
-                   Overhead used : 8.800242 ns
+Evaluation count : 108180 in 60 samples of 1803 calls.
+             Execution time mean : 561.980881 µs
+    Execution time std-deviation : 8.808957 µs
+   Execution time lower quantile : 556.898500 µs ( 2.5%)
+   Execution time upper quantile : 579.093062 µs (97.5%)
+                   Overhead used : 1.908074 ns
 
-Found 2 outliers in 60 samples (3.3333 %)
-	low-severe	 1 (1.6667 %)
-	low-mild	 1 (1.6667 %)
+Found 5 outliers in 60 samples (8.3333 %)
+	low-severe	 2 (3.3333 %)
+	low-mild	 3 (5.0000 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 

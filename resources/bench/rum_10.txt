@@ -1,0 +1,14 @@
+Rum render-static-markup
+-------------------------------------
+Evaluation count : 729000 in 60 samples of 12150 calls.
+             Execution time mean : 82.891456 µs
+    Execution time std-deviation : 1.251858 µs
+   Execution time lower quantile : 82.453502 µs ( 2.5%)
+   Execution time upper quantile : 83.198818 µs (97.5%)
+                   Overhead used : 1.908074 ns
+
+Found 3 outliers in 60 samples (5.0000 %)
+	low-severe	 2 (3.3333 %)
+	low-mild	 1 (1.6667 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
