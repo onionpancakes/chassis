@@ -230,6 +230,28 @@
     [:div {:foo example-constant}]
     [c/doctype-html5 [:div "foo" c/nbsp "bar"]]))
 
+(def ^:dynamic *example-dynamic*
+  "foobar")
+
+(defn example-fn-dynamic []
+  (cc/compile [:div nil *example-dynamic*]))
+
+(deftest test-compile-dynamic
+  (is (= (c/html (example-fn-dynamic)) "<div>foobar</div>"))
+  (binding [*example-dynamic* "foobarbaz"]
+    (is (= (c/html (example-fn-dynamic)) "<div>foobarbaz</div>"))))
+
+(def ^:redef example-redef
+  "foobar")
+
+(defn example-fn-redef []
+  (cc/compile [:div nil example-redef]))
+
+(deftest test-compile-redef
+  (is (= (c/html (example-fn-redef)) "<div>foobar</div>"))
+  (with-redefs [example-redef "foobarbaz"]
+    (is (= (c/html (example-fn-redef)) "<div>foobarbaz</div>"))))
+
 ;; Attributes reflection tests
 ;; Warnings are emitted at compile time,
 ;; so warning detection is a side effect?
