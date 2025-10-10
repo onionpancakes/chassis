@@ -853,14 +853,9 @@
 (extend-protocol Token
   clojure.lang.Keyword
   (append-fragment-to [this sb]
-    (if-some [ns-str (namespace this)]
-      (let [ns-frag   (escape-text-fragment ns-str)
-            name-frag (escape-text-fragment (.getName this))]
-        (append-to sb ns-frag "/" name-frag))
-      (let [name-frag (escape-text-fragment (.getName this))]
-        (append-to sb name-frag))))
+    (append-to sb (escape-text-fragment (.toString (.-sym this)))))
   (fragment [this]
-    (escape-text-fragment this))
+    (escape-text-fragment (.toString (.-sym this))))
   java.util.UUID
   (append-fragment-to [this sb]
     ;; Not escaped. Should be safe.

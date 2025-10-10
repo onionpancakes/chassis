@@ -367,7 +367,7 @@
     [:div#foo.bar {0 "foo"}]        "<div id=\"foo\" class=\"bar\"></div>"))
 
 (deftest test-html-tokens
-  (are [node s] (= (c/html node) s)
+  (are [node s] (= (c/html node) (c/fragment node) s)
     nil                     ""
     ""                      ""
     "foo"                   "foo"
@@ -377,7 +377,11 @@
     0.0                     "0.0"
     (java.util.UUID. 0 0)   "00000000-0000-0000-0000-000000000000"
     (reify Object
-      (toString [_] "foo")) "foo"))
+      (toString [_] "foo")) "foo"
+    ;; Escapes
+    "< > & \" '"            "&lt; &gt; &amp; \" '"
+    :<>&                    "&lt;&gt;&amp;"
+    :<>&/<>&                "&lt;&gt;&amp;/&lt;&gt;&amp;"))
 
 (deftest test-html-nodes
   (are [node s] (= (c/html node) s)
@@ -390,9 +394,7 @@
     (fn [] :div)            "div"
     (reify Object
       (toString [_] "div")) "div"
-    nil                     ""
-    ;; Escapes
-    "< > & \" '"            "&lt; &gt; &amp; \" '"))
+    nil                     ""))
 
 (deftest test-html-deref-node-derefed-once
   (let [counter (atom 0)
