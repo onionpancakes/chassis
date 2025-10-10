@@ -146,13 +146,17 @@
        (attrs-compiler-expr? (.-init b))))
 
 (extend-protocol AttributesCompilerExpr
+  #_#_
   clojure.lang.Compiler$NilExpr
   (attrs-compiler-expr? [_] true)
+  #_#_
   clojure.lang.Compiler$MapExpr
   (attrs-compiler-expr? [_] true)
+  #_#_
   clojure.lang.Compiler$EmptyExpr
   (attrs-compiler-expr? [this]
     (attrs-type? (.getJavaClass this)))
+  #_#_
   clojure.lang.Compiler$ConstantExpr
   (attrs-compiler-expr? [this]
     ;; ConstantExpr not public class, can't call getJavaClass() method.

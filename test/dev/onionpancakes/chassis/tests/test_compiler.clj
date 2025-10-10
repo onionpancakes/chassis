@@ -324,6 +324,7 @@
                "foobar"])
   
   ;; LocalBinded attrs literals
+  #_#_#_#_
   (let [attrs nil]
     (cc/compile [:div attrs "foobar"]))
   (let [attrs {}]
