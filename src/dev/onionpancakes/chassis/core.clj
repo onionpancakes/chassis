@@ -299,21 +299,13 @@
 (extend-protocol AttributeValueFragment
   clojure.lang.Keyword
   (attribute-value-fragment [this]
-    (if-let [ns-str (namespace this)]
-      (let [ns-frag   (escape-attribute-value-fragment ns-str)
-            name-frag (escape-attribute-value-fragment (.getName this))
-            sb        (doto (StringBuilder.)
-                        (.append ns-frag)
-                        (.append "/")
-                        (.append name-frag))]
-        (.toString sb))
-      (escape-attribute-value-fragment (.getName this))))
+    (escape-attribute-value-fragment (.toString (.-sym this))))
   clojure.lang.IDeref
   (attribute-value-fragment [this]
-    (escape-attribute-value-fragment (.deref this)))
+    (attribute-value-fragment (.deref this)))
   clojure.lang.Fn
   (attribute-value-fragment [this]
-    (escape-attribute-value-fragment (this)))
+    (attribute-value-fragment (this)))
   java.util.Collection
   (attribute-value-fragment [this]
     (let [sb (StringBuilder.)
