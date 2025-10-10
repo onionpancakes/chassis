@@ -311,8 +311,7 @@
     (let [sb (StringBuilder.)
           xf (comp (keep attribute-value-fragment)
                    (interpose " "))
-          rf (completing (memfn ^StringBuilder append s))
-          _  (transduce xf rf sb this)]
+          _  (transduce xf append-to-appendable sb this)]
       (.toString sb)))
   java.util.Map
   (attribute-value-fragment [this]
