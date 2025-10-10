@@ -283,17 +283,17 @@
     (when-some [v-frag (attribute-value-fragment v)]
       (let [k-frag (escape-attribute-value-fragment (name k))]
         (if (pos? (.length sb)) ; Note: if not empty, appends space as prefix!
-          (doto sb
-            (.append " ")
-            (.append k-frag)
-            (.append ": ")
-            (.append v-frag)
-            (.append ";"))
-          (doto sb
-            (.append k-frag)
-            (.append ": ")
-            (.append v-frag)
-            (.append ";"))))))
+          (.. sb
+              (append " ")
+              (append k-frag)
+              (append ": ")
+              (append v-frag)
+              (append ";"))
+          (.. sb
+              (append k-frag)
+              (append ": ")
+              (append v-frag)
+              (append ";"))))))
   sb)
 
 (extend-protocol AttributeValueFragment
