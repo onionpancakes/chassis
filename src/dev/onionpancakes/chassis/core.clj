@@ -161,68 +161,68 @@
   "Batch append strings to Appendable."
   ([this] this)
   ([^Appendable this a]
-   (doto this
-     (.append ^String a)))
+   (.. this
+       (append ^CharSequence a)))
   ([^Appendable this a b]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)))
   ([^Appendable this a b c]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)))
   ([^Appendable this a b c d]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)))
   ([^Appendable this a b c d e]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)))
   ([^Appendable this a b c d e f]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)))
   ([^Appendable this a b c d e f g]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)
+       (append ^CharSequence g)))
   ([^Appendable this a b c d e f g h]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)
+       (append ^CharSequence g)
+       (append ^CharSequence h)))
   ([^Appendable this a b c d e f g h i]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)
-     (.append ^String i))))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)
+       (append ^CharSequence g)
+       (append ^CharSequence h)
+       (append ^CharSequence i))))
 
 (def append-to
   "Fascade to function used for fragment appends. By default, it is set to
