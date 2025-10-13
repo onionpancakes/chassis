@@ -1351,6 +1351,51 @@
       10 (element-children-10-attrs-absent elem)
       (element-children-n-attrs-absent elem))))
 
+;; Normal Element - PersistentVector
+
+(defn persistent-vector-element-children-n-attrs-present
+  [^clojure.lang.PersistentVector elem]
+  (if (identical? clojure.lang.PersistentVector/EMPTY_NODE (.-root elem))
+    (let [metadata (meta elem)
+          head     (.nth elem 0)
+          attrs    (.nth elem 1)
+          opening  (make-opening-tag metadata head attrs)
+          tag      (.-tag opening)
+          closing  (ClosingTag. metadata tag)
+          cnt      (.count elem)
+          arr      (object-array cnt)
+          _        (System/arraycopy (.-tail elem) 2 arr 1 (- cnt 2))
+          _        (aset arr 0 opening)
+          _        (aset arr (dec cnt) closing)]
+      (clojure.lang.LazilyPersistentVector/createOwning arr))
+    (element-children-n-attrs-present elem)))
+
+(defn persistent-vector-element-children-n-attrs-absent
+  [^clojure.lang.PersistentVector elem]
+  (if (identical? clojure.lang.PersistentVector/EMPTY_NODE (.-root elem))
+    (let [metadata (meta elem)
+          head     (.nth elem 0)
+          opening  (make-opening-tag metadata head nil)
+          tag      (.-tag opening)
+          closing  (ClosingTag. metadata tag)
+          cnt      (.count elem)
+          arr      (object-array (inc cnt))
+          _        (System/arraycopy (.-tail elem) 1 arr 1 (dec cnt))
+          _        (aset arr 0 opening)
+          _        (aset arr cnt closing)]
+      (clojure.lang.LazilyPersistentVector/createOwning arr))
+    (element-children-n-attrs-absent elem)))
+
+(defn persistent-vector-element-children
+  [^clojure.lang.PersistentVector elem]
+  (if (has-attrs? elem)
+    (case (.count elem)
+      2  (element-children-2-attrs-present elem)
+      (persistent-vector-element-children-n-attrs-present elem))
+    (case (.count elem)
+      1  (element-children-1 elem)
+      (persistent-vector-element-children-n-attrs-absent elem))))
+
 ;; Node impl
 
 (defn vector-children
@@ -1365,10 +1410,23 @@
         (iterator [_]
           (clojure.lang.SeqIterator. (seq this)))))))
 
+(defn persistent-vector-children
+  [this]
+  (if (element-vector? this)
+    (if (alias-element? this)
+      (alias-element-children this)
+      (persistent-vector-element-children this))
+    this))
+
 (extend clojure.lang.IPersistentVector
   Node
   {:branch?  (fn [_] true)
    :children vector-children})
+
+(extend clojure.lang.PersistentVector
+  Node
+  {:branch?  (fn [_] true)
+   :children persistent-vector-children})
 
 (extend-protocol Node
   clojure.lang.ISeq
