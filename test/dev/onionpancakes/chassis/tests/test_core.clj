@@ -397,16 +397,29 @@
 
 (deftest test-html-nodes
   (are [node s] (= (c/html node) s)
-    [:div]                  "<div></div>"
-    '(:div)                 "div"
-    (seq [:div])            "div"
+    [:div]                                   "<div></div>"
+    (reify clojure.lang.IPersistentVector
+      (count [_] 1)
+      (seq [_] '(:div))
+      (nth [_ i] (if (zero? i) :div))
+      (nth [_ i nf] (if (zero? i) :div nf))) "<div></div>"
+    ^::c/content
+    (reify clojure.lang.IPersistentVector
+      (count [_] 1)
+      (seq [_] '(:div))
+      (nth [_ i] (if (zero? i) :div))
+      (nth [_ i nf] (if (zero? i) :div nf))) "div"
+    '(:div)                                  "div"
+    (seq [:div])                             "div"
+    (reify clojure.lang.ISeq
+      (seq [_] '(:div)))                     "div"
     (eduction (map inc)
-              (range 5))    "12345"
-    (delay :div)            "div"
-    (fn [] :div)            "div"
+              (range 5))                     "12345"
+    (delay :div)                             "div"
+    (fn [] :div)                             "div"
     (reify Object
-      (toString [_] "div")) "div"
-    nil                     ""))
+      (toString [_] "div"))                  "div"
+    nil                                      ""))
 
 (deftest test-html-deref-node-derefed-once
   (let [counter (atom 0)

@@ -1359,7 +1359,11 @@
     (if (alias-element? this)
       (alias-element-children this)
       (element-children this))
-    this))
+    (if (instance? Iterable this)
+      this
+      (reify Iterable
+        (iterator [_]
+          (clojure.lang.SeqIterator. (seq this)))))))
 
 (extend clojure.lang.IPersistentVector
   Node
@@ -1369,7 +1373,12 @@
 (extend-protocol Node
   clojure.lang.ISeq
   (branch? [_] true)
-  (children [this] this)
+  (children [this]
+    (if (instance? Iterable this)
+      this
+      (reify Iterable
+        (iterator [_]
+          (clojure.lang.SeqIterator. this)))))
   clojure.core.Eduction
   (branch? [_] true)
   (children [this] this)
