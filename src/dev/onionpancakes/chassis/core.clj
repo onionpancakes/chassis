@@ -161,68 +161,68 @@
   "Batch append strings to Appendable."
   ([this] this)
   ([^Appendable this a]
-   (doto this
-     (.append ^String a)))
+   (.. this
+       (append ^CharSequence a)))
   ([^Appendable this a b]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)))
   ([^Appendable this a b c]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)))
   ([^Appendable this a b c d]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)))
   ([^Appendable this a b c d e]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)))
   ([^Appendable this a b c d e f]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)))
   ([^Appendable this a b c d e f g]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)
+       (append ^CharSequence g)))
   ([^Appendable this a b c d e f g h]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)
+       (append ^CharSequence g)
+       (append ^CharSequence h)))
   ([^Appendable this a b c d e f g h i]
-   (doto this
-     (.append ^String a)
-     (.append ^String b)
-     (.append ^String c)
-     (.append ^String d)
-     (.append ^String e)
-     (.append ^String f)
-     (.append ^String g)
-     (.append ^String h)
-     (.append ^String i))))
+   (.. this
+       (append ^CharSequence a)
+       (append ^CharSequence b)
+       (append ^CharSequence c)
+       (append ^CharSequence d)
+       (append ^CharSequence e)
+       (append ^CharSequence f)
+       (append ^CharSequence g)
+       (append ^CharSequence h)
+       (append ^CharSequence i))))
 
 (def append-to
   "Fascade to function used for fragment appends. By default, it is set to
@@ -283,44 +283,35 @@
     (when-some [v-frag (attribute-value-fragment v)]
       (let [k-frag (escape-attribute-value-fragment (name k))]
         (if (pos? (.length sb)) ; Note: if not empty, appends space as prefix!
-          (doto sb
-            (.append " ")
-            (.append k-frag)
-            (.append ": ")
-            (.append v-frag)
-            (.append ";"))
-          (doto sb
-            (.append k-frag)
-            (.append ": ")
-            (.append v-frag)
-            (.append ";"))))))
+          (.. sb
+              (append " ")
+              (append k-frag)
+              (append ": ")
+              (append v-frag)
+              (append ";"))
+          (.. sb
+              (append k-frag)
+              (append ": ")
+              (append v-frag)
+              (append ";"))))))
   sb)
 
 (extend-protocol AttributeValueFragment
   clojure.lang.Keyword
   (attribute-value-fragment [this]
-    (if-let [ns-str (namespace this)]
-      (let [ns-frag   (escape-attribute-value-fragment ns-str)
-            name-frag (escape-attribute-value-fragment (.getName this))
-            sb        (doto (StringBuilder.)
-                        (.append ns-frag)
-                        (.append "/")
-                        (.append name-frag))]
-        (.toString sb))
-      (escape-attribute-value-fragment (.getName this))))
+    (escape-attribute-value-fragment (.toString (.-sym this))))
   clojure.lang.IDeref
   (attribute-value-fragment [this]
-    (escape-attribute-value-fragment (.deref this)))
+    (attribute-value-fragment (.deref this)))
   clojure.lang.Fn
   (attribute-value-fragment [this]
-    (escape-attribute-value-fragment (this)))
+    (attribute-value-fragment (this)))
   java.util.Collection
   (attribute-value-fragment [this]
     (let [sb (StringBuilder.)
           xf (comp (keep attribute-value-fragment)
                    (interpose " "))
-          rf (completing (memfn ^StringBuilder append s))
-          _  (transduce xf rf sb this)]
+          _  (transduce xf append-to-appendable sb this)]
       (.toString sb)))
   java.util.Map
   (attribute-value-fragment [this]
@@ -853,14 +844,9 @@
 (extend-protocol Token
   clojure.lang.Keyword
   (append-fragment-to [this sb]
-    (if-some [ns-str (namespace this)]
-      (let [ns-frag   (escape-text-fragment ns-str)
-            name-frag (escape-text-fragment (.getName this))]
-        (append-to sb ns-frag "/" name-frag))
-      (let [name-frag (escape-text-fragment (.getName this))]
-        (append-to sb name-frag))))
+    (append-to sb (escape-text-fragment (.toString (.-sym this)))))
   (fragment [this]
-    (escape-text-fragment this))
+    (escape-text-fragment (.toString (.-sym this))))
   java.util.UUID
   (append-fragment-to [this sb]
     ;; Not escaped. Should be safe.

@@ -324,16 +324,25 @@
     [:div {:foo true}]                  "<div foo></div>"
     [:div {:foo false}]                 "<div></div>"
     [:div {:foo (delay "bar")}]         "<div foo=\"bar\"></div>"
+    [:div {:foo (delay :bar)}]          "<div foo=\"bar\"></div>"
+    [:div {:foo (delay (delay "bar"))}] "<div foo=\"bar\"></div>"
     [:div {:foo (fn [] "bar")}]         "<div foo=\"bar\"></div>"
+    [:div {:foo (fn [] :bar)}]          "<div foo=\"bar\"></div>"
+    [:div {:foo (fn [] (fn [] "bar"))}] "<div foo=\"bar\"></div>"
 
     ;; Escapes
-    [:div#<>&']                     "<div id=\"&lt;&gt;&amp;&apos;\"></div>"
-    [:div.<>&']                     "<div class=\"&lt;&gt;&amp;&apos;\"></div>"
-    [:div#<>&'.<>&']                "<div id=\"&lt;&gt;&amp;&apos;\" class=\"&lt;&gt;&amp;&apos;\"></div>"
-    [(keyword "div#<>&\"'")]        "<div id=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
-    [(keyword "div.<>&\"'")]        "<div class=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
-    [(keyword "div#<>&\"'.<>&\"'")] "<div id=\"&lt;&gt;&amp;&quot;&apos;\" class=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
-    [:div {:foo "< > & \" '"}]      "<div foo=\"&lt; &gt; &amp; &quot; &apos;\"></div>"
+    [:div#<>&']                      "<div id=\"&lt;&gt;&amp;&apos;\"></div>"
+    [:div.<>&']                      "<div class=\"&lt;&gt;&amp;&apos;\"></div>"
+    [:div#<>&'.<>&']                 "<div id=\"&lt;&gt;&amp;&apos;\" class=\"&lt;&gt;&amp;&apos;\"></div>"
+    [(keyword "div#<>&\"'")]         "<div id=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
+    [(keyword "div.<>&\"'")]         "<div class=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
+    [(keyword "div#<>&\"'.<>&\"'")]  "<div id=\"&lt;&gt;&amp;&quot;&apos;\" class=\"&lt;&gt;&amp;&quot;&apos;\"></div>"
+    [:div {:foo "< > & \" '"}]       "<div foo=\"&lt; &gt; &amp; &quot; &apos;\"></div>"
+    [:div {:foo :<>&'}]              "<div foo=\"&lt;&gt;&amp;&apos;\"></div>"
+    [:div {:foo :<>&'/<>&'}]         "<div foo=\"&lt;&gt;&amp;&apos;/&lt;&gt;&amp;&apos;\"></div>"
+    [:div {:foo (reify Object
+                  (toString [_]
+                    "< > & \" '"))}] "<div foo=\"&lt; &gt; &amp; &quot; &apos;\"></div>"
 
     ;; Escapes in class merge
     [(keyword "div.<>&\"'") {:class "<>&\"'"}] "<div class=\"&lt;&gt;&amp;&quot;&apos; &lt;&gt;&amp;&quot;&apos;\"></div>"
@@ -367,7 +376,7 @@
     [:div#foo.bar {0 "foo"}]        "<div id=\"foo\" class=\"bar\"></div>"))
 
 (deftest test-html-tokens
-  (are [node s] (= (c/html node) s)
+  (are [node s] (= (c/html node) (c/fragment node) s)
     nil                     ""
     ""                      ""
     "foo"                   "foo"
@@ -377,7 +386,14 @@
     0.0                     "0.0"
     (java.util.UUID. 0 0)   "00000000-0000-0000-0000-000000000000"
     (reify Object
-      (toString [_] "foo")) "foo"))
+      (toString [_] "foo")) "foo"
+    ;; Escapes
+    "< > & \" '"            "&lt; &gt; &amp; \" '"
+    :<>&                    "&lt;&gt;&amp;"
+    :<>&/<>&                "&lt;&gt;&amp;/&lt;&gt;&amp;"
+    (reify Object
+      (toString [_]
+        "< > & \" '"))      "&lt; &gt; &amp; \" '"))
 
 (deftest test-html-nodes
   (are [node s] (= (c/html node) s)
@@ -390,9 +406,7 @@
     (fn [] :div)            "div"
     (reify Object
       (toString [_] "div")) "div"
-    nil                     ""
-    ;; Escapes
-    "< > & \" '"            "&lt; &gt; &amp; \" '"))
+    nil                     ""))
 
 (deftest test-html-deref-node-derefed-once
   (let [counter (atom 0)

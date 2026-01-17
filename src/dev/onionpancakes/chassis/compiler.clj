@@ -146,13 +146,17 @@
        (attrs-compiler-expr? (.-init b))))
 
 (extend-protocol AttributesCompilerExpr
+  #_#_
   clojure.lang.Compiler$NilExpr
   (attrs-compiler-expr? [_] true)
+  #_#_
   clojure.lang.Compiler$MapExpr
   (attrs-compiler-expr? [_] true)
+  #_#_
   clojure.lang.Compiler$EmptyExpr
   (attrs-compiler-expr? [this]
     (attrs-type? (.getJavaClass this)))
+  #_#_
   clojure.lang.Compiler$ConstantExpr
   (attrs-compiler-expr? [this]
     ;; ConstantExpr not public class, can't call getJavaClass() method.
@@ -268,10 +272,15 @@
     (if-let [res (and (not *evaluated*)
                       (bound? #'*env*)
                       (resolve *env* this))]
-      (let [val (if (var? res) @res res)]
-        ;; Use constant? as guard against un-embedable code.
-        ;; Works for now...
-        (if (constant? val) val this))
+      (if (var? res)
+        (if (or (:dynamic (meta res))
+                (:redef (meta res)))
+          this
+          (let [val @res]
+            ;; Use constant? as guard against un-embedable code.
+            ;; Works for now...
+            (if (constant? val) val this)))
+        (if (constant? res) res this))
       this))
   java.util.Date
   (attrs? [_] false)
