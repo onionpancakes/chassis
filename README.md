@@ -2,34 +2,33 @@
 
 Fast HTML5 templating in Clojure.
 
-Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
+Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings with many additional features, notably:
 
-Highly optimized runtime serialization without macros. Even faster serialization when combined with compiling macros.
+* Highly optimized runtime serialization without macros. See [Performance](#performance).
+* Optional compiling macro for even more performance. See [Compiling Elements](#compiling-elements).
+* User defined custom elements. See [Alias Elements](#alias-elements).
 
-* See [Compiling Elements](#compiling-elements).
-* See [Performance](#performance).
+# Release
 
-# Status
-
+[![Clojars Project](https://img.shields.io/clojars/v/dev.onionpancakes/chassis.svg)](https://clojars.org/dev.onionpancakes/chassis)
 [![Run tests](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml/badge.svg)](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml)
 
-Production released.
-
-# Deps
+Public release.
 
 Add one of these deployments to `deps.edn`.
+
+### Clojars
+
+
+```clojure
+dev.onionpancakes/chassis {:mvn/version "1.0.365"}
+```
 
 ### GitHub
 
 ```clojure
 dev.onionpancakes/chassis {:git/url "https://github.com/onionpancakes/chassis"
                            :git/tag "v1.0.365" :git/sha "3e98fdc"}
-```
-
-### Clojars
-
-```clojure
-dev.onionpancakes/chassis {:mvn/version "1.0.365"}
 ```
 
 # Example
@@ -357,20 +356,19 @@ Define alias elements by extending `c/resolve-alias` multimethod on a namespaced
 When implementing aliases, consider the following points:
 
 * Because namespaced keywords are ignored as attributes, they can be used as arguments for alias elements.
-
-* The attributes map will contain `#id` and `.class` merged from the element tag. By placing the alias element's attribute map as the attribute map of a resolved element, the attributes transfers seamlessly between the two.
+* The attributes map will contain `#id` and `.class` merged from the element tag. Attributes can be inherited by placing the alias element's attribute map as the attribute map of a resolved element.
 * The content vector has metadata `{::c/content true}` to avoid being interpreted as an element.
 
 ```clojure
 ;; Capitalized name optional, just to make it distinctive.
 (defmethod c/resolve-alias ::Layout
-  [_ {:layout/keys [title] :as attrs} content]
-  [:div.layout attrs ; Merge attributes
+  [_ {::keys [title] :as attrs} content]
+  [:div.layout attrs ; Inherit attributes from alias
    [:h1 title]
    [:main content]
    [:footer "Some footer message."]])
 
-(c/html [::Layout#blog.dark {:layout/title "My title!"}
+(c/html [::Layout#blog.dark {::title "My title!"}
          [:p "My content!"]])
 
 ;; "<div id=\"blog\" class=\"layout dark\"><h1>My title!</h1><main><p>My content!</p></main><footer>Some footer message.</footer></div>"
@@ -760,9 +758,9 @@ Whether or not if this is a good idea is left to the user.
 #object[dev.onionpancakes.chassis.core.RawString 0x31b2d0a8 "<div><p>not-blocked</p></div>"]
 ```
 
-## Var Resolved Constants
+## Constant Global Vars are Inlined
 
-Symbols referring to **vars** containing **constant values** are **resolved** to those values during compilation traversal, thereby allowing those constant values to participate in compilation. Constant types include `String`, `Long`, `IPersistentCollection` of constants, and `RawString` such as `c/doctype-html5` and `c/nbsp`. Use `cc/constant?` to check if values are constants.
+Symbols of global vars with constant values are inlined when compiled. Constant types include `String`, `Long`, `IPersistentCollection` of constants, and `RawString` such as `c/doctype-html5` and `c/nbsp`. Use `cc/constant?` to check if values are constants.
 
 ```clojure
 ;; Fully compacted!
@@ -771,6 +769,21 @@ Symbols referring to **vars** containing **constant values** are **resolved** to
 
 ;; Results in:
 #object[dev.onionpancakes.chassis.core.RawString 0x7fb21735 "<div>foo&nbsp;bar</div>"]
+```
+
+Vars with metadata ``{:dynamic true}`` or `{:redef true}` are not inlined. Mark with the respective metadata when working with dynamic or redefable vars.
+
+```clojure
+(def ^:redef redef-value "foo")
+
+(defn redef-element []
+  (cc/compile
+    [:div nil redef-value]))
+
+(with-redefs [redef-value "bar"]
+  (c/html (redef-element)))
+
+;; "<div>bar</div>"
 ```
 
 ## Runtime Compilation
@@ -894,27 +907,6 @@ Evaluation count : 282 in 6 samples of 47 calls.
                    Overhead used : 8.800684 ns
 nil
 ```
-
-## Element Vector Allocation is Small
-
-Element vector allocation accounts for a small % of the runtime cost.
-
-```clojure
-user=> (quick-bench (page-doall data-mid))
-Evaluation count : 34752 in 6 samples of 5792 calls.
-             Execution time mean : 18.073864 µs
-    Execution time std-deviation : 623.107379 ns
-   Execution time lower quantile : 17.421242 µs ( 2.5%)
-   Execution time upper quantile : 18.715025 µs (97.5%)
-                   Overhead used : 8.800684 ns
-nil
-```
-
-The vast proportion of the runtime cost is the iteration of HTML data structure and fragment writes.
-
-### It's All Interned
-
-Keywords and Strings are interned objects. Therefore the cost of allocating HTML vectors is mostly the cost of allocation vectors, and allocating vectors is really fast.
 
 # License
 
