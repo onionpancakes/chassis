@@ -1,6 +1,6 @@
 # Chassis
 
-Fast HTML5 serialization for Clojure.
+Fast HTML5 templating in Clojure.
 
 Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings.
 
