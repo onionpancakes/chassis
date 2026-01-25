@@ -2,7 +2,7 @@
 
 Fast HTML5 templating in Clojure.
 
-Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to strings with many additional features, notably:
+Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors, featuring:
 
 * Highly optimized runtime serialization without macros. See [Performance](#performance).
 * Optional compiling macro for even more performance. See [Compiling Elements](#compiling-elements).
@@ -553,7 +553,7 @@ Use `cc/compile*` to ensure the return value is a vector. Otherwise, it is the s
 
 ### Compiled Elements Must Have Literal Tags
 
-A small but subtle difference between `cc/compile` and `c/html` is that `cc/compile` assumes elements are **literal** vectors with **literal** keyword tags. Vectors without literal tags, after [var resolution](#var-resolved-constants), are assumed to be content.
+A small but subtle difference between `cc/compile` and `c/html` is that `cc/compile` assumes elements are **literal** vectors with **literal** keyword tags. Vectors without literal tags, after [inlining](#global-vars-with-constant-values-are-inlined), are assumed to be content.
 
 ```clojure
 ;; Basically don't do this.
@@ -678,11 +678,10 @@ Call `(cc/unset-warn-on-ambig-attrs!)` to disable.
 
 ### Function Calls
 
-Functions calls, and generally any list values, block compilation traversal. Call `cc/compile` again to compile forms within.
+Functions calls, and generally any list values, block compilation traversal. Call `cc/compile` again to compile forms within. However, the interruption to compaction is unavoidable.
 
 ```clojure
-(defn comp-blocked
-  []
+(defn comp-blocked []
   [:p "blocked"])
 
 (cc/compile [:div "foo" (comp-blocked) "bar"])
@@ -691,6 +690,18 @@ Functions calls, and generally any list values, block compilation traversal. Cal
 [#object[dev.onionpancakes.chassis.core.RawString 0x67574bda "<div>foo"] 
  [:p "blocked"]
  #object[dev.onionpancakes.chassis.core.RawString 0x565edf06 "bar</div>"]]
+
+;; Call compile again on the inside.
+
+(defn comp-unblocked []
+  (cc/compile [:p "unblocked"]))
+
+(cc/compile [:div "foo" (comp-unblocked) "bar"])
+
+;; Results in:
+[#object[dev.onionpancakes.chassis.core.RawString 0x4b850989 "<div>foo"]
+ #object[dev.onionpancakes.chassis.core.RawString 0xa332930 "<p>unblocked</p>"]
+ #object[dev.onionpancakes.chassis.core.RawString 0x345bb5ae "bar</div>"]]
 ```
 
 ### Alias Elements
