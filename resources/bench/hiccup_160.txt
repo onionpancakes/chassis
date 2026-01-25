@@ -1,25 +1,25 @@
 Hiccup
 -------------------------------------
-Evaluation count : 24840 in 60 samples of 414 calls.
-             Execution time mean : 2.413795 ms
-    Execution time std-deviation : 9.342512 µs
-   Execution time lower quantile : 2.399774 ms ( 2.5%)
-   Execution time upper quantile : 2.432069 ms (97.5%)
-                   Overhead used : 8.800242 ns
+Evaluation count : 29580 in 60 samples of 493 calls.
+             Execution time mean : 2.048184 ms
+    Execution time std-deviation : 9.923952 µs
+   Execution time lower quantile : 2.034066 ms ( 2.5%)
+   Execution time upper quantile : 2.066134 ms (97.5%)
+                   Overhead used : 8.799215 ns
 
-Found 3 outliers in 60 samples (5.0000 %)
-	low-severe	 2 (3.3333 %)
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 1 (1.6667 %)
 	low-mild	 1 (1.6667 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 
 Hiccup Compiled
 -------------------------------------
-Evaluation count : 25980 in 60 samples of 433 calls.
-             Execution time mean : 2.318115 ms
-    Execution time std-deviation : 9.615521 µs
-   Execution time lower quantile : 2.303707 ms ( 2.5%)
-   Execution time upper quantile : 2.332333 ms (97.5%)
-                   Overhead used : 8.800242 ns
+Evaluation count : 27480 in 60 samples of 458 calls.
+             Execution time mean : 2.177947 ms
+    Execution time std-deviation : 12.067137 µs
+   Execution time lower quantile : 2.167506 ms ( 2.5%)
+   Execution time upper quantile : 2.191630 ms (97.5%)
+                   Overhead used : 8.799215 ns
 
 Found 2 outliers in 60 samples (3.3333 %)
 	low-severe	 1 (1.6667 %)
@@ -28,12 +28,12 @@ Found 2 outliers in 60 samples (3.3333 %)
 
 Hiccup Compiled Unambig
 -------------------------------------
-Evaluation count : 60780 in 60 samples of 1013 calls.
-             Execution time mean : 996.111001 µs
-    Execution time std-deviation : 3.797718 µs
-   Execution time lower quantile : 991.309931 µs ( 2.5%)
-   Execution time upper quantile : 1.000641 ms (97.5%)
-                   Overhead used : 8.800242 ns
+Evaluation count : 69720 in 60 samples of 1162 calls.
+             Execution time mean : 866.309455 µs
+    Execution time std-deviation : 4.715378 µs
+   Execution time lower quantile : 861.335762 µs ( 2.5%)
+   Execution time upper quantile : 874.565946 µs (97.5%)
+                   Overhead used : 8.799215 ns
 
 Found 2 outliers in 60 samples (3.3333 %)
 	low-severe	 1 (1.6667 %)
