@@ -282,18 +282,9 @@
   (when (attribute-key? k) ; Same rules as attribute keys.
     (when-some [v-frag (attribute-value-fragment v)]
       (let [k-frag (escape-attribute-value-fragment (name k))]
-        (if (pos? (.length sb)) ; Note: if not empty, appends space as prefix!
-          (.. sb
-              (append " ")
-              (append k-frag)
-              (append ": ")
-              (append v-frag)
-              (append ";"))
-          (.. sb
-              (append k-frag)
-              (append ": ")
-              (append v-frag)
-              (append ";"))))))
+        (if (pos? (.length sb)) ; If not empty, append a space as prefix.
+          (append-to-appendable sb " " k-frag ": " v-frag ";")
+          (append-to-appendable sb k-frag ": " v-frag ";")))))
   sb)
 
 (extend-protocol AttributeValueFragment
@@ -308,14 +299,14 @@
     (attribute-value-fragment (this)))
   java.util.Collection
   (attribute-value-fragment [this]
-    (let [sb (StringBuilder.)
+    (let [sb (StringBuilder. 64)
           xf (comp (keep attribute-value-fragment)
                    (interpose " "))
           _  (transduce xf append-to-appendable sb this)]
       (.toString sb)))
   java.util.Map
   (attribute-value-fragment [this]
-    (let [sb (StringBuilder.)
+    (let [sb (StringBuilder. 64)
           _  (reduce-kv join-attribute-value-fragment-kv sb this)]
       (.toString sb)))
   java.util.UUID
