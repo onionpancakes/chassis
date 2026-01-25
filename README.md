@@ -6,7 +6,7 @@ Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors to s
 
 * Highly optimized runtime serialization without macros. See [Performance](#performance).
 * Optional compiling macro for even more performance. See [Compiling Elements](#compiling-elements).
-* User defined custom elements. See [Alias Elements](#alias-elements).
+* User definable custom elements. See [Alias Elements](#alias-elements).
 
 # Release
 
@@ -33,8 +33,6 @@ dev.onionpancakes/chassis {:git/url "https://github.com/onionpancakes/chassis"
 
 # Example
 
-### Runtime HTML Serialization
-
 ```clojure
 (require '[dev.onionpancakes.chassis.core :as c])
 
@@ -46,7 +44,7 @@ dev.onionpancakes/chassis {:git/url "https://github.com/onionpancakes/chassis"
 
 (defn my-blog
   [data]
-  [c/doctype-html5 ; Raw string for <!DOCTYPE html>
+  [c/doctype-html5
    [:html
     [:head
      [:link {:href "/css/styles.css" :rel "stylesheet"}]
@@ -78,7 +76,7 @@ dev.onionpancakes/chassis {:git/url "https://github.com/onionpancakes/chassis"
 (defn my-blog-compiled
   [data]
   (cc/compile
-    [c/doctype-html5 ; Raw string for <!DOCTYPE html>
+    [c/doctype-html5
      [:html
       [:head
        [:link {:href "/css/styles.css" :rel "stylesheet"}]
@@ -462,7 +460,7 @@ Require the namespace.
 
 ## Compile Examples
 
-Slap a `cc/compile` wherever speed is needed! Then call `c/html` like normal to generate HTML.
+Place a `cc/compile` wherever speed is needed! Then call `c/html` like normal to generate HTML.
 
 ```clojure
 ;; In defs
@@ -758,9 +756,9 @@ Whether or not if this is a good idea is left to the user.
 #object[dev.onionpancakes.chassis.core.RawString 0x31b2d0a8 "<div><p>not-blocked</p></div>"]
 ```
 
-## Constant Global Vars are Inlined
+## Global Vars with Constant Values are Inlined
 
-Symbols of global vars with constant values are inlined when compiled. Constant types include `String`, `Long`, `IPersistentCollection` of constants, and `RawString` such as `c/doctype-html5` and `c/nbsp`. Use `cc/constant?` to check if values are constants.
+Global vars with constant values are inlined during compilation. Constant types include `String`, `Long`, `IPersistentCollection` of constants, and `RawString` such as `c/doctype-html5` and `c/nbsp`. Use `cc/constant?` to check if values are constants.
 
 ```clojure
 ;; Fully compacted!
@@ -771,7 +769,7 @@ Symbols of global vars with constant values are inlined when compiled. Constant 
 #object[dev.onionpancakes.chassis.core.RawString 0x7fb21735 "<div>foo&nbsp;bar</div>"]
 ```
 
-Vars with metadata ``{:dynamic true}`` or `{:redef true}` are not inlined. Mark with the respective metadata when working with dynamic or redefable vars.
+When working with dynamic and redefable vars, tag their metadata with `{:dynamic true}` or `{:redef true}`. Vars with those tags will not have their values inlined.
 
 ```clojure
 (def ^:redef redef-value "foo")
