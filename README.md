@@ -120,15 +120,15 @@ Maps in the second position are treated as attributes. Use **global keywords** t
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
+Strings are also accepted as attribute keys but are discouraged. Use them when keywords cannot encode the desired attribute name.
+
 ```clojure
-;; Strings also accepted, but discouraged.
-;; Use when keywords cannot encode the desired attribute name.
 (c/html [:div {"id" "my-id"} "foo"])
 
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
-The rest of the vector is treated as the element's content. They may be of any type including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
+The remaining items after the tag and attribute are treated as the element's content. They may be of any type including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
 
 ```clojure
 (c/html [:div {:id "my-id"}
@@ -149,24 +149,25 @@ Like Hiccup, id and class attributes can be specified along with the tag name us
 ;; "<div id=\"my-id\" class=\"my-class\">foo</div>"
 ```
 
+Multiple `.` classes concatenates as spaced string.
+
 ```clojure
-;; Multiple '.' classes concatenates
 (c/html [:div.my-class-1.my-class-2 "foo"])
 
 ;; "<div class=\"my-class-1 my-class-2\">foo</div>"
 ```
 
+Classes from `.` concatenates with classes under `:class` attribute key.
+
 ```clojure
-;; '.' classes concatenates with :class keyword
 (c/html [:div.my-class-1 {:class "my-class-2"} "foo"])
 
 ;; "<div class=\"my-class-1 my-class-2\">foo</div>"
 ```
 
+Only the first `#` determines the id. Extra `#` are uninterpreted.
 
 ```clojure
-;; First '#' determines the id.
-;; Extra '#' are uninterpreted.
 (c/html [:div## "foo"])
 
 ;; "<div id=\"#\">foo</div>"
@@ -176,24 +177,24 @@ Like Hiccup, id and class attributes can be specified along with the tag name us
 ;; "<div id=\"my-id\" class=\"my-class-1#not-id\">foo</div>"
 ```
 
-However there are differences from Hiccup.
+### Differences from Hiccup
+
+The id from `#` takes precedence over the `:id` keyword.
 
 ```clojure
-;; '#' id takes precedence over :id keyword
 (c/html [:div#my-id {:id "not-my-id"} "foo"])
 
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
+The `#` id can be placed before, after, or in-between `.` classes.
+
 ```clojure
-;; '#' id can be place anywhere
 (c/html [:div.my-class-1#my-id "foo"])
 
 ;; "<div id=\"my-id\" class=\"my-class-1\">foo</div>"
-```
 
-```clojure
-;; '#' id can be place in-between, but don't do this.
+;; Although allowed, placing the id in-between is discouraged.
 ;; It will be slightly slower.
 (c/html [:div.my-class-1#my-id.my-class-2 "foo"])
 
@@ -250,11 +251,11 @@ Attribute collections and maps arbitrarily nest.
 
 Avoid intermediate allocation by writing directly to [`java.lang.Appendable`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Appendable.html) using the `c/write-html` function.
 
-However, [`java.lang.StringBuilder`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/StringBuilder.html) is highly optimized and it may be faster to write to it (and then write the string out) than to write to the Appendable directly. Performance testing is advised.
+However, it may be faster to generate a HTML string with `c/html` and writing the string out. Performance testing is advised.
 
 ```clojure
-(let [out (get-appendable-from-somewhere)]
-  (c/write-html out [:div "foo"]))
+(with-open [out (java.io.PrintWriter. "index.html")]
+  (c/write-html out [c/doctype-html5 [:html "..."]]))
 ```
 
 ## Escapes
@@ -306,7 +307,6 @@ For performance, `java.lang.Number` and `java.util.UUID` are not escaped by defa
 Element tags and attribute keys are not escaped. Be careful when placing dangerous text in these positions.
 
 ```clojure
-;; uhoh
 (c/html [:<> "This is bad!"])
 
 ;; "<<>>This is bad!</<>>"
@@ -343,17 +343,15 @@ Only **global keywords** and **strings** are interpreted as attribute keys. Ever
 
 ## Alias Elements
 
-Alias elements are user defined elements. They resolve to other elements through the `c/resolve-alias` multimethod. They must begin with **namespaced keywords**.
+Alias elements are user-defined custom elements which resolve into other html values through the `c/resolve-alias` multimethod. To define an alias element, extend `c/resolve-alias` multimethod on a **namespaced keyword** and return the resolved result. The multimethod `c/resolve-alias` accepts three arguments:
 
-Define alias elements by extending `c/resolve-alias` multimethod on a namespaced keyword. It accepts the following 3 arguments of types:
+1. Tag keyword, used for the dispatch.
+2. Attributes map, or nil if the attributes map is absent.
+3. Content vector, possibly empty if there is no content.
 
-1. Tag keyword. Used for the dispatch.
-2. Attributes map or nil if attrs is absent.
-3. Content vector, possibly empty if no content.
+When implementing aliases, consider the following:
 
-When implementing aliases, consider the following points:
-
-* Because namespaced keywords are ignored as attributes, they can be used as arguments for alias elements.
+* Namespaced keywords are ignored as attributes. Use them as arguments for alias elements.
 * The attributes map will contain `#id` and `.class` merged from the element tag. Attributes can be inherited by placing the alias element's attribute map as the attribute map of a resolved element.
 * The content vector has metadata `{::c/content true}` to avoid being interpreted as an element.
 
@@ -364,17 +362,17 @@ When implementing aliases, consider the following points:
   [:div.layout attrs ; Inherit attributes from alias
    [:h1 title]
    [:main content]
-   [:footer "Some footer message."]])
+   [:footer "My footer!"]])
 
 (c/html [::Layout#blog.dark {::title "My title!"}
          [:p "My content!"]])
 
-;; "<div id=\"blog\" class=\"layout dark\"><h1>My title!</h1><main><p>My content!</p></main><footer>Some footer message.</footer></div>"
+;; "<div id=\"blog\" class=\"layout dark\"><h1>My title!</h1><main><p>My content!</p></main><footer>My footer!</footer></div>"
 ```
 
 ## Stateful Values
 
-Instances of `clojure.lang.IDeref` and `clojure.lang.Fn` are automatically dereferenced at serialization. Functions are invoked on their zero argument arity.
+Values of `clojure.lang.IDeref` and `clojure.lang.Fn` are dereferenced at serialization. Functions are invoked on their zero argument arity.
 
 Whether or not if this is a good idea is left to the user.
 
@@ -385,9 +383,7 @@ Whether or not if this is a good idea is left to the user.
 (c/html [:footer "My Company Inc " current-year])
 
 ;; "<footer>My Company Inc 2024</footer>"
-```
 
-```clojure
 (def delayed-thing
   (delay "delayed"))
 
@@ -419,9 +415,7 @@ Use `c/token-serializer` and `c/html-serializer` to access individual tokens and
 ;; [dev.onionpancakes.chassis.core.OpeningTag
 ;;  java.lang.String
 ;;  dev.onionpancakes.chassis.core.ClosingTag]
-```
 
-```clojure
 (->> (c/html-serializer [:div "foo"])
      (vec))
 
@@ -631,11 +625,10 @@ Type hint the second position with either `java.util.Map` or `clojure.lang.IPers
  #object[dev.onionpancakes.chassis.core.RawString 0x6314faa "</div>"]]
 ```
 
-Type hinting the argument or bindings also works.
+Type hinting the argument or binding also works.
 * Note: It doesn't show up correctly in a `macroexpand`, but it does works normally. This is because `cc/compile` examines the type hints from macro implied arg `&env`, and `macroexpand` for some reason doesn't capture `&env`.
 
 ```clojure
-;; Should work!
 (defmethod c/resolve-alias ::CompileWithAttrs
   [_ ^java.util.Map attrs content]
   (cc/compile [:div attrs content]))
