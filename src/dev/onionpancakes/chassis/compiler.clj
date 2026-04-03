@@ -28,6 +28,13 @@
 ;; Binding of macro &form.
 (def ^:dynamic *form*)
 
+(def ^:dynamic *warn-on-ambig-attrs*
+  "When set to true, the compiler will emit warnings when elements
+  with ambiguous attrs are compiled.
+
+  Defaults to false."
+  false)
+
 ;; Compile
 
 (defn compacted-form
@@ -391,26 +398,42 @@
 
 ;; Warn
 
+(def warn-on-ambig-attrs-msg-format
+  "Compiling element with ambiguous attrs.
+  Namespace: %s
+  Element: %s
+  Within form on line %s, column %s: %s\n\n")
+
+(defn print-warn-on-ambig-attrs-msg
+  [ns form elem]
+  (let [form-line (:line (meta form))
+        form-col  (:column (meta form))]
+    (binding [*out* *err*]
+      (printf warn-on-ambig-attrs-msg-format ns elem form-line form-col form))))
+
 (defn send-warn-on-ambig-attrs!
+  {:deprecated true}
   [form elem]
   (tap> {::warning :warn-on-ambig-attrs
          ::form    form
          ::elem    elem}))
 
-(defonce warn-on-ambig-attrs
+(defonce ^:deprecated warn-on-ambig-attrs
   (fn [{::keys [warning form elem]}]
     (if (identical? warning :warn-on-ambig-attrs)
       (binding [*out* *err*]
         (println "Compiling element with ambiguous attrs:" elem)
-        (println "Found within form:" (meta form))
-        (println form)
+        (println "Form metadata:" (meta form))
+        (println "Form:" form)
         (println)))))
 
 (defn set-warn-on-ambig-attrs! []
-  (add-tap warn-on-ambig-attrs))
+  #_(add-tap warn-on-ambig-attrs)
+  (alter-var-root #'*warn-on-ambig-attrs* (constantly true)))
 
 (defn unset-warn-on-ambig-attrs! []
-  (remove-tap warn-on-ambig-attrs))
+  #_(remove-tap warn-on-ambig-attrs)
+  (alter-var-root #'*warn-on-ambig-attrs* (constantly false)))
 
 ;; CompilableNode
 
@@ -504,8 +527,8 @@
     (if (attrs-absent? elem)
       (compilable-alias-element-children-attrs-absent elem)
       (do
-        (if (bound? #'*form*)
-          (send-warn-on-ambig-attrs! *form* elem))
+        (when (and *warn-on-ambig-attrs* (bound? #'*form*))
+          (print-warn-on-ambig-attrs-msg *ns* *form* elem))
         (compilable-alias-element-children-attrs-ambig elem)))))
 
 (defn compilable-element-children-attrs-present-evaluated
@@ -584,8 +607,8 @@
     (if (attrs-absent? elem)
       (compilable-element-children-attrs-absent elem)
       (do
-        (if (bound? #'*form*)
-          (send-warn-on-ambig-attrs! *form* elem))
+        (when (and *warn-on-ambig-attrs* (bound? #'*form*))
+          (print-warn-on-ambig-attrs-msg *ns* *form* elem))
         (compilable-element-children-attrs-ambig elem)))))
 
 (defn compilable-vector-children
