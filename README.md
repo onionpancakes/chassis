@@ -13,12 +13,11 @@ Renders [Hiccup](https://github.com/weavejester/hiccup/) style HTML vectors, fea
 [![Clojars Project](https://img.shields.io/clojars/v/dev.onionpancakes/chassis.svg)](https://clojars.org/dev.onionpancakes/chassis)
 [![Run tests](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml/badge.svg)](https://github.com/onionpancakes/chassis/actions/workflows/run_tests.yml)
 
-Public release.
+Publicly released.
 
-Add one of these deployments to `deps.edn`.
+Add one of these releases to `deps.edn`.
 
 ### Clojars
-
 
 ```clojure
 dev.onionpancakes/chassis {:mvn/version "1.0.365"}
@@ -60,7 +59,7 @@ dev.onionpancakes/chassis {:git/url "https://github.com/onionpancakes/chassis"
 ;; "<!DOCTYPE html><html><head><link href=\"/css/styles.css\" rel=\"stylesheet\"><title>My Blog</title></head><body><h1>My Blog</h1><div id=\"1\"><h2 class=\"title\">foo</h2><p class=\"content\">bar</p></div></body></html>"
 ```
 
-### Compiled HTML Serialization
+### Compiled Example
 
 ```clojure
 (require '[dev.onionpancakes.chassis.core :as c])
@@ -128,7 +127,7 @@ Strings are also accepted as attribute keys but are discouraged. Use them when k
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
-The remaining items after the tag and attribute are treated as the element's content. They may be of any type including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
+The remaining items after the tag and attribute are treated as the element's content. They may be of any type, including other elements. Sequences, eductions, and [non-element vectors](#non-element-vectors) are logically flattened with the rest of the content.
 
 ```clojure
 (c/html [:div {:id "my-id"}
@@ -141,7 +140,7 @@ The remaining items after the tag and attribute are treated as the element's con
 
 ## Id and Class Sugar
 
-Like Hiccup, id and class attributes can be specified along with the tag name using css style `#` and `.` syntax.
+Like Hiccup, id and class attributes can be specified along with the tag name using CSS-style `#` and `.` syntax.
 
 ```clojure
 (c/html [:div#my-id.my-class "foo"])
@@ -157,7 +156,7 @@ Multiple `.` classes concatenates as spaced string.
 ;; "<div class=\"my-class-1 my-class-2\">foo</div>"
 ```
 
-Classes from `.` concatenates with classes under `:class` attribute key.
+Classes from `.` concatenates with classes from `:class` attribute key.
 
 ```clojure
 (c/html [:div.my-class-1 {:class "my-class-2"} "foo"])
@@ -187,7 +186,7 @@ The id from `#` takes precedence over the `:id` keyword.
 ;; "<div id=\"my-id\">foo</div>"
 ```
 
-The `#` id can be placed before, after, or in-between `.` classes.
+The `#` id can be placed before, after, or between `.` classes.
 
 ```clojure
 (c/html [:div.my-class-1#my-id "foo"])
@@ -254,8 +253,8 @@ Avoid intermediate allocation by writing directly to [`java.lang.Appendable`](ht
 However, it may be faster to generate a HTML string with `c/html` and writing the string out. Performance testing is advised.
 
 ```clojure
-(with-open [out (java.io.PrintWriter. "index.html")]
-  (c/write-html out [c/doctype-html5 [:html "..."]]))
+(with-open [wtr (java.io.PrintWriter. "index.html")]
+  (c/write-html wtr [c/doctype-html5 [:html "..."]]))
 ```
 
 ## Escapes
@@ -374,7 +373,7 @@ When implementing aliases, consider the following:
 
 Values of `clojure.lang.IDeref` and `clojure.lang.Fn` are dereferenced at serialization. Functions are invoked on their zero argument arity.
 
-Whether or not if this is a good idea is left to the user.
+whether or not this is a good idea is left to the user.
 
 ```clojure
 (defn current-year []
@@ -484,7 +483,7 @@ Place a `cc/compile` wherever speed is needed! Then call `c/html` like normal to
 
 ## Compile Usage
 
-Chassis provides compiling macros `cc/compile` and `cc/compile*`. They take **one** argument, the root HTML tree, and they return compiled versions of the HTML tree. Use them to compile elements and pass their results to `c/html`.
+Chassis provides compiling macros `cc/compile` and `cc/compile*`. They take **one** argument (the root HTML tree) and return compiled versions of that tree. Use them to compile elements and pass their results to `c/html`.
 
 ```clojure
 (defn my-element []
@@ -565,7 +564,7 @@ A small but subtle difference between `cc/compile` and `c/html` is that `cc/comp
 
 ## Ambiguous Attributes Produce Speed Bumps
 
-Ambiguous objects in the second position forces the compiler to emit checks which examine the potential attributes map at runtime.
+Ambiguous objects in the second position force the compiler to emit checks which examine the potential attributes map at runtime.
 
 ```clojure
 (let [data {:body "foo"}]
@@ -747,7 +746,7 @@ Macros are expanded during compilation. Like function calls, those which expand 
 
 Macros which expand into non-lists can participate in compilation. Therefore, it is possible to use macros to abstract element components in a compile friendly way.
 
-Whether or not if this is a good idea is left to the user.
+whether or not this is a good idea is left to the user.
 
 ```clojure
 (defmacro NonBlockingElement
@@ -790,7 +789,7 @@ When working with dynamic and redefable vars, tag their metadata with `{:dynamic
 
 ## Runtime Compilation
 
-Chassis provides two analogous compile functions, `cc/compile-node` and `cc/compile-node*`, for compiling HTML tree at runtime. They are useful for compiling static HTML pages or components.
+Chassis provides two analogous compile functions, `cc/compile-node` and `cc/compile-node*`, for compiling HTML trees at runtime. They are useful for compiling static HTML pages or components.
 
 Because compiling happens at runtime, lists, function calls, and alias elements are no longer compilation barriers and ambiguous attributes are not possible.
 
@@ -825,88 +824,88 @@ Runtime compilation is similar to generating HTML with `c/html` but with key dif
 
 # Performance
 
-At this time, benchmarks shows Chassis to be 2x faster (and often more!) when compared to other Clojure HTML templating libraries on equivalent benchmark examples.
+At this time, benchmarks show Chassis to be 2x faster (and often more!) when compared to other Clojure HTML templating libraries on equivalent benchmark examples.
 
 See bench results in the resource folder.
 
 ```clojure
 $ clj -M:dev
-Clojure 1.11.1
+Clojure 1.11.4
 
 ;; Chassis
 
 user=> (quick-bench (chassis-page data-mid))
-Evaluation count : 2712 in 6 samples of 452 calls.
-             Execution time mean : 229.730870 µs
-    Execution time std-deviation : 7.583674 µs
-   Execution time lower quantile : 221.593639 µs ( 2.5%)
-   Execution time upper quantile : 237.951723 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 3120 in 6 samples of 520 calls.
+             Execution time mean : 205.774896 µs
+    Execution time std-deviation : 9.114699 µs
+   Execution time lower quantile : 196.591762 µs ( 2.5%)
+   Execution time upper quantile : 217.515897 µs (97.5%)
+                   Overhead used : 8.983078 ns
 nil
 user=> (quick-bench (chassis-page-compiled data-mid))
-Evaluation count : 4722 in 6 samples of 787 calls.
-             Execution time mean : 131.554387 µs
-    Execution time std-deviation : 4.400562 µs
-   Execution time lower quantile : 127.024648 µs ( 2.5%)
-   Execution time upper quantile : 137.206151 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 5226 in 6 samples of 871 calls.
+             Execution time mean : 118.940027 µs
+    Execution time std-deviation : 5.664333 µs
+   Execution time lower quantile : 114.117279 µs ( 2.5%)
+   Execution time upper quantile : 126.567886 µs (97.5%)
+                   Overhead used : 8.983078 ns
 nil
 user=> (quick-bench (chassis-page-compiled-unambig data-mid))
-Evaluation count : 6186 in 6 samples of 1031 calls.
-             Execution time mean : 100.309952 µs
-    Execution time std-deviation : 3.392984 µs
-   Execution time lower quantile : 98.074419 µs ( 2.5%)
-   Execution time upper quantile : 105.031335 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 6234 in 6 samples of 1039 calls.
+             Execution time mean : 97.997419 µs
+    Execution time std-deviation : 1.567155 µs
+   Execution time lower quantile : 95.964663 µs ( 2.5%)
+   Execution time upper quantile : 99.920625 µs (97.5%)
+                   Overhead used : 8.983078 ns
 nil
 
 ;; Hiccup
 
 user=> (quick-bench (hiccup-page data-mid))
-Evaluation count : 990 in 6 samples of 165 calls.
-             Execution time mean : 615.536499 µs
-    Execution time std-deviation : 15.886454 µs
-   Execution time lower quantile : 599.567903 µs ( 2.5%)
-   Execution time upper quantile : 637.703394 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 1170 in 6 samples of 195 calls.
+             Execution time mean : 531.419591 µs
+    Execution time std-deviation : 14.410995 µs
+   Execution time lower quantile : 515.448744 µs ( 2.5%)
+   Execution time upper quantile : 550.120965 µs (97.5%)
+                   Overhead used : 8.965603 ns
 nil
 user=> (quick-bench (hiccup-page-compiled data-mid))
-Evaluation count : 1044 in 6 samples of 174 calls.
-             Execution time mean : 594.160734 µs
-    Execution time std-deviation : 15.249740 µs
-   Execution time lower quantile : 576.246477 µs ( 2.5%)
-   Execution time upper quantile : 611.946104 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 1068 in 6 samples of 178 calls.
+             Execution time mean : 570.045294 µs
+    Execution time std-deviation : 28.757948 µs
+   Execution time lower quantile : 547.573034 µs ( 2.5%)
+   Execution time upper quantile : 611.839522 µs (97.5%)
+                   Overhead used : 8.965603 ns
 nil
 user=> (quick-bench (hiccup-page-compiled-unambig data-mid))
-Evaluation count : 2544 in 6 samples of 424 calls.
-             Execution time mean : 246.390352 µs
-    Execution time std-deviation : 6.001164 µs
-   Execution time lower quantile : 240.872342 µs ( 2.5%)
-   Execution time upper quantile : 255.422063 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 2838 in 6 samples of 473 calls.
+             Execution time mean : 225.850623 µs
+    Execution time std-deviation : 7.225776 µs
+   Execution time lower quantile : 217.680683 µs ( 2.5%)
+   Execution time upper quantile : 234.395871 µs (97.5%)
+                   Overhead used : 8.965603 ns
 nil
 
 ;; Selmer
 
 user=> (quick-bench (selmer-page data-mid))
-Evaluation count : 1428 in 6 samples of 238 calls.
-             Execution time mean : 455.954085 µs
-    Execution time std-deviation : 14.867158 µs
-   Execution time lower quantile : 443.374807 µs ( 2.5%)
-   Execution time upper quantile : 478.302764 µs (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 1668 in 6 samples of 278 calls.
+             Execution time mean : 367.974934 µs
+    Execution time std-deviation : 14.613037 µs
+   Execution time lower quantile : 355.655701 µs ( 2.5%)
+   Execution time upper quantile : 385.634011 µs (97.5%)
+                   Overhead used : 8.965603 ns
 nil
 
 ;; Enlive
 
 user=> (quick-bench (enlive-page-item-html data-mid))
-Evaluation count : 282 in 6 samples of 47 calls.
-             Execution time mean : 2.254892 ms
-    Execution time std-deviation : 83.779038 µs
-   Execution time lower quantile : 2.156587 ms ( 2.5%)
-   Execution time upper quantile : 2.341325 ms (97.5%)
-                   Overhead used : 8.800684 ns
+Evaluation count : 384 in 6 samples of 64 calls.
+             Execution time mean : 1.611336 ms
+    Execution time std-deviation : 49.595954 µs
+   Execution time lower quantile : 1.573138 ms ( 2.5%)
+   Execution time upper quantile : 1.669627 ms (97.5%)
+                   Overhead used : 8.965603 ns
 nil
 ```
 
